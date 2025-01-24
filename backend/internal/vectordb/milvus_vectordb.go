@@ -3,7 +3,7 @@ package vectordb
 import (
 	"context"
 	"fmt"
-	"strings"
+	"log"
 
 	"github.com/milvus-io/milvus-sdk-go/v2/client"
 	"github.com/milvus-io/milvus-sdk-go/v2/entity"
@@ -16,15 +16,19 @@ type MilvusDB struct {
 	password   string
 	collection string
 	dim        int
+	nlist      int
+	nprobe     int
 }
 
-func NewMilvusDB(uri, username, password, collection string, dim int) *MilvusDB {
+func NewMilvusDB(uri, username, password, collection string, dim, nlist, nprobe int) *MilvusDB {
 	return &MilvusDB{
 		uri:        uri,
 		username:   username,
 		password:   password,
 		collection: collection,
 		dim:        dim,
+		nlist:      nlist,
+		nprobe:     nprobe,
 	}
 }
 
@@ -68,18 +72,12 @@ func (z *MilvusDB) Connect() error {
 						"dim": fmt.Sprintf("%d", z.dim),
 					},
 				},
-				{Name: "text", DataType: entity.FieldTypeString},
-				{Name: "user_id", DataType: entity.FieldTypeString},
-
-				// TODO:  Store metadata in psql db
-
-				// {Name: "source_id", DataType: entity.FieldTypeString},
-				// {Name: "source_type", DataType: entity.FieldTypeString},
-				// {Name: "source_metadata", DataType: entity.FieldTypeJSON},
-				// {Name: "chunk_index", DataType: entity.FieldTypeInt32},
-				// {Name: "chunk_token_count", DataType: entity.FieldTypeInt32},
-				// {Name: "created_at", DataType: entity.FieldTypeString},
-				// {Name: "last_updated_at", DataType: entity.FieldTypeString},
+				{
+					Name: "user_id", DataType: entity.FieldTypeVarChar,
+					TypeParams: map[string]string{
+						"max_length": "256",
+					},
+				},
 			},
 		}
 		err := z.client.CreateCollection(ctx, schema, 0)
@@ -92,10 +90,11 @@ func (z *MilvusDB) Connect() error {
 		// one of the indexing method in Milvus for efficient vector similarity search
 		// for more info visit https://milvus.io/docs/index.md#Indexes-supported-in-Milvus
 		// entity.COSINE -> Distance metric (Cosine similarity)
-		// 1024 -> Number of cluster
+		// nlist -> Number of cluster / cells
 		// More cluster : Faster search with less accuracy,
 		// Less Clusters : Slower search but potentially more accurate
-		idx, err := entity.NewIndexIvfFlat(entity.COSINE, 1024)
+		// Recommended nlist value: √n or 4 * √(n) where n is the approx total number of vectors
+		idx, err := entity.NewIndexIvfFlat(entity.COSINE, z.nlist)
 		if err != nil {
 			return err
 		}
@@ -118,13 +117,17 @@ func (z *MilvusDB) Connect() error {
 func (z *MilvusDB) InsertEmbedding(id, text, userId string, vector []float32) error {
 	ctx := context.Background()
 
+	if len(vector) != z.dim {
+		return fmt.Errorf("vector dimension mismatch: expected %d, got %d", z.dim, len(vector))
+	}
+
 	ids := []string{id}
 	vectors := [][]float32{vector}
 
 	idColumn := entity.NewColumnVarChar("id", ids)
 	vectorColumn := entity.NewColumnFloatVector("vector", z.dim, vectors)
-	textColumn := entity.NewColumnString("text", []string{text})
-	userIdColumn := entity.NewColumnString("user_id", []string{userId})
+	textColumn := entity.NewColumnVarChar("text", []string{text})
+	userIdColumn := entity.NewColumnVarChar("user_id", []string{userId})
 
 	_, err := z.client.Insert(ctx, z.collection, "", idColumn, vectorColumn, textColumn, userIdColumn)
 	if err != nil {
@@ -142,17 +145,22 @@ type VectorSearchResults struct {
 }
 
 func (z *MilvusDB) SearchSimilarEmbeddings(query []float32, k int, userId string) ([]VectorSearchResults, error) {
+	if len(query) != z.dim {
+		return nil, fmt.Errorf("query vector dimension mismatch: expected %d, got %d", z.dim, len(query))
+	}
 	ctx := context.Background()
 
 	// nprobe is a search param for IVF indexes that determines how many clusters (cells) to search during a query
+	// nprobe must be less than or equal to nlist
 	// Higher nprobe: Better search accuracy, Slower search speed, More resource usage
 	// Lower nprobe: Faster search speed, Less resource usage, Lower search accuracy
-	sp, err := entity.NewIndexIvfFlatSearchParam(10)
+	sp, err := entity.NewIndexIvfFlatSearchParam(z.nprobe)
 	if err != nil {
 		return nil, err
 	}
 
-	expr := fmt.Sprintf("user_id = '%s'", strings.ReplaceAll(userId, "'", "''"))
+	expr := fmt.Sprintf("user_id == \"%s\"", userId)
+	log.Println("Expression: ", expr)
 
 	// sp (searchParam) parameter defines how the search is performed particularly for index-specific search optimizations
 	searchResults, err := z.client.Search(
