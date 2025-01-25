@@ -2,90 +2,140 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"log"
-	"math/rand"
+	"net/http"
 	"os"
-	"strconv"
+	"time"
 
-	"github.com/google/generative-ai-go/genai"
-	"github.com/synntx/askmind/internal/embedding"
-	"github.com/synntx/askmind/internal/processing"
-	"github.com/synntx/askmind/internal/tools"
-	"github.com/synntx/askmind/internal/vectordb"
-	"google.golang.org/api/option"
+	"github.com/synntx/askmind/internal/db/postgres"
+	"github.com/synntx/askmind/internal/handlers"
+	"github.com/synntx/askmind/internal/service"
+	"go.uber.org/zap"
 )
 
 func main() {
-	filePath := "test.txt"
 
-	extractedText, err := processing.ProcessFile(filePath)
-	if err != nil {
-		fmt.Printf("Error processing file: %v\n", err)
-		return
-	}
+	logger, _ := zap.NewProduction()
+	defer logger.Sync()
 
-	toolRegistry := tools.NewToolRegistry()
-	toolRegistry.Register(&tools.SearchTool{})
+	dbURL := os.Getenv("DATABASE_URL")
+	pepper := os.Getenv("AUTH_PEPPER")
 
 	ctx := context.Background()
-	client, err := genai.NewClient(ctx, option.WithAPIKey(os.Getenv("GEMINI_API_KEY")))
 
-	chunkedText := processing.ChunkText(extractedText, 1024)
+	db, _ := postgres.NewPostgresDB(ctx, dbURL, logger)
 
-	url := os.Getenv("MILVUSDB_URI")
-	username := os.Getenv("MILVUSDB_USERNAME")
-	password := os.Getenv("MILVUSDB_PASSWORD")
-	collection := "askmind_document_embeddings"
-	dim := 768
-	nlist := 1024
-	nprobe := 32
-	vectorDB := vectordb.NewMilvusDB(url, username, password, collection, dim, nlist, nprobe)
-	err = vectorDB.Connect()
-	if err != nil {
-		log.Fatalf("Error in connecting: %v", err)
+	authService := service.NewAuthService(db, pepper, logger)
+
+	authHandlers := handlers.NewAuthHandlers(authService, logger)
+
+	mux := http.NewServeMux()
+
+	mux.Handle("/auth/register", middlewareChain(
+		authHandlers.RegisterHandler,
+		requirePOST(logger),
+		contentTypeJSON,
+		recoverPanic(logger)))
+
+}
+
+func middlewareChain(h http.HandlerFunc, middlewares ...func(http.HandlerFunc) http.HandlerFunc) http.Handler {
+	for _, mw := range middlewares {
+		h = mw(h)
 	}
+	return h
+}
 
-	// --------- create embeddings and store in vector db --------- //
-	for _, chunk := range chunkedText {
-		res, err := embedding.Generate(client, ctx, chunk)
-		if err != nil {
-			fmt.Printf("Failed to generate embedding for chunk: %v\n", err)
-			continue
-		}
-		log.Println("Embeddings: ", res.Embedding.Values)
-		// save embeddings in vector db
-		randomId := strconv.Itoa(rand.Intn(1_00_000))
-		err = vectorDB.InsertEmbedding(randomId, chunk, "user_1", res.Embedding.Values)
-		if err != nil {
-			fmt.Printf("Failed to insert embedding (ID: %s): %v\n", randomId, err)
-			continue
-		}
+func contentTypeJSON(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		next(w, r)
+	}
+}
 
-		fmt.Printf("Successfully inserted chunk (ID: %s)\n", randomId)
-
-		testQuery := res.Embedding.Values
-		results, err := vectorDB.SearchSimilarEmbeddings(testQuery, 5, "user_1")
-		if err != nil {
-			fmt.Printf("Search failed: %v\n", err)
-			return
-		}
-
-		fmt.Println("\nSearch Results:")
-		for _, result := range results {
-			fmt.Printf("ID: %s | UserID: %s | Score: %.2f | Text: %s\n",
-				result.ID, result.UserId, result.Score, result.Text)
+func recoverPanic(logger *zap.Logger) func(http.HandlerFunc) http.HandlerFunc {
+	return func(next http.HandlerFunc) http.HandlerFunc {
+		return func(w http.ResponseWriter, r *http.Request) {
+			defer func() {
+				if err := recover(); err != nil {
+					logger.Error("Panic recovered",
+						zap.Any("error", err),
+						zap.String("path", r.URL.Path),
+					)
+					http.Error(w, `{"error":"Internal server error"}`, http.StatusInternalServerError)
+				}
+			}()
+			next(w, r)
 		}
 	}
+}
 
-	// -------------------------------------- LLM Response ------------------------------------------------ //
-	// simulate gemini response
-	prompt := fmt.Sprintf("Please summarize the following text:\n%s", extractedText)
-	response, err := processing.SimulateGemini(prompt)
-	if err != nil {
-		fmt.Printf("Error generating response: %v\n", err)
+func requirePOST(logger *zap.Logger) func(http.HandlerFunc) http.HandlerFunc {
+	return func(next http.HandlerFunc) http.HandlerFunc {
+		return func(w http.ResponseWriter, r *http.Request) {
+			if r.Method != http.MethodPost {
+				logger.Warn("Invalid method attempted",
+					zap.String("method", r.Method),
+					zap.String("path", r.URL.Path),
+				)
+				http.Error(w, `{"error":"Method not allowed"}`, http.StatusMethodNotAllowed)
+				return
+			}
+			next(w, r)
+		}
+	}
+}
+
+type responseWriter struct {
+	http.ResponseWriter
+	status      int
+	wroteHeader bool
+}
+
+func wrapResponseWriter(w http.ResponseWriter) *responseWriter {
+	return &responseWriter{ResponseWriter: w}
+}
+
+func (rw *responseWriter) Status() int {
+	return rw.status
+}
+
+func (rw *responseWriter) WriteHeader(code int) {
+	if rw.wroteHeader {
 		return
 	}
-	fmt.Println("\nSimulated Gemini Response:")
-	fmt.Println(response)
+
+	rw.status = code
+	rw.ResponseWriter.WriteHeader(code)
+	rw.wroteHeader = true
+
+	return
+}
+
+func LoggingMiddleware(logger *zap.Logger) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		fn := func(w http.ResponseWriter, r *http.Request) {
+			defer func() {
+				if err := recover(); err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					logger.Error("Panic recovered",
+						zap.Any("error", err),
+						zap.String("path", r.URL.Path),
+					)
+				}
+			}()
+
+			start := time.Now()
+			wrapped := wrapResponseWriter(w)
+			next.ServeHTTP(wrapped, r)
+
+			logger.Info("Request completed",
+				zap.String("path", r.URL.Path),
+				zap.String("method", r.Method),
+				zap.Int("status", wrapped.Status()),
+				zap.Duration("took", time.Since(start)),
+			)
+		}
+
+		return http.HandlerFunc(fn)
+	}
 }

@@ -10,13 +10,16 @@ type DB interface {
 	// User operations
 	CreateUser(ctx context.Context, user *models.User) error
 	GetUser(ctx context.Context, userId string) (*models.User, error)
-	UpdateUser(ctx context.Context, user *models.User) error
+	GetUserByEmail(ctx context.Context, email string) (*models.User, error)
+	UpdateName(ctx context.Context, userId string, name *models.UpdateName) error
+	UpdateEmail(ctx context.Context, userId string, email string) error
+	UpdatePassword(ctx context.Context, userId string, password string) error
 	DeleteUser(ctx context.Context, userId string) error
 
 	// Space operations
 	CreateSpace(ctx context.Context, space *models.Space) error
 	GetSpace(ctx context.Context, spaceId string) (*models.Space, error)
-	UpdateSpace(ctx context.Context, space *models.Space) error
+	UpdateSpace(ctx context.Context, space *models.UpdateSpace) error
 	DeleteSpace(ctx context.Context, spaceId string) error
 	ListSpacesForUser(ctx context.Context, userId string) ([]models.Space, error)
 
@@ -27,7 +30,7 @@ type DB interface {
 	DeleteSource(ctx context.Context, sourceId string) error
 	ListSourcesForSpace(ctx context.Context, spaceId string) ([]models.Source, error)
 
-	// Source operations
+	// Source chunk operations
 	CreateChunk(ctx context.Context, chunk *models.Chunk) error
 	CreateChunks(ctx context.Context, chunk []models.Chunk) error
 	GetChunk(ctx context.Context, chunkId string) (*models.Chunk, error)

@@ -33,7 +33,7 @@ const (
 
 type Source struct {
 	SourceId   string     `json:"source_id"`
-	UserId     string     `json:"user_id"`
+	SpaceId    string     `json:"space_id"`
 	SourceType SourceType `json:"source_type"`
 	Location   string     `json:"location;omitempty"` // url of the source destination
 	Metadata   string     `json:"metadata"`
@@ -62,9 +62,19 @@ type WebPageMetadata struct {
 
 type Chunk struct {
 	ChunkId         string `json:"chunk_id"`
-	UserId          string `json:"user_id"`
 	SourceId        string `json:"source_id"`
 	Text            string `json:"text"`
 	ChunkIndex      int32  `json:"chunk_index"`
 	ChunkTokenCount int32  `json:"chunk_token_count"`
+}
+
+type UpdateName struct {
+	FirstName *string `json:"first_name,omitempty"`
+	LastName  *string `json:"last_name,omitempty"`
+}
+
+type UpdateSpace struct {
+	SpaceId     string  `json:"space_id"` // required
+	Title       *string `json:"title,omitempty"`
+	Description *string `json:"description,omitempty"`
 }
