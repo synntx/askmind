@@ -33,7 +33,6 @@ func main() {
 	mux.Handle("/auth/register", middlewareChain(
 		authHandlers.RegisterHandler,
 		middleware.RequirePOST(logger),
-		middleware.ContentTypeJSON,
 		middleware.RecoverPanic(logger)))
 
 }
