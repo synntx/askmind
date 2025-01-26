@@ -2,7 +2,10 @@ package utils
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
+
+	"go.uber.org/zap"
 )
 
 type SuccessResponse struct {
@@ -32,14 +35,31 @@ func SendResponse(w http.ResponseWriter, status int, data interface{}, meta ...i
 	json.NewEncoder(w).Encode(response)
 }
 
-func SendError(w http.ResponseWriter, status int, errorCode string, message string) {
+func HandleError(w http.ResponseWriter, logger *zap.Logger, err error) {
+	var appErr AppError
+	if !errors.As(err, &appErr) {
+		appErr = ErrInternal
+	}
+
+	response := map[string]any{
+		"error": map[string]any{
+			"code":    appErr.Code,
+			"message": appErr.Message,
+		},
+	}
+
+	if len(appErr.Details) > 0 {
+		response["error"].(map[string]any)["details"] = appErr.Details
+	}
+
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(ErrorResponse{
-		Status:  status,
-		Message: message,
-		Code:    errorCode,
-	})
+	w.WriteHeader(appErr.HTTPStatus)
+	json.NewEncoder(w).Encode(response)
+
+	logger.Error("Request error",
+		zap.Error(err),
+		zap.Any("validation_errors", appErr.Details),
+	)
 }
 
 func SendNoContent(w http.ResponseWriter) {

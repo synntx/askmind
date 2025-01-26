@@ -1,56 +1,65 @@
 package utils
 
 import (
+	"fmt"
 	"net/http"
 )
 
-type Code string
+type AppError struct {
+	Code       string
+	Message    string
+	HTTPStatus int
+	Cause      error
+	Details    []ValidationError `json:"details,omitempty"`
+}
 
-const (
-	// Authentication
-	Unauthorized       Code = "unauthorized"
-	InvalidCredentials Code = "invalid_credentials"
+type ValidationError struct {
+	Field   string `json:"field"`
+	Message string `json:"message"`
+}
 
-	// Validation
-	InvalidUUID    Code = "invalid_uuid"
-	MissingField   Code = "missing_field"
-	InvalidRequest Code = "invalid_request"
+func (e AppError) WithDetails(details ...ValidationError) AppError {
+	return AppError{
+		Code:       e.Code,
+		Message:    e.Message,
+		HTTPStatus: e.HTTPStatus,
+		Cause:      e.Cause,
+		Details:    details,
+	}
+}
 
-	// Resources
-	UserNotFound Code = "user_not_found"
+func (e AppError) Error() string {
+	if e.Cause != nil {
+		return fmt.Sprintf("%s: %v", e.Code, e.Cause)
+	}
+	return e.Code
+}
+
+func (e AppError) Wrap(err error) AppError {
+	return AppError{
+		Code:       e.Code,
+		Message:    e.Message,
+		HTTPStatus: e.HTTPStatus,
+		Cause:      fmt.Errorf("%w: %v", e, err),
+	}
+}
+
+func (e AppError) Unwrap() error {
+	return e.Cause
+}
+
+var (
+	// auth
+	ErrUnauthorized = AppError{Code: "unauthorized", Message: "Authentication required", HTTPStatus: http.StatusUnauthorized}
+
+	// validation
+	ErrValidation = AppError{Code: "validation_failed", Message: "Invalid input", HTTPStatus: http.StatusBadRequest}
+
+	// database
+	ErrUserNotFound   = AppError{Code: "user_not_found", Message: "User not found", HTTPStatus: http.StatusNotFound}
+	ErrUniqueConflict = AppError{Code: "conflict", Message: "Resource already exists", HTTPStatus: http.StatusConflict}
+	ErrDatabase       = AppError{Code: "database_error", Message: "Database operation failed", HTTPStatus: http.StatusInternalServerError}
 
 	// System
-	InternalServerError Code = "internal_error"
-	DatabaseError       Code = "database_error"
-
-	// Others
-	UpdateEmailFailed Code = "update_email_failed"
+	ErrInternal = AppError{Code: "internal_error", Message: "Something went wrong", HTTPStatus: http.StatusInternalServerError}
 )
-
-func (c Code) HTTPStatus() int {
-	switch c {
-	case Unauthorized, InvalidCredentials:
-		return http.StatusUnauthorized
-	case InvalidUUID, MissingField, InvalidRequest:
-		return http.StatusBadRequest
-	case UserNotFound:
-		return http.StatusNotFound
-	default:
-		return http.StatusInternalServerError
-	}
-}
-
-func (c Code) Message() string {
-	switch c {
-	case Unauthorized:
-		return "unauthorized"
-	case InvalidCredentials:
-		return "invalid credentials"
-	case InvalidUUID, MissingField, InvalidRequest:
-		return "invalid request"
-	case UserNotFound:
-		return "user not found"
-	default:
-		return "internal server error"
-	}
-}

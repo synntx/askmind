@@ -15,24 +15,32 @@ type UserService interface {
 }
 
 func (a *authService) GetUser(ctx context.Context, userId string) (*models.User, error) {
-	return a.db.GetUser(ctx, userId)
+	user, err := a.db.GetUser(ctx, userId)
+	if err != nil {
+		return nil, fmt.Errorf("get user failed: %w", err)
+	}
+	return user, nil
 }
 
 func (a *authService) UpdateName(ctx context.Context, userId string, name *models.UpdateName) error {
-	// NOTE: validate user name if required
-	return a.db.UpdateName(ctx, userId, name)
+	if err := a.db.UpdateName(ctx, userId, name); err != nil {
+		return fmt.Errorf("update name failed: %w", err)
+	}
+	return nil
 }
 
 func (a *authService) UpdateEmail(ctx context.Context, userId, email string) error {
-	// NOTE: validate email if required
-	return a.db.UpdateEmail(ctx, userId, email)
+	if err := a.db.UpdateEmail(ctx, userId, email); err != nil {
+		return fmt.Errorf("update email failed: %w", err)
+	}
+	return nil
 }
 
 func (a *authService) DeleteUser(ctx context.Context, userId string) error {
-	// NOTE: --- business logic here ---
+	const operation = "authService.DeleteUser"
 	err := a.db.DeleteUser(ctx, userId)
 	if err != nil {
-		return fmt.Errorf("service error deleting user: %w", err)
+		return fmt.Errorf("%s: %w", operation, err)
 	}
 	return nil
 }

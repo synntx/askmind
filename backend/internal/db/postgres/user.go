@@ -5,7 +5,10 @@ import (
 	"errors"
 	"time"
 
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/synntx/askmind/internal/models"
+	"github.com/synntx/askmind/internal/utils"
 	"go.uber.org/zap"
 )
 
@@ -52,6 +55,14 @@ func (db *Postgres) GetUser(ctx context.Context, userId string) (*models.User, e
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
+
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, utils.ErrUserNotFound.Wrap(err)
+		}
+		return nil, utils.ErrDatabase.Wrap(err)
+	}
+
 	return &user, err
 }
 func (db *Postgres) GetUserByEmail(ctx context.Context, email string) (*models.User, error) {
@@ -78,7 +89,10 @@ func (db *Postgres) GetUserByEmail(ctx context.Context, email string) (*models.U
 func (db *Postgres) UpdateName(ctx context.Context, userId string, user *models.UpdateName) error {
 	sql := `UPDATE users SET first_name = $2, last_name = $3, updated_at = CURRENT_TIMESTAMP WHERE user_id = $1`
 	_, err := db.pool.Exec(ctx, sql, user.FirstName, user.LastName, userId)
-	return err
+	if err != nil {
+		return utils.ErrDatabase.Wrap(err)
+	}
+	return nil
 }
 
 func (db *Postgres) UpdateEmail(ctx context.Context, userId string, email string) error {
@@ -87,7 +101,19 @@ func (db *Postgres) UpdateEmail(ctx context.Context, userId string, email string
 	updated_at = CURRENT_TIMESTAMP
 	WHERE user_id = $1`
 	_, err := db.pool.Exec(ctx, sql, email, userId)
-	return err
+	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			switch pgErr.Code {
+			case "23505":
+				return utils.ErrUniqueConflict.Wrap(err)
+			case "23514":
+				return utils.ErrValidation.Wrap(err)
+			}
+		}
+		return utils.ErrDatabase.Wrap(err)
+	}
+	return nil
 }
 
 func (db *Postgres) UpdatePassword(ctx context.Context, userId string, password string) error {
@@ -114,7 +140,16 @@ func (db *Postgres) DeleteUser(ctx context.Context, userId string) error {
 	WHERE user_id = $1`
 	cmdTag, err := db.pool.Exec(ctx, sql, userId)
 	if err != nil {
-		return err
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			switch pgErr.Code {
+			case "23505":
+				return utils.ErrUniqueConflict.Wrap(err)
+			case "23503":
+				return utils.ErrValidation.Wrap(err)
+			}
+		}
+		return utils.ErrDatabase.Wrap(err)
 	}
 
 	if cmdTag.RowsAffected() == 0 {
