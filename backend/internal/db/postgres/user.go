@@ -83,6 +83,14 @@ func (db *Postgres) GetUserByEmail(ctx context.Context, email string) (*models.U
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
+
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, utils.ErrUserNotFound.Wrap(err)
+		}
+		return nil, utils.ErrDatabase.Wrap(err)
+	}
+
 	return &user, err
 }
 

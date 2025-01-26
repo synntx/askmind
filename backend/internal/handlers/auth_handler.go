@@ -75,7 +75,6 @@ func (h *AuthHandlers) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		zap.String("event", "register"),
 	).Info("User registered successfully")
 
-	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(AuthResponse{User: user})
 }
@@ -107,7 +106,6 @@ func (h *AuthHandlers) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		zap.String("event", "login"),
 	).Info("User logged in successfully")
 
-	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(AuthResponse{User: user})
 }
 
