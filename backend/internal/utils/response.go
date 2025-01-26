@@ -30,7 +30,6 @@ func SendResponse(w http.ResponseWriter, status int, data interface{}, meta ...i
 		response.Meta = meta[0]
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(response)
 }
@@ -52,7 +51,6 @@ func HandleError(w http.ResponseWriter, logger *zap.Logger, err error) {
 		response["error"].(map[string]any)["details"] = appErr.Details
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(appErr.HTTPStatus)
 	json.NewEncoder(w).Encode(response)
 
