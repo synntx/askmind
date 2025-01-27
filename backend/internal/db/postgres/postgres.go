@@ -45,52 +45,53 @@ func (db *Postgres) Close() {
 }
 
 const createSchema = `
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 CREATE TABLE IF NOT EXISTS users (
-    user_id TEXT PRIMARY KEY,
+    user_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     first_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
     space_limit INTEGER NOT NULL DEFAULT 10,
-    created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS spaces (
-    space_id TEXT PRIMARY KEY,
-    user_id TEXT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    space_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     title TEXT NOT NULL,
     description TEXT NOT NULL,
     source_limit INTEGER NOT NULL DEFAULT 50,
-    created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX IF NOT EXISTS spaces_user_idx ON spaces(user_id);
 
 CREATE TABLE IF NOT EXISTS sources (
-    source_id TEXT PRIMARY KEY,
-    space_id TEXT NOT NULL REFERENCES spaces(space_id) ON DELETE CASCADE,
+    source_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    space_id UUID NOT NULL REFERENCES spaces(space_id) ON DELETE CASCADE,
     source_type TEXT NOT NULL,
     location TEXT NOT NULL,
     metadata TEXT NOT NULL,
     text TEXT NOT NULL,
-    created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX IF NOT EXISTS sources_space_idx ON sources(space_id);
 
 CREATE TABLE IF NOT EXISTS chunks (
-    chunk_id TEXT PRIMARY KEY,
-    source_id TEXT NOT NULL REFERENCES sources(source_id) ON DELETE CASCADE,
+    chunk_id UUID PRIMARY KEY,
+    source_id UUID NOT NULL REFERENCES sources(source_id) ON DELETE CASCADE,
     text TEXT NOT NULL,
     chunk_index INTEGER NOT NULL,
     chunk_token_count INTEGER NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS chunks_source_idx ON chunks(source_id);
-`
+CREATE INDEX IF NOT EXISTS chunks_source_idx ON chunks(source_id);`
 
 func (db *Postgres) InitSchema(ctx context.Context) error {
 	_, err := db.pool.Exec(ctx, createSchema)
