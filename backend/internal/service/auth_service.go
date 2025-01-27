@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/synntx/askmind/internal/db"
 	"github.com/synntx/askmind/internal/models"
@@ -51,10 +50,6 @@ func (a *authService) Register(ctx context.Context, user *models.User) error {
 		return fmt.Errorf("password hashing failed: %w", err)
 	}
 	user.Password = string(hashedPassword)
-
-	now := time.Now().UTC()
-	user.CreatedAt = now
-	user.UpdatedAt = now
 
 	return a.db.CreateUser(ctx, user)
 }

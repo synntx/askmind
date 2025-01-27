@@ -20,11 +20,6 @@ type UserHandlers struct {
 	logger      *zap.Logger
 }
 
-// TODO: put constants in seprate constant file
-type contextKey = string
-
-const UserIdKey contextKey = "userId"
-
 type UpdateUserEmailRequest struct {
 	NewEmail string `json:"new_email" validate:"required,email"`
 }
@@ -34,22 +29,22 @@ func NewUserHandlers(userService service.UserService, logger *zap.Logger) *UserH
 }
 
 func (h *UserHandlers) GetUserHandler(w http.ResponseWriter, r *http.Request) {
-	userId, ok := r.Context().Value(UserIdKey).(string)
-	if !ok || userId == "" {
+	claims, ok := r.Context().Value(utils.ClaimsKey).(*utils.Claims)
+	if !ok || claims == nil {
 		utils.HandleError(w, h.logger, utils.ErrUnauthorized.Wrap(
-			fmt.Errorf("missing user ID in context"),
+			fmt.Errorf("missing Claims in context"),
 		))
 		return
 	}
 
-	user, err := h.userService.GetUser(r.Context(), userId)
+	user, err := h.userService.GetUser(r.Context(), claims.UserId)
 	if err != nil {
 		utils.HandleError(w, h.logger, err)
 		return
 	}
 
 	h.logger.Info("user_retrieved",
-		zap.String("user_id", userId),
+		zap.String("user_id", claims.UserId),
 		zap.String("event", "get_user"),
 	)
 
@@ -58,10 +53,10 @@ func (h *UserHandlers) GetUserHandler(w http.ResponseWriter, r *http.Request) {
 
 func (h *UserHandlers) UpdateNameHandler(w http.ResponseWriter, r *http.Request) {
 
-	userId, ok := r.Context().Value(UserIdKey).(string)
-	if !ok || userId == "" {
+	claims, ok := r.Context().Value(utils.ClaimsKey).(*utils.Claims)
+	if !ok || claims == nil {
 		utils.HandleError(w, h.logger, utils.ErrUnauthorized.Wrap(
-			fmt.Errorf("missing user ID in context"),
+			fmt.Errorf("missing Claims in context"),
 		))
 		return
 	}
@@ -82,14 +77,14 @@ func (h *UserHandlers) UpdateNameHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	err := h.userService.UpdateName(r.Context(), userId, &req)
+	err := h.userService.UpdateName(r.Context(), claims.UserId, &req)
 	if err != nil {
 		utils.HandleError(w, h.logger, err)
 		return
 	}
 
 	h.logger.Info("user_name_updated",
-		zap.String("user_id", userId),
+		zap.String("user_id", claims.UserId),
 		zap.Any("new_name", req),
 		zap.String("event", "update_name"),
 	)
@@ -99,10 +94,10 @@ func (h *UserHandlers) UpdateNameHandler(w http.ResponseWriter, r *http.Request)
 
 func (h *UserHandlers) UpdateEmailHandler(w http.ResponseWriter, r *http.Request) {
 
-	userId, ok := r.Context().Value(UserIdKey).(string)
-	if !ok || userId == "" {
+	claims, ok := r.Context().Value(utils.ClaimsKey).(*utils.Claims)
+	if !ok || claims == nil {
 		utils.HandleError(w, h.logger, utils.ErrUnauthorized.Wrap(
-			fmt.Errorf("missing user ID in context"),
+			fmt.Errorf("missing Claims in context"),
 		))
 		return
 	}
@@ -120,14 +115,14 @@ func (h *UserHandlers) UpdateEmailHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	err := h.userService.UpdateEmail(r.Context(), userId, req.NewEmail)
+	err := h.userService.UpdateEmail(r.Context(), claims.UserId, req.NewEmail)
 	if err != nil {
 		utils.HandleError(w, h.logger, err)
 		return
 	}
 
 	h.logger.Info("user_email_updated",
-		zap.String("user_id", userId),
+		zap.String("user_id", claims.UserId),
 		zap.String("event", "update_email"),
 	)
 
@@ -136,16 +131,16 @@ func (h *UserHandlers) UpdateEmailHandler(w http.ResponseWriter, r *http.Request
 
 func (h *UserHandlers) DeleteUserHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userId, ok := ctx.Value(UserIdKey).(string)
+	claims, ok := ctx.Value(utils.ClaimsKey).(*utils.Claims)
 
-	if !ok || userId == "" {
+	if !ok || claims == nil {
 		utils.HandleError(w, h.logger, utils.ErrUnauthorized.Wrap(
-			fmt.Errorf("missing user ID in context"),
+			fmt.Errorf("missing Claims in context"),
 		))
 		return
 	}
 
-	err := h.userService.DeleteUser(ctx, userId)
+	err := h.userService.DeleteUser(ctx, claims.UserId)
 	if err != nil {
 		utils.HandleError(w, h.logger, err)
 		return
@@ -153,7 +148,7 @@ func (h *UserHandlers) DeleteUserHandler(w http.ResponseWriter, r *http.Request)
 
 	h.logger.Info(
 		"user_deleted",
-		zap.String("user_id", userId),
+		zap.String("user_id", claims.UserId),
 		zap.String("operation", "DeleteUserHandler"),
 	)
 

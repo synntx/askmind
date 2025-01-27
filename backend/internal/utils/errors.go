@@ -50,7 +50,9 @@ func (e AppError) Unwrap() error {
 
 var (
 	// auth
-	ErrUnauthorized = AppError{Code: "unauthorized", Message: "Authentication required", HTTPStatus: http.StatusUnauthorized}
+	ErrUnauthorized       = AppError{Code: "unauthorized", Message: "Authentication required", HTTPStatus: http.StatusUnauthorized}
+	ErrEmailExists        = AppError{Code: "email_already_exists", Message: "Email Already exists", HTTPStatus: http.StatusConflict}
+	ErrInvalidCredentials = AppError{Code: "invalid_credentials", Message: "Invalid Credentials", HTTPStatus: http.StatusUnauthorized}
 
 	// validation
 	ErrValidation = AppError{Code: "validation_failed", Message: "Invalid input", HTTPStatus: http.StatusBadRequest}
