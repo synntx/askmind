@@ -19,12 +19,11 @@ var (
 func (db *Postgres) CreateUser(ctx context.Context, user *models.User) error {
 	sql := `
 	INSERT INTO users (
-		user_id, first_name, last_name, email, password,
+		first_name, last_name, email, password,
 		space_limit, created_at, updated_at
-	) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
+	) VALUES ($1, $2, $3, $4, $5, $6, $7)`
 
 	_, err := db.pool.Exec(ctx, sql,
-		user.UserId,
 		user.FirstName,
 		user.LastName,
 		user.Email,
@@ -96,7 +95,7 @@ func (db *Postgres) GetUserByEmail(ctx context.Context, email string) (*models.U
 
 func (db *Postgres) UpdateName(ctx context.Context, userId string, user *models.UpdateName) error {
 	sql := `UPDATE users SET first_name = $2, last_name = $3, updated_at = CURRENT_TIMESTAMP WHERE user_id = $1`
-	_, err := db.pool.Exec(ctx, sql, user.FirstName, user.LastName, userId)
+	_, err := db.pool.Exec(ctx, sql, userId, user.FirstName, user.LastName)
 	if err != nil {
 		return utils.ErrDatabase.Wrap(err)
 	}
@@ -108,7 +107,7 @@ func (db *Postgres) UpdateEmail(ctx context.Context, userId string, email string
 	SET email = $2,
 	updated_at = CURRENT_TIMESTAMP
 	WHERE user_id = $1`
-	_, err := db.pool.Exec(ctx, sql, email, userId)
+	_, err := db.pool.Exec(ctx, sql, userId, email)
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
@@ -129,7 +128,7 @@ func (db *Postgres) UpdatePassword(ctx context.Context, userId string, password 
 	SET password = $2,
 	updated_at = CURRENT_TIMESTAMP
 	WHERE user_id = $1`
-	_, err := db.pool.Exec(ctx, sql, password, userId)
+	_, err := db.pool.Exec(ctx, sql, userId, password)
 	return err
 }
 

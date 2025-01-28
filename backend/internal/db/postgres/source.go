@@ -50,30 +50,45 @@ func (db *Postgres) CreateChunks(ctx context.Context, chunks []models.Chunk) err
 }
 
 func (db *Postgres) GetSource(ctx context.Context, sourceId string) (*models.Source, error) {
-	return nil, nil
-}
-func (db *Postgres) UpdateSource(ctx context.Context, source *models.Source) error {
-	return nil
-}
-func (db *Postgres) DeleteSource(ctx context.Context, sourceId string) error {
-	return nil
-}
-func (db *Postgres) ListSourcesForSpace(ctx context.Context, spaceId string) ([]models.Source, error) {
-	return nil, nil
+	sql := `SELECT * FROM sources WHERE source_id = $1`
+	var source models.Source
+	err := db.pool.QueryRow(ctx, sql, sourceId).Scan(&source)
+	return &source, err
 }
 
-func (db *Postgres) CreateChunk(ctx context.Context, chunk *models.Chunk) error {
-	return nil
+func (db *Postgres) UpdateSource(ctx context.Context, source *models.Source) error {
+	sql := `UPDATE sources
+	SET source_type = $2,location = $3,metadata = $4,
+	text = $5,updated_at = NOW() WHERE source_id = $1`
+	_, err := db.pool.Exec(ctx, sql, source.SourceId, source.SourceType, source.Location, source.Metadata, source.Text)
+	return err
 }
-func (db *Postgres) GetChunk(ctx context.Context, chunkId string) (*models.Chunk, error) {
+
+func (db *Postgres) DeleteSource(ctx context.Context, sourceId string) error {
+	sql := `DELETE FROM sources WHERE source_id = $1`
+	_, err := db.pool.Exec(ctx, sql, sourceId)
+	return err
+}
+
+func (db *Postgres) ListSourcesForSpace(ctx context.Context, spaceId string) ([]models.Source, error) {
+	sql := `SELECT * FROM sources WHERE space_id = $1`
+	rows, err := db.pool.Query(ctx, sql, spaceId)
+	var sources []models.Source
+
+	for rows.Next() {
+		var source models.Source
+		err := rows.Scan(&source)
+		if err != nil {
+			return nil, err
+		}
+		sources = append(sources, source)
+	}
+	return sources, err
+}
+
+func (db *Postgres) FindSimilarChunks(ctx context.Context, userId string, embedding []float32, limit int) ([]models.Chunk, error) {
 	return nil, nil
 }
-func (db *Postgres) GetChunks(ctx context.Context, chunkIds []string) ([]models.Chunk, error) {
+func (db *Postgres) FindSimilarChunksInSpace(ctx context.Context, spaceId string, embedding []float32, limit int) ([]models.Chunk, error) {
 	return nil, nil
-}
-func (db *Postgres) DeleteChunk(ctx context.Context, chunkId string) error {
-	return nil
-}
-func (db *Postgres) DeleteChunks(ctx context.Context, chunkIds []string) error {
-	return nil
 }

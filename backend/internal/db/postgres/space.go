@@ -59,11 +59,20 @@ func (db *Postgres) ListSpacesForUser(ctx context.Context, userId string) ([]mod
 }
 
 func (db *Postgres) GetSpace(ctx context.Context, spaceId string) (*models.Space, error) {
-	return nil, nil
+	sql := `SELECT * FROM spaces WHERE space_id = $1`
+	var space models.Space
+	err := db.pool.QueryRow(ctx, sql, spaceId).Scan(&space)
+	return &space, err
 }
 func (db *Postgres) UpdateSpace(ctx context.Context, space *models.UpdateSpace) error {
-	return nil
+	sql := `UPDATE spaces
+	SET title = $2, description = $3,
+	updated_at = NOW() WHERE space_id = $1`
+	_, err := db.pool.Exec(ctx, sql, space.SpaceId, space.Title, space.Description)
+	return err
 }
 func (db *Postgres) DeleteSpace(ctx context.Context, spaceId string) error {
-	return nil
+	sql := `DELETE FROM spaces WHERE space_id = $1`
+	_, err := db.pool.Exec(ctx, sql, spaceId)
+	return err
 }

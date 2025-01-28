@@ -1,9 +1,15 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
+
+type JSONB map[string]interface{}
 
 type User struct {
-	UserId     string    `json:"user_id"`
+	UserId     uuid.UUID `json:"user_id"`
 	FirstName  string    `json:"first_name"`
 	LastName   string    `json:"last_name"`
 	Email      string    `json:"email"`
@@ -14,8 +20,8 @@ type User struct {
 }
 
 type Space struct {
-	SpaceId     string    `json:"space_id"`
-	UserId      string    `json:"user_id"`
+	SpaceId     uuid.UUID `json:"space_id"`
+	UserId      uuid.UUID `json:"user_id"`
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
 	SourceLimit int       `json:"source_limit"`
@@ -26,46 +32,83 @@ type Space struct {
 type SourceType string
 
 const (
-	SourceTypeDocument SourceType = "document"
-	SourceTypeYouTube  SourceType = "youtube"
-	SourceTypeWebPage  SourceType = "webpage"
+	SourceTypeWebPage SourceType = "webpage"
 )
 
 type Source struct {
-	SourceId   string     `json:"source_id"`
-	SpaceId    string     `json:"space_id"`
+	SourceId   uuid.UUID  `json:"source_id"`
+	SpaceId    uuid.UUID  `json:"space_id"`
 	SourceType SourceType `json:"source_type"`
-	Location   string     `json:"location;omitempty"` // url of the source destination
-	Metadata   string     `json:"metadata"`
-	Text       string     `json:"text"` // WARN: not sure should I save or not complete extracted text
+	Location   string     `json:"location"`
+	Metadata   JSONB      `json:"metadata"`
+	Text       string     `json:"text"`
 	CreatedAt  time.Time  `json:"created_at"`
 	UpdatedAt  time.Time  `json:"updated_at"`
 }
 
-type DocumentMetadata struct {
-	Filename  string `json:"filename"`
-	FileSize  int64  `json:"file_size"`
-	PageCount int    `json:"page_count"`
-}
-
-type YouTubeMetadata struct {
-	VideoTitle    string `json:"video_title"`
-	ChannelName   string `json:"channel_name"`
-	VideoDuration string `json:"video_duration"`
-}
-
 type WebPageMetadata struct {
-	PageTitle       string `json:"page_title"`
-	WebsiteName     string `json:"website_name"`
-	MetaDescription string `json:"meta_description"`
+	PageTitle       string    `json:"page_title"`
+	WebsiteName     string    `json:"website_name"`
+	MetaDescription string    `json:"meta_description"`
+	FaviconURL      string    `json:"favicon_url"`
+	ScrapedAt       time.Time `json:"scraped_at"`
 }
 
 type Chunk struct {
-	ChunkId         string `json:"chunk_id"`
-	SourceId        string `json:"source_id"`
-	Text            string `json:"text"`
-	ChunkIndex      int32  `json:"chunk_index"`
-	ChunkTokenCount int32  `json:"chunk_token_count"`
+	ChunkId         uuid.UUID `json:"chunk_id"`
+	SourceId        uuid.UUID `json:"source_id"`
+	Text            string    `json:"text"`
+	ChunkIndex      int32     `json:"chunk_index"`
+	ChunkTokenCount int32     `json:"chunk_token_count"`
+	Embedding       []float32 `json:"embedding,omitempty"`
+}
+
+type ConversationStatus string
+
+const (
+	ConversationStatusActive   ConversationStatus = "active"
+	ConversationStatusArchived ConversationStatus = "archived"
+)
+
+type Conversation struct {
+	ConversationId uuid.UUID          `json:"conversation_id"`
+	SpaceId        uuid.UUID          `json:"space_id"`
+	UserId         uuid.UUID          `json:"user_id"`
+	Title          string             `json:"title"`
+	Status         ConversationStatus `json:"status"`
+	StartTime      time.Time          `json:"start_time"`
+	EndTime        *time.Time         `json:"end_time"`
+	CreatedAt      time.Time          `json:"created_at"`
+	UpdatedAt      time.Time          `json:"updated_at"`
+}
+
+type Role string
+
+const (
+	RoleUser      Role = "user"
+	RoleAssistant Role = "assistant"
+	RoleSystem    Role = "system"
+)
+
+type ChatMessage struct {
+	MessageId      uuid.UUID `json:"message_id"`
+	ConversationId uuid.UUID `json:"conversation_id"`
+	Role           Role      `json:"role"`
+	SenderId       uuid.UUID `json:"sender_id"`
+	Content        string    `json:"content"`
+	TokensUsed     *int      `json:"tokens_used"`
+	Model          string    `json:"model,omitempty"`
+	Metadata       JSONB     `json:"metadata"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
+}
+
+type MessageReference struct {
+	ReferenceId    uuid.UUID `json:"reference_id"`
+	MessageId      uuid.UUID `json:"message_id"`
+	ChunkId        uuid.UUID `json:"chunk_id"`
+	RelevanceScore float64   `json:"relevance_score"`
+	CreatedAt      time.Time `json:"created_at"`
 }
 
 type UpdateName struct {

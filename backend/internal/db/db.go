@@ -31,13 +31,28 @@ type DB interface {
 	ListSourcesForSpace(ctx context.Context, spaceId string) ([]models.Source, error)
 
 	// Source chunk operations
-	CreateChunk(ctx context.Context, chunk *models.Chunk) error
-	CreateChunks(ctx context.Context, chunk []models.Chunk) error
-	GetChunk(ctx context.Context, chunkId string) (*models.Chunk, error)
-	GetChunks(ctx context.Context, chunkIds []string) ([]models.Chunk, error)
-	DeleteChunk(ctx context.Context, chunkId string) error
-	DeleteChunks(ctx context.Context, chunkIds []string) error
+	CreateChunks(ctx context.Context, chunks []models.Chunk) error
+	// Vector search operations
+	FindSimilarChunks(ctx context.Context, userId string, embedding []float32, limit int) ([]models.Chunk, error)
+	FindSimilarChunksInSpace(ctx context.Context, spaceId string, embedding []float32, limit int) ([]models.Chunk, error)
 
+	// Conversation operations
+	CreateConversation(ctx context.Context, conv *models.Conversation) error
+	GetConversation(ctx context.Context, convId string) (*models.Conversation, error)
+	UpdateConversationTitle(ctx context.Context, convId string, title string) error
+	UpdateConversationStatus(ctx context.Context, convId string, status models.ConversationStatus) error
+	DeleteConversation(ctx context.Context, convId string) error
+	ListConversationsForSpace(ctx context.Context, spaceId string) ([]models.Conversation, error)
+	ListActiveConversationsForUser(ctx context.Context, userId string) ([]models.Conversation, error)
+
+	// Chat message operations
+	CreateMessage(ctx context.Context, msg *models.ChatMessage) error
+	CreateMessages(ctx context.Context, msgs []models.ChatMessage) error
+	GetMessage(ctx context.Context, messageId string) (*models.ChatMessage, error)
+	GetConversationMessages(ctx context.Context, convId string) ([]models.ChatMessage, error)
+	GetConversationUserMessages(ctx context.Context, convId string) ([]models.ChatMessage, error) // Only user & assistant messages
+
+	// Limit checks
 	GetUserSpaceCount(ctx context.Context, userId string) (int, error)
 	GetSpaceSourceCount(ctx context.Context, spaceId string) (int, error)
 	CheckUserSpaceLimit(ctx context.Context, userId string) (bool, error)    // Returns true if user is within space limit
