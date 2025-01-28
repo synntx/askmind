@@ -122,7 +122,7 @@ func (h *AuthHandlers) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := utils.GenerateToken(user.UserId, time.Now().Add(time.Hour*24*30))
+	token, err := utils.GenerateToken(user.UserId.String(), time.Now().Add(time.Hour*24*30))
 	response := AuthResponse{User: user, Token: token}
 
 	h.logger.Info("User logged in successfully",
