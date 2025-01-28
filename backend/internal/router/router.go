@@ -110,6 +110,7 @@ func publicRoute(h http.Handler, method string, logger *zap.Logger) http.Handler
 	return middlewareChain(
 		h,
 		mw.RequireMethod(method, logger),
+		mw.LoggingMiddleware(logger),
 		mw.RecoverPanic(logger),
 	)
 }
@@ -119,6 +120,7 @@ func protectedRoute(h http.Handler, method string, logger *zap.Logger) http.Hand
 		h,
 		mw.AuthMiddleware(logger),
 		mw.RequireMethod(method, logger),
+		mw.LoggingMiddleware(logger),
 		mw.RecoverPanic(logger),
 	)
 }
