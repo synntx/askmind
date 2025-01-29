@@ -31,10 +31,9 @@ type DB interface {
 	ListSourcesForSpace(ctx context.Context, spaceId string) ([]models.Source, error)
 
 	// Source chunk operations
-	CreateChunks(ctx context.Context, chunks []models.Chunk) error
+	CreateChunks(ctx context.Context, userId string, spaceId string, sourceId string, chunks []models.Chunk) error
 	// Vector search operations
-	FindSimilarChunks(ctx context.Context, userId string, embedding []float32, limit int) ([]models.Chunk, error)
-	FindSimilarChunksInSpace(ctx context.Context, spaceId string, embedding []float32, limit int) ([]models.Chunk, error)
+	FindSimilarChunks(ctx context.Context, embedding []float32, limit int, filters models.ChunkFilters) ([]models.Chunk, error)
 
 	// Conversation operations
 	CreateConversation(ctx context.Context, conv *models.Conversation) error
