@@ -26,7 +26,6 @@ func (db *Postgres) CreateConversation(ctx context.Context, conv *models.Convers
 }
 
 func (db *Postgres) GetConversation(ctx context.Context, convId string) (*models.Conversation, error) {
-
 	sql := `SELECT * FROM conversations WHERE conversation_id = $1`
 	var conv models.Conversation
 	err := db.pool.QueryRow(ctx, sql, convId).Scan(&conv)
@@ -95,5 +94,5 @@ func (db *Postgres) ListActiveConversationsForUser(ctx context.Context, userId s
 		conversations = append(conversations, conversation)
 	}
 
-	return nil, nil
+	return conversations, nil
 }
