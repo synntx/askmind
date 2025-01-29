@@ -88,6 +88,7 @@ CREATE INDEX IF NOT EXISTS sources_space_idx ON spaces(space_id);
 CREATE TABLE IF NOT EXISTS chunks (
     chunk_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     source_id UUID NOT NULL REFERENCES sources(source_id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     text TEXT NOT NULL,
     chunk_index INTEGER NOT NULL,
     chunk_token_count INTEGER NOT NULL,
@@ -161,6 +162,7 @@ func (db *Postgres) CheckUserSpaceLimit(ctx context.Context, userId string) (boo
 func (db *Postgres) GetSpaceSourceCount(ctx context.Context, spaceId string) (int, error) {
 	return 0, nil
 }
+
 func (db *Postgres) CheckSpaceSourceLimit(ctx context.Context, spaceId string) (bool, error) {
 	return true, nil
 }
