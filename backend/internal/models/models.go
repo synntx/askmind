@@ -57,6 +57,7 @@ type WebPageMetadata struct {
 type Chunk struct {
 	ChunkId         uuid.UUID `json:"chunk_id"`
 	SourceId        uuid.UUID `json:"source_id"`
+	UserId          uuid.UUID `json:"user_id"`
 	Text            string    `json:"text"`
 	ChunkIndex      int32     `json:"chunk_index"`
 	ChunkTokenCount int32     `json:"chunk_token_count"`
@@ -120,4 +121,10 @@ type UpdateSpace struct {
 	SpaceId     string  `json:"space_id"` // required
 	Title       *string `json:"title,omitempty"`
 	Description *string `json:"description,omitempty"`
+}
+
+type ChunkFilters struct {
+	UserID   *string `json:"userId,omitempty"`
+	SpaceID  *string `json:"spaceId,omitempty"`
+	SourceID *string `json:"sourceId,omitempty"`
 }
