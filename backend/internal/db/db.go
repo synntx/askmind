@@ -17,7 +17,7 @@ type DB interface {
 	DeleteUser(ctx context.Context, userId string) error
 
 	// Space operations
-	CreateSpace(ctx context.Context, space *models.Space) error
+	CreateSpace(ctx context.Context, space *models.CreateSpace) error
 	GetSpace(ctx context.Context, spaceId string) (*models.Space, error)
 	UpdateSpace(ctx context.Context, space *models.UpdateSpace) error
 	DeleteSpace(ctx context.Context, spaceId string) error
