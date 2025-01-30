@@ -2,27 +2,29 @@ package postgres
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/synntx/askmind/internal/models"
+	"github.com/synntx/askmind/internal/utils"
 )
 
-func (db *Postgres) CreateSpace(ctx context.Context, space *models.Space) error {
+func (db *Postgres) CreateSpace(ctx context.Context, space *models.CreateSpace) error {
 	sql := `
 	INSERT INTO spaces (
-		space_id, user_id, title, description,
-		source_limit, created_at, updated_at
-	) VALUES ($1, $2, $3, $4, $5, $6, $7)`
+		user_id, title, description,
+		source_limit
+	) VALUES ($1, $2, $3, COALESCE(NULLIF($4, 0) , 50))`
 
-	_, err := db.pool.Exec(ctx, sql,
-		space.SpaceId,
+	if _, err := db.pool.Exec(ctx, sql,
 		space.UserId,
 		space.Title,
 		space.Description,
 		space.SourceLimit,
-		space.CreatedAt,
-		space.UpdatedAt,
-	)
-	return err
+	); err != nil {
+		return utils.HandlePgError(err, "CreateSpace")
+	}
+	return nil
 }
 
 func (db *Postgres) ListSpacesForUser(ctx context.Context, userId string) ([]models.Space, error) {
@@ -34,7 +36,7 @@ func (db *Postgres) ListSpacesForUser(ctx context.Context, userId string) ([]mod
 
 	rows, err := db.pool.Query(ctx, sql, userId)
 	if err != nil {
-		return nil, err
+		return nil, utils.HandlePgError(err, "ListSpacesForUser")
 	}
 	defer rows.Close()
 
@@ -51,7 +53,7 @@ func (db *Postgres) ListSpacesForUser(ctx context.Context, userId string) ([]mod
 			&space.UpdatedAt,
 		)
 		if err != nil {
-			return nil, err
+			return nil, utils.HandlePgError(err, "ListSpacesForUser")
 		}
 		spaces = append(spaces, space)
 	}
@@ -59,20 +61,46 @@ func (db *Postgres) ListSpacesForUser(ctx context.Context, userId string) ([]mod
 }
 
 func (db *Postgres) GetSpace(ctx context.Context, spaceId string) (*models.Space, error) {
-	sql := `SELECT * FROM spaces WHERE space_id = $1`
+	sql := `SELECT space_id, user_id, title, description, source_limit, created_at, updated_at FROM spaces WHERE space_id = $1`
 	var space models.Space
 	err := db.pool.QueryRow(ctx, sql, spaceId).Scan(&space)
-	return &space, err
+	if err != nil {
+		return nil, utils.HandlePgError(err, "GetSpace")
+	}
+	return &space, nil
 }
+
 func (db *Postgres) UpdateSpace(ctx context.Context, space *models.UpdateSpace) error {
-	sql := `UPDATE spaces
-	SET title = $2, description = $3,
-	updated_at = NOW() WHERE space_id = $1`
-	_, err := db.pool.Exec(ctx, sql, space.SpaceId, space.Title, space.Description)
-	return err
+	var values []string
+	var args []interface{}
+	paramIndex := 2
+
+	args = append(args, space.SpaceId)
+
+	if space.Title != nil {
+		values = append(values, fmt.Sprintf("title = $%d", paramIndex))
+		args = append(args, *space.Title)
+		paramIndex++
+	}
+
+	if space.Description != nil {
+		values = append(values, fmt.Sprintf("description = $%d", paramIndex))
+		args = append(args, *space.Description)
+		paramIndex++
+	}
+
+	sql := fmt.Sprintf(`UPDATE spaces set %s , updated_at = NOW() WHERE space_id = $1`, strings.Join(values, ", "))
+
+	if _, err := db.pool.Exec(ctx, sql, args...); err != nil {
+		return utils.HandlePgError(err, "UpdateSpace")
+	}
+	return nil
 }
+
 func (db *Postgres) DeleteSpace(ctx context.Context, spaceId string) error {
 	sql := `DELETE FROM spaces WHERE space_id = $1`
-	_, err := db.pool.Exec(ctx, sql, spaceId)
-	return err
+	if _, err := db.pool.Exec(ctx, sql, spaceId); err != nil {
+		return utils.HandlePgError(err, "DeleteSpace")
+	}
+	return nil
 }
