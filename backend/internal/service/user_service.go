@@ -27,6 +27,7 @@ func NewUserService(db db.DB, logger *zap.Logger) *userService {
 		logger: logger,
 	}
 }
+
 func (a *userService) GetUser(ctx context.Context, userId string) (*models.User, error) {
 	user, err := a.db.GetUser(ctx, userId)
 	if err != nil {

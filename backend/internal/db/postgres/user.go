@@ -12,9 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
-var (
-	ErrUserNotFound = errors.New("user not found")
-)
+var ErrUserNotFound = errors.New("user not found")
 
 func (db *Postgres) CreateUser(ctx context.Context, user *models.User) error {
 	sql := `
@@ -54,7 +52,6 @@ func (db *Postgres) GetUser(ctx context.Context, userId string) (*models.User, e
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
-
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, utils.ErrUserNotFound.Wrap(err)
@@ -64,6 +61,7 @@ func (db *Postgres) GetUser(ctx context.Context, userId string) (*models.User, e
 
 	return &user, err
 }
+
 func (db *Postgres) GetUserByEmail(ctx context.Context, email string) (*models.User, error) {
 	sql := `
 	SELECT
@@ -82,7 +80,6 @@ func (db *Postgres) GetUserByEmail(ctx context.Context, email string) (*models.U
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
-
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, utils.ErrUserNotFound.Wrap(err)

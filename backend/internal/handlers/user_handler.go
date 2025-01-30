@@ -52,7 +52,6 @@ func (h *UserHandlers) GetUserHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandlers) UpdateNameHandler(w http.ResponseWriter, r *http.Request) {
-
 	claims, ok := r.Context().Value(utils.ClaimsKey).(*utils.Claims)
 	if !ok || claims == nil {
 		utils.HandleError(w, h.logger, utils.ErrUnauthorized.Wrap(
@@ -93,7 +92,6 @@ func (h *UserHandlers) UpdateNameHandler(w http.ResponseWriter, r *http.Request)
 }
 
 func (h *UserHandlers) UpdateEmailHandler(w http.ResponseWriter, r *http.Request) {
-
 	claims, ok := r.Context().Value(utils.ClaimsKey).(*utils.Claims)
 	if !ok || claims == nil {
 		utils.HandleError(w, h.logger, utils.ErrUnauthorized.Wrap(
