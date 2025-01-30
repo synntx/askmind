@@ -44,10 +44,12 @@ func (r *Router) CreateRoutes(ctx context.Context) *http.ServeMux {
 	// - Pepper is our secret spice added BEFORE bcrypt hashing 🌶️
 	authService := service.NewAuthService(db, r.pepper, r.logger)
 	userService := service.NewUserService(db, r.logger)
+	spaceService := service.NewSpaceService(db, r.logger)
 
 	// HTTP handlers 🚦
 	authHandlers := handlers.NewAuthHandlers(authService, r.logger)
 	userHandlers := handlers.NewUserHandlers(userService, r.logger)
+	spaceHandlers := handlers.NewSpaceHandler(spaceService, r.logger)
 
 	mux := http.NewServeMux()
 
@@ -94,6 +96,27 @@ func (r *Router) CreateRoutes(ctx context.Context) *http.ServeMux {
 
 	mux.Handle("/me/delete", protectedRoute(
 		http.HandlerFunc(userHandlers.DeleteUserHandler),
+		http.MethodDelete, r.logger))
+
+	// SPACE ROUTES
+	mux.Handle("/space", protectedRoute(
+		http.HandlerFunc(spaceHandlers.CreateSpaceHandler),
+		http.MethodPost, r.logger))
+
+	mux.Handle("/space/get", protectedRoute(
+		http.HandlerFunc(spaceHandlers.GetSpaceHandler),
+		http.MethodGet, r.logger))
+
+	mux.Handle("/space/list", protectedRoute(
+		http.HandlerFunc(spaceHandlers.ListSpacesForUserHandler),
+		http.MethodGet, r.logger))
+
+	mux.Handle("/space/update", protectedRoute(
+		http.HandlerFunc(spaceHandlers.UpdateSpaceHandler),
+		http.MethodPut, r.logger))
+
+	mux.Handle("/space/delete", protectedRoute(
+		http.HandlerFunc(spaceHandlers.DeleteSpaceHandler),
 		http.MethodDelete, r.logger))
 
 	return mux
