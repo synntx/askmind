@@ -123,6 +123,13 @@ type UpdateSpace struct {
 	Description *string `json:"description,omitempty"`
 }
 
+type CreateSpace struct {
+	UserId      uuid.UUID `json:"user_id"`
+	SourceLimit int       `json:"source_limit"`
+	Title       string    `json:"title,omitempty"`
+	Description string    `json:"description,omitempty"`
+}
+
 type ChunkFilters struct {
 	UserID   *string `json:"userId,omitempty"`
 	SpaceID  *string `json:"spaceId,omitempty"`
