@@ -26,7 +26,6 @@ type DB interface {
 	// Source operations
 	CreateSource(ctx context.Context, source *models.Source) error
 	GetSource(ctx context.Context, sourceId string) (*models.Source, error)
-	UpdateSource(ctx context.Context, source *models.Source) error
 	DeleteSource(ctx context.Context, sourceId string) error
 	ListSourcesForSpace(ctx context.Context, spaceId string) ([]models.Source, error)
 

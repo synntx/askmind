@@ -12,20 +12,16 @@ import (
 func (db *Postgres) CreateSource(ctx context.Context, source *models.Source) error {
 	sql := `
 	INSERT INTO sources (
-		source_id, space_id, source_type,
-		location, metadata, text,
-		created_at, updated_at
-	) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
+		space_id, source_type,
+		location, metadata, text
+	) VALUES ($1, $2, $3, $4, $5)`
 
 	_, err := db.pool.Exec(ctx, sql,
-		source.SourceId,
 		source.SpaceId,
 		source.SourceType,
 		source.Location,
 		source.Metadata,
 		source.Text,
-		source.CreatedAt,
-		source.UpdatedAt,
 	)
 	return err
 }
@@ -35,14 +31,6 @@ func (db *Postgres) GetSource(ctx context.Context, sourceId string) (*models.Sou
 	var source models.Source
 	err := db.pool.QueryRow(ctx, sql, sourceId).Scan(&source)
 	return &source, err
-}
-
-func (db *Postgres) UpdateSource(ctx context.Context, source *models.Source) error {
-	sql := `UPDATE sources
-	SET source_type = $2,location = $3,metadata = $4,
-	text = $5,updated_at = NOW() WHERE source_id = $1`
-	_, err := db.pool.Exec(ctx, sql, source.SourceId, source.SourceType, source.Location, source.Metadata, source.Text)
-	return err
 }
 
 func (db *Postgres) DeleteSource(ctx context.Context, sourceId string) error {
