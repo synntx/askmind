@@ -104,8 +104,6 @@ CREATE TABLE IF NOT EXISTS conversations (
     user_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     title TEXT NOT NULL,
     status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'archived')),
-    start_time TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-    end_time TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
@@ -117,7 +115,6 @@ CREATE TABLE IF NOT EXISTS chat_messages (
     message_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     conversation_id UUID NOT NULL REFERENCES conversations(conversation_id) ON DELETE CASCADE,
     role TEXT NOT NULL CHECK (role IN ('user', 'assistant', 'system')),
-    sender_id UUID NOT NULL,
     content TEXT NOT NULL,
     tokens_used INTEGER,
     model TEXT,

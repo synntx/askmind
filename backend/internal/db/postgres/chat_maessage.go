@@ -5,25 +5,25 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/synntx/askmind/internal/models"
+	"github.com/synntx/askmind/internal/utils"
 )
 
 func (db *Postgres) CreateMessage(ctx context.Context, msg *models.ChatMessage) error {
 	sql := `INSERT INTO chat_messages
-	(conversation_id, role, sender_id, content, tokens_used, model, metadata,created_at, updated_at)
-	VALUES ($1, $2,$3, $4,$5, $6, $7, $8, $9)`
+	(conversation_id, role,  content, tokens_used, model, metadata)
+	VALUES ($1, $2,$3, $4,$5, $6)`
 
-	_, err := db.pool.Exec(ctx, sql,
+	if _, err := db.pool.Exec(ctx, sql,
 		msg.ConversationId,
 		msg.Role,
-		msg.SenderId,
 		msg.Content,
 		msg.TokensUsed,
 		msg.Model,
 		msg.Metadata,
-		msg.CreatedAt,
-		msg.UpdatedAt,
-	)
-	return err
+	); err != nil {
+		return utils.HandlePgError(err, "CreateMessage")
+	}
+	return nil
 }
 
 func (db *Postgres) CreateMessages(ctx context.Context, msgs []models.ChatMessage) error {
@@ -31,33 +31,34 @@ func (db *Postgres) CreateMessages(ctx context.Context, msgs []models.ChatMessag
 	for _, msg := range msgs {
 		batch.Queue(
 			`INSERT INTO chat_messages
-			(conversation_id, role, sender_id, content, tokens_used, model, metadata,created_at, updated_at)
-			VALUES ($1, $2,$3, $4,$5, $6, $7, $8, $9)`,
+			(conversation_id, role, content, tokens_used, model, metadata)
+			VALUES ($1, $2,$3, $4,$5, $6)`,
 			msg.ConversationId,
 			msg.Role,
-			msg.SenderId,
 			msg.Content,
 			msg.TokensUsed,
 			msg.Model,
 			msg.Metadata,
-			msg.CreatedAt,
-			msg.UpdatedAt,
 		)
 	}
 
 	br := db.pool.SendBatch(ctx, batch)
 	defer br.Close()
-	_, err := br.Exec()
-	return err
+	if _, err := br.Exec(); err != nil {
+		return utils.HandlePgError(err, "CreateMessages")
+	}
+	return nil
 }
 
 func (db *Postgres) GetMessage(ctx context.Context, messageId string) (*models.ChatMessage, error) {
 	sql := `SELECT * FROM chat_messages WHERE message_id = $1`
 
 	var msg models.ChatMessage
-	err := db.pool.QueryRow(ctx, sql, messageId).Scan(&msg)
+	if err := db.pool.QueryRow(ctx, sql, messageId).Scan(&msg); err != nil {
+		return nil, utils.HandlePgError(err, "GetMessage")
+	}
 
-	return &msg, err
+	return &msg, nil
 }
 
 func (db *Postgres) GetConversationMessages(ctx context.Context, convId string) ([]models.ChatMessage, error) {
@@ -65,7 +66,7 @@ func (db *Postgres) GetConversationMessages(ctx context.Context, convId string) 
 
 	rows, err := db.pool.Query(ctx, sql, convId)
 	if err != nil {
-		return nil, err
+		return nil, utils.HandlePgError(err, "GetConversationMessages")
 	}
 
 	var msgs []models.ChatMessage
@@ -74,7 +75,7 @@ func (db *Postgres) GetConversationMessages(ctx context.Context, convId string) 
 		var msg models.ChatMessage
 		err := rows.Scan(&msg)
 		if err != nil {
-			return nil, err
+			return nil, utils.HandlePgError(err, "GetConversationMessages")
 		}
 		msgs = append(msgs, msg)
 	}
@@ -88,7 +89,7 @@ func (db *Postgres) GetConversationUserMessages(ctx context.Context, convId stri
 
 	rows, err := db.pool.Query(ctx, sql, convId, models.RoleAssistant, models.RoleUser)
 	if err != nil {
-		return nil, err
+		return nil, utils.HandlePgError(err, "GetConversationUserMessages")
 	}
 
 	var msgs []models.ChatMessage
@@ -97,7 +98,7 @@ func (db *Postgres) GetConversationUserMessages(ctx context.Context, convId stri
 		var msg models.ChatMessage
 		err := rows.Scan(&msg)
 		if err != nil {
-			return nil, err
+			return nil, utils.HandlePgError(err, "GetConversationUserMessages")
 		}
 		msgs = append(msgs, msg)
 	}

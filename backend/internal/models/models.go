@@ -77,8 +77,6 @@ type Conversation struct {
 	UserId         uuid.UUID          `json:"user_id"`
 	Title          string             `json:"title"`
 	Status         ConversationStatus `json:"status"`
-	StartTime      time.Time          `json:"start_time"`
-	EndTime        *time.Time         `json:"end_time"`
 	CreatedAt      time.Time          `json:"created_at"`
 	UpdatedAt      time.Time          `json:"updated_at"`
 }
@@ -95,7 +93,6 @@ type ChatMessage struct {
 	MessageId      uuid.UUID `json:"message_id"`
 	ConversationId uuid.UUID `json:"conversation_id"`
 	Role           Role      `json:"role"`
-	SenderId       uuid.UUID `json:"sender_id"`
 	Content        string    `json:"content"`
 	TokensUsed     *int      `json:"tokens_used"`
 	Model          string    `json:"model,omitempty"`
@@ -134,4 +131,9 @@ type ChunkFilters struct {
 	UserID   *string `json:"userId,omitempty"`
 	SpaceID  *string `json:"spaceId,omitempty"`
 	SourceID *string `json:"sourceId,omitempty"`
+}
+
+type CreateConversationRequest struct {
+	SpaceId uuid.UUID `json:"space_id"`
+	Title   string    `json:"title"`
 }

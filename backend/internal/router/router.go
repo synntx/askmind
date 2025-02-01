@@ -45,11 +45,15 @@ func (r *Router) CreateRoutes(ctx context.Context) *http.ServeMux {
 	authService := service.NewAuthService(db, r.pepper, r.logger)
 	userService := service.NewUserService(db, r.logger)
 	spaceService := service.NewSpaceService(db, r.logger)
+	convService := service.NewConversationService(db, r.logger)
+	msgService := service.NewMessageService(db, r.logger)
 
 	// HTTP handlers 🚦
 	authHandlers := handlers.NewAuthHandlers(authService, r.logger)
 	userHandlers := handlers.NewUserHandlers(userService, r.logger)
 	spaceHandlers := handlers.NewSpaceHandler(spaceService, r.logger)
+	convHandlers := handlers.NewConversationService(convService, r.logger)
+	msgHandlers := handlers.NewMessageHandler(msgService, r.logger)
 
 	mux := http.NewServeMux()
 
@@ -118,6 +122,68 @@ func (r *Router) CreateRoutes(ctx context.Context) *http.ServeMux {
 	mux.Handle("/space/delete", protectedRoute(
 		http.HandlerFunc(spaceHandlers.DeleteSpaceHandler),
 		http.MethodDelete, r.logger))
+
+	// Conversation Routes
+	mux.Handle("/c/create", protectedRoute(
+		http.HandlerFunc(convHandlers.CreateConversationHandler),
+		http.MethodPost,
+		r.logger))
+
+	mux.Handle("/c/get", protectedRoute(
+		http.HandlerFunc(convHandlers.GetConversationHandler),
+		http.MethodGet,
+		r.logger))
+
+	mux.Handle("/c/update/title", protectedRoute(
+		http.HandlerFunc(convHandlers.UpdateConversationTitleHandler),
+		http.MethodPut,
+		r.logger))
+
+	mux.Handle("/c/update/status", protectedRoute(
+		http.HandlerFunc(convHandlers.UpdateConversationStatusHandler),
+		http.MethodPut,
+		r.logger))
+
+	mux.Handle("/c/delete", protectedRoute(
+		http.HandlerFunc(convHandlers.DeleteConversationHandler),
+		http.MethodDelete,
+		r.logger))
+
+	mux.Handle("/c/list/space", protectedRoute(
+		http.HandlerFunc(convHandlers.ListConversationsForSpaceHandler),
+		http.MethodGet,
+		r.logger))
+
+	mux.Handle("/c/list/user", protectedRoute(
+		http.HandlerFunc(convHandlers.ListActiveConversationsForUserHandler),
+		http.MethodGet,
+		r.logger))
+
+	// Message Routes
+	mux.Handle("/msg/create", protectedRoute(
+		http.HandlerFunc(msgHandlers.CreateMessageHandler),
+		http.MethodPost,
+		r.logger))
+
+	mux.Handle("/msg/create/messages", protectedRoute(
+		http.HandlerFunc(msgHandlers.CreateMessagesHandler),
+		http.MethodPost,
+		r.logger))
+
+	mux.Handle("/msg/get", protectedRoute(
+		http.HandlerFunc(msgHandlers.GetMessageHandler),
+		http.MethodGet,
+		r.logger))
+
+	mux.Handle("/msg/get/msgs", protectedRoute(
+		http.HandlerFunc(msgHandlers.GetConvUserMessageHandler),
+		http.MethodGet,
+		r.logger))
+
+	mux.Handle("/msg/get/all-msgs", protectedRoute(
+		http.HandlerFunc(msgHandlers.GetConvMessageHandler),
+		http.MethodGet,
+		r.logger))
 
 	return mux
 }
