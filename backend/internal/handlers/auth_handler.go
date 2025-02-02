@@ -73,18 +73,21 @@ func (h *AuthHandlers) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		))
 	}
 
+	space_limit := 10
+
 	user := &models.User{
-		FirstName: req.FirstName,
-		LastName:  req.LastName,
-		Email:     req.Email,
-		Password:  req.Password,
+		FirstName:  req.FirstName,
+		LastName:   req.LastName,
+		Email:      req.Email,
+		Password:   req.Password,
+		SpaceLimit: space_limit,
 	}
 
 	if err := h.authService.Register(r.Context(), user); err != nil {
 		switch {
 		case errors.Is(err, service.ErrEmailExists):
 			utils.HandleError(w, h.logger, utils.ErrEmailExists.Wrap(
-				fmt.Errorf("Email Already registered"),
+				fmt.Errorf("email already registered"),
 			))
 		default:
 			utils.HandleError(w, h.logger, utils.ErrInternal.Wrap(err))
@@ -104,7 +107,7 @@ func (h *AuthHandlers) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	var req LoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		utils.HandleError(w, h.logger, utils.ErrValidation.Wrap(
-			fmt.Errorf("Invalid request body"),
+			fmt.Errorf("invalid request body"),
 		))
 		return
 	}
@@ -114,7 +117,7 @@ func (h *AuthHandlers) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		switch {
 		case errors.Is(err, service.ErrInvalidCredentials):
 			utils.HandleError(w, h.logger, utils.ErrInvalidCredentials.Wrap(
-				fmt.Errorf("Invalid email or password"),
+				fmt.Errorf("invalid email or password"),
 			))
 		default:
 			utils.HandleError(w, h.logger, utils.ErrInternal.Wrap(err))
@@ -123,6 +126,9 @@ func (h *AuthHandlers) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	token, err := utils.GenerateToken(user.UserId.String(), time.Now().Add(time.Hour*24*30))
+	if err != nil {
+		utils.HandleError(w, h.logger, utils.ErrInternal.Wrap(err))
+	}
 	response := AuthResponse{User: user, Token: token}
 
 	h.logger.Info("User logged in successfully",
@@ -145,7 +151,7 @@ func (h *AuthHandlers) UpdatePasswordHandler(w http.ResponseWriter, r *http.Requ
 	var req UpdatePasswordRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		utils.HandleError(w, h.logger, utils.ErrValidation.Wrap(
-			fmt.Errorf("Invalid request body"),
+			fmt.Errorf("invalid request body"),
 		))
 		return
 	}
@@ -154,7 +160,7 @@ func (h *AuthHandlers) UpdatePasswordHandler(w http.ResponseWriter, r *http.Requ
 		switch {
 		case errors.Is(err, service.ErrInvalidCredentials):
 			utils.HandleError(w, h.logger, utils.ErrInvalidCredentials.Wrap(
-				fmt.Errorf("Invalid email or password"),
+				fmt.Errorf("invalid email or password"),
 			))
 		default:
 			utils.HandleError(w, h.logger, utils.ErrInternal.Wrap(err))
