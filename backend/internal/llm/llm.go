@@ -1,8 +1,13 @@
 package llm
 
-type LLM interface {
-	GenerateContent(input string) string
-}
+import (
+	"context"
 
-// create client
-func CreateGeminiClient() {}
+	"github.com/google/generative-ai-go/genai"
+)
+
+type LLM interface {
+	GenerateContent(ctx context.Context, input string) (string, error)
+	GenerateEmbeddings(ctx context.Context, input string) (*genai.EmbedContentResponse, error)
+	GenerateContentStream(ctx context.Context, input string) (<-chan string, error)
+}

@@ -6,6 +6,7 @@ import (
 
 	"github.com/synntx/askmind/internal/db/postgres"
 	"github.com/synntx/askmind/internal/handlers"
+	"github.com/synntx/askmind/internal/llm"
 	mw "github.com/synntx/askmind/internal/middleware"
 	"github.com/synntx/askmind/internal/service"
 	"go.uber.org/zap"
@@ -15,13 +16,15 @@ type Router struct {
 	dbURL  string
 	pepper string
 	logger *zap.Logger
+	LLM    llm.LLM
 }
 
-func NewRouter(dbURL, pepper string, logger *zap.Logger) *Router {
+func NewRouter(dbURL, pepper string, logger *zap.Logger, llm llm.LLM) *Router {
 	return &Router{
 		dbURL:  dbURL,
 		pepper: pepper,
 		logger: logger,
+		LLM:    llm,
 	}
 }
 
@@ -53,7 +56,7 @@ func (r *Router) CreateRoutes(ctx context.Context) *http.ServeMux {
 	userHandlers := handlers.NewUserHandlers(userService, r.logger)
 	spaceHandlers := handlers.NewSpaceHandler(spaceService, r.logger)
 	convHandlers := handlers.NewConversationService(convService, r.logger)
-	msgHandlers := handlers.NewMessageHandler(msgService, r.logger)
+	msgHandlers := handlers.NewMessageHandler(msgService, r.logger, r.LLM)
 
 	mux := http.NewServeMux()
 
@@ -184,6 +187,13 @@ func (r *Router) CreateRoutes(ctx context.Context) *http.ServeMux {
 		http.HandlerFunc(msgHandlers.GetConvMessageHandler),
 		http.MethodGet,
 		r.logger))
+
+	mux.Handle("/c/completion", middlewareChain(
+		http.HandlerFunc(msgHandlers.CompletionHandler),
+		mw.AuthMiddleware(r.logger),
+		mw.RequireMethod(http.MethodPost, r.logger),
+		mw.RecoverPanic(r.logger),
+	))
 
 	return mux
 }

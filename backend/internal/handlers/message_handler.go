@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/synntx/askmind/internal/llm"
 	"github.com/synntx/askmind/internal/models"
 	"github.com/synntx/askmind/internal/service"
 	"github.com/synntx/askmind/internal/utils"
@@ -13,12 +14,14 @@ import (
 
 type MessageHandler struct {
 	ms     service.MessageService
+	llm    llm.LLM
 	logger *zap.Logger
 }
 
-func NewMessageHandler(ms service.MessageService, logger *zap.Logger) *MessageHandler {
+func NewMessageHandler(ms service.MessageService, logger *zap.Logger, llm llm.LLM) *MessageHandler {
 	return &MessageHandler{
 		ms:     ms,
+		llm:    llm,
 		logger: logger,
 	}
 }
@@ -125,4 +128,76 @@ func (h *MessageHandler) GetConvUserMessageHandler(w http.ResponseWriter, r *htt
 	}
 
 	utils.SendResponse(w, http.StatusOK, msgs)
+}
+
+func (h *MessageHandler) CompletionHandler(w http.ResponseWriter, r *http.Request) {
+	convId := r.FormValue("conv_id")
+	if convId == "" {
+		utils.HandleError(w, h.logger, utils.ErrValidation.Wrap(
+			fmt.Errorf("missing required parameter conv_id"),
+		).WithDetails(utils.ValidationError{
+			Field:   "conv_id",
+			Message: "conv_id is required",
+		}))
+		return
+	}
+
+	userMessage := r.FormValue("user_message")
+	if userMessage == "" {
+		utils.HandleError(w, h.logger, utils.ErrValidation.Wrap(
+			fmt.Errorf("missing required parameter user_message"),
+		).WithDetails(utils.ValidationError{
+			Field:   "user_message",
+			Message: "user_message is required",
+		}))
+		return
+	}
+
+	resp, err := h.llm.GenerateContentStream(r.Context(), userMessage)
+	if err != nil {
+		h.logger.Error("error creating stream content: ", zap.String("Error", err.Error()))
+	}
+	w.Header().Set("Content-Type", "text/event-stream")
+	w.Header().Set("Cache-Control", "no-cache")
+	w.Header().Set("Connection", "keep-alive")
+	w.WriteHeader(http.StatusOK)
+	rc := http.NewResponseController(w)
+	err = rc.Flush()
+	if err != nil {
+		h.logger.Error("error flushing headers: ", zap.String("Error", err.Error()))
+		return
+	}
+
+	for chunk := range resp {
+		// SSE format: data: <payload>\n\n
+		sseData := fmt.Sprintf("data: %s\n\n", chunk)
+
+		fmt.Println(sseData)
+		fmt.Println()
+		_, err = fmt.Fprint(w, sseData)
+		if err != nil {
+			h.logger.Error("error writing SSE data: ", zap.String("Error", err.Error()))
+			return
+		}
+
+		err = rc.Flush()
+		if err != nil {
+			h.logger.Error("error flushing data: ", zap.String("Error", err.Error()))
+			return
+		}
+	}
+	_, err = fmt.Fprint(w, "event: complete\ndata: [DONE]\n\n")
+	if err != nil {
+		h.logger.Error("error writing end of stream event: ", zap.String("Error", err.Error()))
+		return
+	}
+	err = rc.Flush()
+	if err != nil {
+		h.logger.Error("error flushing end of stream event: ", zap.String("Error", err.Error()))
+		return
+	}
+
+	// TODO: save messages in db
+
+	h.logger.Info("stream completed successfully for conv_id", zap.String("conv_id", convId))
 }
