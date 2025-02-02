@@ -63,7 +63,15 @@ func (db *Postgres) ListSpacesForUser(ctx context.Context, userId string) ([]mod
 func (db *Postgres) GetSpace(ctx context.Context, spaceId string) (*models.Space, error) {
 	sql := `SELECT space_id, user_id, title, description, source_limit, created_at, updated_at FROM spaces WHERE space_id = $1`
 	var space models.Space
-	err := db.pool.QueryRow(ctx, sql, spaceId).Scan(&space)
+	err := db.pool.QueryRow(ctx, sql, spaceId).Scan(
+		&space.SpaceId,
+		&space.UserId,
+		&space.Title,
+		&space.Description,
+		&space.SourceLimit,
+		&space.CreatedAt,
+		&space.UpdatedAt,
+	)
 	if err != nil {
 		return nil, utils.HandlePgError(err, "GetSpace")
 	}

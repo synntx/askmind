@@ -31,7 +31,7 @@ func NewMessageHandler(ms service.MessageService, logger *zap.Logger) *MessageHa
 // 4. /msg/get/all-msgs - GET (GetConversationMessages)
 
 func (h *MessageHandler) CreateMessageHandler(w http.ResponseWriter, r *http.Request) {
-	var msgReq models.ChatMessage
+	var msgReq models.CreateMessageRequest
 	if err := json.NewDecoder(r.Body).Decode(&msgReq); err != nil {
 		utils.HandleError(w, h.logger, utils.ErrValidation.Wrap(err))
 		return
@@ -41,13 +41,14 @@ func (h *MessageHandler) CreateMessageHandler(w http.ResponseWriter, r *http.Req
 
 	if err := h.ms.CreateMessage(r.Context(), &msgReq); err != nil {
 		utils.HandleError(w, h.logger, err)
+		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
 }
 
 func (h *MessageHandler) CreateMessagesHandler(w http.ResponseWriter, r *http.Request) {
-	var msgsReq []models.ChatMessage
+	var msgsReq []models.CreateMessageRequest
 	if err := json.NewDecoder(r.Body).Decode(&msgsReq); err != nil {
 		utils.HandleError(w, h.logger, utils.ErrValidation.Wrap(err))
 		return
@@ -57,6 +58,7 @@ func (h *MessageHandler) CreateMessagesHandler(w http.ResponseWriter, r *http.Re
 
 	if err := h.ms.CreateMessages(r.Context(), msgsReq); err != nil {
 		utils.HandleError(w, h.logger, err)
+		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
@@ -77,6 +79,7 @@ func (h *MessageHandler) GetMessageHandler(w http.ResponseWriter, r *http.Reques
 	msg, err := h.ms.GetMessage(r.Context(), msgId)
 	if err != nil {
 		utils.HandleError(w, h.logger, err)
+		return
 	}
 
 	utils.SendResponse(w, http.StatusOK, msg)
@@ -97,6 +100,7 @@ func (h *MessageHandler) GetConvMessageHandler(w http.ResponseWriter, r *http.Re
 	msgs, err := h.ms.GetConversationMessages(r.Context(), convId)
 	if err != nil {
 		utils.HandleError(w, h.logger, err)
+		return
 	}
 
 	utils.SendResponse(w, http.StatusOK, msgs)
@@ -117,6 +121,7 @@ func (h *MessageHandler) GetConvUserMessageHandler(w http.ResponseWriter, r *htt
 	msgs, err := h.ms.GetConversationUserMessages(r.Context(), convId)
 	if err != nil {
 		utils.HandleError(w, h.logger, err)
+		return
 	}
 
 	utils.SendResponse(w, http.StatusOK, msgs)

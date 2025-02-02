@@ -9,8 +9,8 @@ import (
 )
 
 type MessageService interface {
-	CreateMessage(ctx context.Context, msg *models.ChatMessage) error
-	CreateMessages(ctx context.Context, msgs []models.ChatMessage) error
+	CreateMessage(ctx context.Context, msg *models.CreateMessageRequest) error
+	CreateMessages(ctx context.Context, msgs []models.CreateMessageRequest) error
 	GetMessage(ctx context.Context, messageId string) (*models.ChatMessage, error)
 	GetConversationMessages(ctx context.Context, convId string) ([]models.ChatMessage, error)
 	GetConversationUserMessages(ctx context.Context, convId string) ([]models.ChatMessage, error)
@@ -28,11 +28,11 @@ func NewMessageService(db db.DB, logger *zap.Logger) *messageService {
 	}
 }
 
-func (ms *messageService) CreateMessage(ctx context.Context, msg *models.ChatMessage) error {
+func (ms *messageService) CreateMessage(ctx context.Context, msg *models.CreateMessageRequest) error {
 	return ms.db.CreateMessage(ctx, msg)
 }
 
-func (ms *messageService) CreateMessages(ctx context.Context, msgs []models.ChatMessage) error {
+func (ms *messageService) CreateMessages(ctx context.Context, msgs []models.CreateMessageRequest) error {
 	return ms.db.CreateMessages(ctx, msgs)
 }
 

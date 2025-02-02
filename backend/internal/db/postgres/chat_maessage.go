@@ -8,7 +8,7 @@ import (
 	"github.com/synntx/askmind/internal/utils"
 )
 
-func (db *Postgres) CreateMessage(ctx context.Context, msg *models.ChatMessage) error {
+func (db *Postgres) CreateMessage(ctx context.Context, msg *models.CreateMessageRequest) error {
 	sql := `INSERT INTO chat_messages
 	(conversation_id, role,  content, tokens_used, model, metadata)
 	VALUES ($1, $2,$3, $4,$5, $6)`
@@ -26,7 +26,7 @@ func (db *Postgres) CreateMessage(ctx context.Context, msg *models.ChatMessage) 
 	return nil
 }
 
-func (db *Postgres) CreateMessages(ctx context.Context, msgs []models.ChatMessage) error {
+func (db *Postgres) CreateMessages(ctx context.Context, msgs []models.CreateMessageRequest) error {
 	batch := &pgx.Batch{}
 	for _, msg := range msgs {
 		batch.Queue(
@@ -54,7 +54,17 @@ func (db *Postgres) GetMessage(ctx context.Context, messageId string) (*models.C
 	sql := `SELECT * FROM chat_messages WHERE message_id = $1`
 
 	var msg models.ChatMessage
-	if err := db.pool.QueryRow(ctx, sql, messageId).Scan(&msg); err != nil {
+	if err := db.pool.QueryRow(ctx, sql, messageId).Scan(
+		&msg.MessageId,
+		&msg.ConversationId,
+		&msg.Role,
+		&msg.Content,
+		&msg.TokensUsed,
+		&msg.Model,
+		&msg.Metadata,
+		&msg.CreatedAt,
+		&msg.UpdatedAt,
+	); err != nil {
 		return nil, utils.HandlePgError(err, "GetMessage")
 	}
 
@@ -73,7 +83,17 @@ func (db *Postgres) GetConversationMessages(ctx context.Context, convId string) 
 
 	for rows.Next() {
 		var msg models.ChatMessage
-		err := rows.Scan(&msg)
+		err := rows.Scan(
+			&msg.MessageId,
+			&msg.ConversationId,
+			&msg.Role,
+			&msg.Content,
+			&msg.TokensUsed,
+			&msg.Model,
+			&msg.Metadata,
+			&msg.CreatedAt,
+			&msg.UpdatedAt,
+		)
 		if err != nil {
 			return nil, utils.HandlePgError(err, "GetConversationMessages")
 		}
@@ -96,7 +116,17 @@ func (db *Postgres) GetConversationUserMessages(ctx context.Context, convId stri
 
 	for rows.Next() {
 		var msg models.ChatMessage
-		err := rows.Scan(&msg)
+		err := rows.Scan(
+			&msg.MessageId,
+			&msg.ConversationId,
+			&msg.Role,
+			&msg.Content,
+			&msg.TokensUsed,
+			&msg.Model,
+			&msg.Metadata,
+			&msg.CreatedAt,
+			&msg.UpdatedAt,
+		)
 		if err != nil {
 			return nil, utils.HandlePgError(err, "GetConversationUserMessages")
 		}

@@ -26,7 +26,15 @@ func (db *Postgres) CreateConversation(ctx context.Context, conv *models.Convers
 func (db *Postgres) GetConversation(ctx context.Context, convId string) (*models.Conversation, error) {
 	sql := `SELECT * FROM conversations WHERE conversation_id = $1`
 	var conv models.Conversation
-	if err := db.pool.QueryRow(ctx, sql, convId).Scan(&conv); err != nil {
+	if err := db.pool.QueryRow(ctx, sql, convId).Scan(
+		&conv.ConversationId,
+		&conv.SpaceId,
+		&conv.UserId,
+		&conv.Title,
+		&conv.Status,
+		&conv.CreatedAt,
+		&conv.UpdatedAt,
+	); err != nil {
 		return nil, utils.HandlePgError(err, "GetConversation")
 	}
 	return &conv, nil
@@ -71,7 +79,15 @@ func (db *Postgres) ListConversationsForSpace(ctx context.Context, spaceId strin
 	var conversations []models.Conversation
 	for rows.Next() {
 		var conversation models.Conversation
-		err := rows.Scan(&conversation)
+		err := rows.Scan(
+			&conversation.ConversationId,
+			&conversation.SpaceId,
+			&conversation.UserId,
+			&conversation.Title,
+			&conversation.Status,
+			&conversation.CreatedAt,
+			&conversation.UpdatedAt,
+		)
 		if err != nil {
 			return nil, utils.HandlePgError(err, "ListConversationsForSpace")
 		}
@@ -92,7 +108,15 @@ func (db *Postgres) ListActiveConversationsForUser(ctx context.Context, userId s
 	var conversations []models.Conversation
 	for rows.Next() {
 		var conversation models.Conversation
-		err := rows.Scan(&conversation)
+		err := rows.Scan(
+			&conversation.ConversationId,
+			&conversation.SpaceId,
+			&conversation.UserId,
+			&conversation.Title,
+			&conversation.Status,
+			&conversation.CreatedAt,
+			&conversation.UpdatedAt,
+		)
 		if err != nil {
 			return nil, utils.HandlePgError(err, "ListActiveConversationsForUser")
 		}

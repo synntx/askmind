@@ -137,3 +137,12 @@ type CreateConversationRequest struct {
 	SpaceId uuid.UUID `json:"space_id"`
 	Title   string    `json:"title"`
 }
+
+type CreateMessageRequest struct {
+	ConversationId uuid.UUID `json:"conversation_id"`
+	Role           Role      `json:"role"`
+	Content        string    `json:"content"`
+	TokensUsed     *int      `json:"tokens_used"`
+	Model          string    `json:"model,omitempty"`
+	Metadata       JSONB     `json:"metadata"`
+}

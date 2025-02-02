@@ -104,6 +104,7 @@ func (h *ConversationHandler) GetConversationHandler(w http.ResponseWriter, r *h
 	conv, err := h.cs.GetConversation(r.Context(), convId)
 	if err != nil {
 		utils.HandleError(w, h.logger, err)
+		return
 	}
 
 	utils.SendResponse(w, http.StatusOK, conv)
@@ -135,6 +136,7 @@ func (h *ConversationHandler) UpdateConversationTitleHandler(w http.ResponseWrit
 	err := h.cs.UpdateConversationTitle(r.Context(), convId, title)
 	if err != nil {
 		utils.HandleError(w, h.logger, err)
+		return
 	}
 
 	utils.SendNoContent(w)
@@ -178,6 +180,7 @@ func (h *ConversationHandler) UpdateConversationStatusHandler(w http.ResponseWri
 	err := h.cs.UpdateConversationStatus(r.Context(), convId, status)
 	if err != nil {
 		utils.HandleError(w, h.logger, err)
+		return
 	}
 
 	utils.SendNoContent(w)
@@ -198,6 +201,7 @@ func (h *ConversationHandler) DeleteConversationHandler(w http.ResponseWriter, r
 	err := h.cs.DeleteConversation(r.Context(), convId)
 	if err != nil {
 		utils.HandleError(w, h.logger, err)
+		return
 	}
 
 	utils.SendNoContent(w)
@@ -218,6 +222,7 @@ func (h *ConversationHandler) ListConversationsForSpaceHandler(w http.ResponseWr
 	convList, err := h.cs.ListConversationsForSpace(r.Context(), spaceId)
 	if err != nil {
 		utils.HandleError(w, h.logger, err)
+		return
 	}
 
 	utils.SendResponse(w, http.StatusOK, convList)
@@ -235,6 +240,7 @@ func (h *ConversationHandler) ListActiveConversationsForUserHandler(w http.Respo
 	activeConvList, err := h.cs.ListActiveConversationsForUser(r.Context(), claims.UserId)
 	if err != nil {
 		utils.HandleError(w, h.logger, err)
+		return
 	}
 
 	utils.SendResponse(w, http.StatusOK, activeConvList)

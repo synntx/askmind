@@ -44,8 +44,8 @@ type DB interface {
 	ListActiveConversationsForUser(ctx context.Context, userId string) ([]models.Conversation, error)
 
 	// Chat message operations
-	CreateMessage(ctx context.Context, msg *models.ChatMessage) error
-	CreateMessages(ctx context.Context, msgs []models.ChatMessage) error
+	CreateMessage(ctx context.Context, msg *models.CreateMessageRequest) error
+	CreateMessages(ctx context.Context, msgs []models.CreateMessageRequest) error
 	GetMessage(ctx context.Context, messageId string) (*models.ChatMessage, error)
 	GetConversationMessages(ctx context.Context, convId string) ([]models.ChatMessage, error)
 	GetConversationUserMessages(ctx context.Context, convId string) ([]models.ChatMessage, error) // Only user & assistant messages
