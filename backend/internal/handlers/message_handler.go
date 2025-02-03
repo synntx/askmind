@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/synntx/askmind/internal/llm"
 	"github.com/synntx/askmind/internal/models"
 	"github.com/synntx/askmind/internal/service"
@@ -131,8 +132,8 @@ func (h *MessageHandler) GetConvUserMessageHandler(w http.ResponseWriter, r *htt
 }
 
 func (h *MessageHandler) CompletionHandler(w http.ResponseWriter, r *http.Request) {
-	convId := r.FormValue("conv_id")
-	if convId == "" {
+	convIdStr := r.FormValue("conv_id")
+	if convIdStr == "" {
 		utils.HandleError(w, h.logger, utils.ErrValidation.Wrap(
 			fmt.Errorf("missing required parameter conv_id"),
 		).WithDetails(utils.ValidationError{
@@ -153,6 +154,40 @@ func (h *MessageHandler) CompletionHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	model := r.FormValue("model")
+	if model == "" {
+		utils.HandleError(w, h.logger, utils.ErrValidation.Wrap(
+			fmt.Errorf("missing required parameter model"),
+		).WithDetails(utils.ValidationError{
+			Field:   "model",
+			Message: "model is required",
+		}))
+		return
+	}
+
+	convId, err := uuid.Parse(convIdStr)
+	if err != nil {
+		utils.HandleError(w, h.logger, utils.ErrValidation.Wrap(
+			fmt.Errorf("failed to parse conv_id"),
+		).WithDetails(utils.ValidationError{
+			Field:   "conv_id",
+			Message: "invalid conv_id",
+		}))
+		return
+	}
+
+	userMsg := &models.CreateMessageRequest{
+		ConversationId: convId,
+		Role:           models.RoleUser,
+		Content:        userMessage,
+		Model:          model,
+	}
+
+	if err = h.ms.CreateMessage(r.Context(), userMsg); err != nil {
+		utils.HandleError(w, h.logger, err)
+		return
+	}
+
 	resp, err := h.llm.GenerateContentStream(r.Context(), userMessage)
 	if err != nil {
 		h.logger.Error("error creating stream content: ", zap.String("Error", err.Error()))
@@ -168,9 +203,11 @@ func (h *MessageHandler) CompletionHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	var completeRespStr string
 	for chunk := range resp {
 		// SSE format: data: <payload>\n\n
 		sseData := fmt.Sprintf("data: %s\n\n", chunk)
+		completeRespStr += chunk
 
 		fmt.Println(sseData)
 		fmt.Println()
@@ -197,7 +234,17 @@ func (h *MessageHandler) CompletionHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	// TODO: save messages in db
+	assistantMessage := &models.CreateMessageRequest{
+		ConversationId: convId,
+		Role:           models.RoleAssistant,
+		Content:        completeRespStr,
+		Model:          model,
+	}
 
-	h.logger.Info("stream completed successfully for conv_id", zap.String("conv_id", convId))
+	if err = h.ms.CreateMessage(r.Context(), assistantMessage); err != nil {
+		utils.HandleError(w, h.logger, err)
+		return
+	}
+
+	h.logger.Info("stream completed successfully for conv_id", zap.String("conv_id", convIdStr))
 }
