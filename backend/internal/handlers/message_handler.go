@@ -205,22 +205,28 @@ func (h *MessageHandler) CompletionHandler(w http.ResponseWriter, r *http.Reques
 
 	var completeRespStr string
 	for chunk := range resp {
-		// SSE format: data: <payload>\n\n
-		sseData := fmt.Sprintf("data: %s\n\n", chunk)
-		completeRespStr += chunk
+		select {
+		case <-r.Context().Done():
+			h.logger.Info("stream cancelled by client", zap.String("conv_id", convIdStr))
+			return // Exit if context is cancelled
+		default:
+			// SSE format: data: <payload>\n\n
+			sseData := fmt.Sprintf("data: %s\n\n", chunk)
+			completeRespStr += chunk
 
-		fmt.Println(sseData)
-		fmt.Println()
-		_, err = fmt.Fprint(w, sseData)
-		if err != nil {
-			h.logger.Error("error writing SSE data: ", zap.String("Error", err.Error()))
-			return
-		}
+			fmt.Println(sseData)
+			fmt.Println()
+			_, err = fmt.Fprint(w, sseData)
+			if err != nil {
+				h.logger.Error("error writing SSE data: ", zap.String("Error", err.Error()))
+				return
+			}
 
-		err = rc.Flush()
-		if err != nil {
-			h.logger.Error("error flushing data: ", zap.String("Error", err.Error()))
-			return
+			err = rc.Flush()
+			if err != nil {
+				h.logger.Error("error flushing data: ", zap.String("Error", err.Error()))
+				return
+			}
 		}
 	}
 	_, err = fmt.Fprint(w, "event: complete\ndata: [DONE]\n\n")
