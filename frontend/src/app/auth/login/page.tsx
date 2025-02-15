@@ -43,7 +43,7 @@ export default function Login() {
         </button>
       </form>
       <p className="mt-4 text-center text-sm text-[#CACACA]">
-        {"Don't have an account?"}{" "}
+        {"Don't have an account? "}
         <Link href="/auth/register" className="text-[#8A92E3] hover:underline">
           Create a new one
         </Link>
