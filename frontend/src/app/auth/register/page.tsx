@@ -7,9 +7,11 @@ import { registerSchema, RegisterFormValues } from "@/lib/validations";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import api from "@/lib/api";
+import { useToast } from "@/components/ui/toast";
 
 export default function Register() {
   const router = useRouter();
+  const { addToast } = useToast();
 
   const {
     register,
@@ -19,17 +21,19 @@ export default function Register() {
 
   const registerMutation = useMutation({
     mutationFn: async (data: RegisterFormValues) => {
-      const response = await api.post("/register", data);
+      const response = await api.post("/auth/register", data);
       return response.data;
     },
     onSuccess: (data) => {
+      addToast("Registration successful", "success");
       console.log("Registration successful:", data);
       router.push("/auth/login");
     },
     onError: (error: any) => {
+      addToast(error.response?.data?.message || "Registration failed", "error");
       console.error(
         "Registration failed:",
-        error.response?.data || error.message,
+        error.response?.data.message || error.message,
       );
     },
   });

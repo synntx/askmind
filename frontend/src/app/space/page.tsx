@@ -1,7 +1,10 @@
 "use client";
 
+import Header from "@/components/common/header";
+import SpaceCard from "@/components/space/spaceCard";
+import SpaceListItem from "@/components/space/spaceListItem";
 import { useToast } from "@/components/ui/toast";
-import { EditLight, Ellipse, TrashLight, List, Grid } from "@/icons/icons";
+import { List, Grid } from "@/icons";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 
@@ -55,25 +58,7 @@ export default function SpacesPage() {
 
   return (
     <div className="min-h-screen">
-      <header>
-        <div className="max-w-7xl mx-auto px-4 py-6 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="flex mb-3 animate-reveal">
-              <h2 className="text-3xl tracking-tight">Ask</h2>
-              <h2 className="text-3xl tracking-tight text-[#8A92E3]">Mind</h2>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <img
-              src="https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fwww.gravatar.com%2Favatar%2F2c7d99fe281ecd3bcd65ab915bac6dd5%3Fs%3D250"
-              alt="Avatar"
-              width={32}
-              height={32}
-              className="rounded-full"
-            />
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <main className="max-w-4xl mx-auto px-4 py-8 mt-14">
         <div className="flex items-center justify-between mb-8">
@@ -142,65 +127,13 @@ export default function SpacesPage() {
         ) : viewMode === "grid" ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {spaces.map((space, index) => (
-              <div
-                key={index}
-                className="bg-[#1A1A1A] rounded-lg p-6 hover:bg-[#2232323] border border-transparent hover:border-[#282828] transition cursor-pointer group"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <h3 className="text-lg mb-2">{space.title}</h3>
-                    <p className="text-gray-400 text-sm">{space.description}</p>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between text-sm text-gray-400">
-                  <div className="flex items-center gap-4">
-                    <span>created {space.createdAt}</span>
-                    <Ellipse className="h-2 w-2" />
-                    <span>{space.sources} sources</span>
-                  </div>
-                  <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition">
-                    <button className="p-1 hover:bg-secondary rounded-md active:scale-[0.95] transition-all duration-150 ease-in-out">
-                      <TrashLight className="h-5 w-5" />
-                    </button>
-                    <button className="p-1 hover:bg-secondary rounded-md active:scale-[0.95] transition-all duration-150 ease-in-out">
-                      <EditLight className="h-5 w-5" />
-                    </button>
-                  </div>
-                </div>
-              </div>
+              <SpaceCard space={space} key={index} />
             ))}
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4">
             {spaces.map((space, index) => (
-              <div
-                key={index}
-                className="bg-[#1A1A1A] rounded-lg p-4 hover:bg-[#2232323] border border-transparent hover:border-[#282828] transition cursor-pointer group flex items-center justify-between"
-              >
-                <div className="flex items-center">
-                  <h3 className="w-60">{space.title}</h3>
-
-                  <div className="flex items-center flex-row gap-12">
-                    <p className="w-40 hidden md:block truncate text-gray-400 text-sm">
-                      {space.description}
-                    </p>
-                    <div className="hidden md:flex items-center text-sm text-gray-400">
-                      <span>created {space.createdAt}</span>
-                      <Ellipse className="h-1.5 w-1.5 mx-2" />
-                      <span>{space.sources} sources</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button className="p-1 hover:bg-secondary rounded-md active:scale-[0.95] transition-all duration-150 ease-in-out">
-                    <TrashLight className="h-5 w-5" />
-                  </button>
-                  <button className="p-1 hover:bg-secondary rounded-md active:scale-[0.95] transition-all duration-150 ease-in-out">
-                    <EditLight className="h-5 w-5" />
-                  </button>
-                </div>
-              </div>
+              <SpaceListItem space={space} key={index} />
             ))}
           </div>
         )}
