@@ -9,13 +9,6 @@ export const registerSchema = z.object({
     .min(6, { message: "Password must be at least 6 characters" }),
 });
 
-export type RegisterFormValues = z.infer<typeof registerSchema>;
-
-export interface LoginFormValues {
-  email: string;
-  password: string;
-}
-
 export const loginSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email address"),
   password: z
@@ -23,3 +16,19 @@ export const loginSchema = z.object({
     .min(1, "Password is required")
     .min(8, "Password must be at least 8 characters"),
 });
+
+export const createSpaceSchema = z.object({
+  Title: z.string().min(0, "Title is required"),
+  Description: z.string().min(0, "Description is required"),
+});
+
+export const updateSpaceSchema = z.object({
+  Title: z.string().optional(),
+  Description: z.string().optional(),
+});
+
+// INFER TYPES:
+export type LoginFormValues = z.infer<typeof loginSchema>;
+export type RegisterFormValues = z.infer<typeof registerSchema>;
+export type CreateSpace = z.infer<typeof createSpaceSchema>;
+export type UpdateSpace = z.infer<typeof updateSpaceSchema>;

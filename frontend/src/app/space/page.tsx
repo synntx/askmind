@@ -4,57 +4,33 @@ import Header from "@/components/common/header";
 import SpaceCard from "@/components/space/spaceCard";
 import SpaceListItem from "@/components/space/spaceListItem";
 import { useToast } from "@/components/ui/toast";
+import { useGetSpaces } from "@/hooks/useSpace";
 import { List, Grid } from "@/icons";
+import { AxiosError } from "axios";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 
 export default function SpacesPage() {
   const { addToast } = useToast();
-
-  const spaces = [
-    {
-      id: 1,
-      title: "Data Science Lab",
-      description:
-        "A hub for data enthusiasts to explore machine learning, big data, and predictive analytics.",
-      createdAt: "3 days ago",
-      sources: 5,
-    },
-    {
-      id: 2,
-      title: "Machine Learning Hub",
-      description:
-        "Discuss cutting-edge ML models, from neural networks to decision trees.",
-      createdAt: "1 week ago",
-      sources: 8,
-    },
-    {
-      id: 3,
-      title: "Frontend Frenzy",
-      description:
-        "Where modern web design meets React, Vue, and Angular magic.",
-      createdAt: "5 hours ago",
-      sources: 3,
-    },
-    {
-      id: 4,
-      title: "Quantum Computing",
-      description:
-        "Dive into the mysteries of quantum bits and advanced algorithms.",
-      createdAt: "2 days ago",
-      sources: 4,
-    },
-    {
-      id: 5,
-      title: "UI/UX Inspiration",
-      description:
-        "A space dedicated to the art of design and seamless user experiences.",
-      createdAt: "6 days ago",
-      sources: 7,
-    },
-  ];
-
+  const { data: spaces, error, isPending, isError } = useGetSpaces();
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+
+  if (isPending) return <div>Loading...</div>;
+  if (isError) {
+    const err = error as AxiosError<ApiError>;
+    return (
+      <div className="p-4 border border-red-300 bg-red-50 rounded-md">
+        <h3 className="text-lg font-semibold text-red-700">Error</h3>
+        <p className="text-red-600">
+          {err.response?.data?.message || err.message || "An error occurred"}
+        </p>
+        <p className="mt-2 text-sm text-red-500">
+          Code: {err.response?.data.code}
+        </p>
+      </div>
+    );
+  }
+  if (!spaces) return <div>No Space Found</div>;
 
   return (
     <div className="min-h-screen">

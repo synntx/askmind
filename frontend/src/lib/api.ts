@@ -1,5 +1,6 @@
 import axios from "axios";
-import { CreateSpaceValues, Space, UpdateSpaceValues } from "./validations";
+import { Space } from "@/types/space";
+import { CreateSpace, UpdateSpace } from "@/lib/validations";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080",
@@ -17,9 +18,12 @@ api.interceptors.request.use((config) => {
 });
 
 export const spaceApi = {
-  list: () => api.get<Space[]>("/spaces"),
-  create: (data: CreateSpaceValues) => api.post<Space>("/spaces", data),
-  update: (id: string, data: UpdateSpaceValues) => 
+  list: async () => {
+    const res = await api.get<Space[]>("/space/list");
+    return res.data;
+  },
+  create: (data: CreateSpace) => api.post<Space>("/spaces", data),
+  update: (id: string, data: UpdateSpace) =>
     api.put<Space>(`/spaces/${id}`, data),
   delete: (id: string) => api.delete(`/spaces/${id}`),
 };
