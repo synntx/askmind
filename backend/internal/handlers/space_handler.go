@@ -148,6 +148,8 @@ func (h *SpaceHandler) UpdateSpaceHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	req.SpaceId = spaceId
+
 	if err := h.spaceService.UpdateSpace(r.Context(), &req); err != nil {
 		utils.HandleError(w, h.logger, err)
 		return
