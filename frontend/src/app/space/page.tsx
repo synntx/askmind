@@ -1,36 +1,24 @@
 "use client";
 
 import Header from "@/components/common/header";
+import SpaceError from "@/components/errors/spaceError";
+import CreateSpaceModal from "@/components/space/createSpaceModal";
 import SpaceCard from "@/components/space/spaceCard";
 import SpaceListItem from "@/components/space/spaceListItem";
-import { useToast } from "@/components/ui/toast";
-import { useGetSpaces } from "@/hooks/useSpace";
+import { useCreateSpace, useGetSpaces } from "@/hooks/useSpace";
 import { List, Grid } from "@/icons";
-import { AxiosError } from "axios";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 
 export default function SpacesPage() {
-  const { addToast } = useToast();
-  const { data: spaces, error, isPending, isError } = useGetSpaces();
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
-  if (isPending) return <div>Loading...</div>;
-  if (isError) {
-    const err = error as AxiosError<ApiError>;
-    return (
-      <div className="p-4 border border-red-300 bg-red-50 rounded-md">
-        <h3 className="text-lg font-semibold text-red-700">Error</h3>
-        <p className="text-red-600">
-          {err.response?.data?.message || err.message || "An error occurred"}
-        </p>
-        <p className="mt-2 text-sm text-red-500">
-          Code: {err.response?.data.code}
-        </p>
-      </div>
-    );
-  }
-  if (!spaces) return <div>No Space Found</div>;
+  const { data: spaces, error, isPending, isError } = useGetSpaces();
+  const { mutate: CreateSpace } = useCreateSpace();
+
+  const openCreateModal = () => setIsCreateModalOpen(true);
+  const closeCreateModal = () => setIsCreateModalOpen(false);
 
   return (
     <div className="min-h-screen">
@@ -40,9 +28,9 @@ export default function SpacesPage() {
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-5">
             <h2 className="text-3xl">My Spaces</h2>
-            {spaces.length > 0 && (
+            {spaces && spaces.length > 0 && (
               <button
-                onClick={() => addToast("Registration successful!", "success")}
+                onClick={openCreateModal}
                 className="flex items-center gap-2 bg-[#1A1A1A] hover:bg-[#1A1A1A]/50 border border-[#282828] transition-all duration-150 px-4 py-1.5 rounded-lg active:scale-[0.95] ease-in-out"
               >
                 <Plus className="w-5 h-5 text-[#B0B0B0]" />
@@ -89,18 +77,32 @@ export default function SpacesPage() {
           </div>
         </div>
 
-        {spaces.length === 0 ? (
+        {/* States handling in order: Loading -> Error -> No Spaces -> Content */}
+        {isPending ? (
+          <div className="flex flex-col items-center justify-center py-12">
+            <h3 className="text-2xl font-semibold mb-4">Loading Spaces...</h3>
+            <p className="text-gray-400">
+              Please wait while we fetch your spaces.
+            </p>
+          </div>
+        ) : isError ? (
+          <SpaceError err={error as any} />
+        ) : !spaces || spaces.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12">
             <h3 className="text-2xl font-semibold mb-4">No Spaces Found</h3>
             <p className="text-gray-400 mb-6">
               Looks like you haven't created any spaces yet.
             </p>
-            <button className="flex items-center gap-2 bg-[#1A1A1A] hover:bg-[#1A1A1A]/50 border border-[#282828] transition-all duration-150 px-4 py-1.5 rounded-lg active:scale-[0.95] ease-in-out">
+            <button
+              onClick={openCreateModal}
+              className="flex items-center gap-2 bg-[#1A1A1A] hover:bg-[#1A1A1A]/50 border border-[#282828] transition-all duration-150 px-4 py-1.5 rounded-lg active:scale-[0.95] ease-in-out"
+            >
               <Plus className="w-5 h-5 text-[#B0B0B0]" />
               Create Space
             </button>
           </div>
-        ) : viewMode === "grid" ? (
+        ) : 
+        viewMode === "grid" ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {spaces.map((space, index) => (
               <SpaceCard space={space} key={index} />
@@ -114,6 +116,11 @@ export default function SpacesPage() {
           </div>
         )}
       </main>
+      <CreateSpaceModal
+        isOpen={isCreateModalOpen}
+        onSubmit={(data) => CreateSpace(data)}
+        onClose={closeCreateModal}
+      />
     </div>
   );
 }

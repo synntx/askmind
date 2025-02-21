@@ -1,6 +1,11 @@
 import axios from "axios";
-import { Space } from "@/types/space";
-import { CreateSpace, UpdateSpace } from "@/lib/validations";
+import { Space, SpaceListResponse } from "@/types/space";
+import {
+  CreateConversation,
+  CreateSpace,
+  UpdateSpace,
+} from "@/lib/validations";
+import { ConversationStatus, GetConversation } from "@/types/conversation";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080",
@@ -19,13 +24,59 @@ api.interceptors.request.use((config) => {
 
 export const spaceApi = {
   list: async () => {
-    const res = await api.get<Space[]>("/space/list");
+    const res = await api.get<SpaceListResponse>("/space/list");
+    console.log(res.data);
+    return res.data.data;
+  },
+  create: async (data: CreateSpace) => {
+    const res = await api.post<Space>("/space", data);
     return res.data;
   },
-  create: (data: CreateSpace) => api.post<Space>("/spaces", data),
-  update: (id: string, data: UpdateSpace) =>
-    api.put<Space>(`/spaces/${id}`, data),
-  delete: (id: string) => api.delete(`/spaces/${id}`),
+  update: async (id: string, data: UpdateSpace) => {
+    const params = new URLSearchParams({ space_id: id });
+    await api.put<Space>(`/space/update?${params}`, data);
+  },
+  delete: async (id: string) => {
+    const params = new URLSearchParams({ space_id: id });
+    return await api.delete(`/space/delete?${params.toString()}`);
+  },
+};
+
+// Routes :
+// 1. /c/create
+// 2. /c/get?conv_id=asd;isdh
+// 3. /c/update/title?title=fhsfh&conv_id=shfliadshi
+// 4. /c/update/status?status=sfhsj&conv_id=sdfhish
+// 5. /c/delete?conv_id=sdfhish
+// 6. /c/list/space?space_id=sdfh;oij
+// 7. /c/list/user
+
+export const convApi = {
+  create: async (data: CreateConversation) => {
+    await api.post("/c/create", data);
+  },
+  get: async () => {
+    const res = await api.get<GetConversation>("/c/get");
+    console.log(res.data);
+    return res.data.data;
+  },
+  updateTitle: async (conv_id: string, title: string) => {
+    const params = new URLSearchParams({ conv_id: conv_id, title: title });
+    await api.put(`/c/update/title?${params}`);
+  },
+  updateStatus: async (conv_id: string, status: ConversationStatus) => {
+    const params = new URLSearchParams({ conv_id: conv_id, status: status });
+    await api.put(`/space/update/status?${params}`);
+  },
+  listSpaceConversations: async () => {
+    const res = await api.get<GetConversation>("/c/list/space");
+    console.log(res.data);
+    return res.data.data;
+  },
+  delete: async (conv_id: string) => {
+    const params = new URLSearchParams({ conv_id: conv_id });
+    return await api.delete(`/space/delete?${params}`);
+  },
 };
 
 export default api;

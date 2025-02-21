@@ -1,9 +1,13 @@
+export type SpaceListResponse = {
+  data: Space[];
+};
+
 export interface Space {
-  spaceId: string;
-  userId: string;
+  space_id: string;
+  user_id: string;
   title: string;
   description: string;
-  sourceLimit: number;
-  createdAt: Date;
-  updatedAt: Date;
+  source_limit: number;
+  created_at: string;
+  updated_at: string;
 }

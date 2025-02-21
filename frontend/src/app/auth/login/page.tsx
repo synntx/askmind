@@ -4,41 +4,16 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, LoginFormValues } from "@/lib/validations";
-import { useRouter } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
-import api from "@/lib/api";
-import { useToast } from "@/components/ui/toast";
+import { useLogin } from "@/hooks/useAuth";
 
 export default function Login() {
-  const router = useRouter();
-  const { addToast } = useToast();
-
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<LoginFormValues>({ resolver: zodResolver(loginSchema) });
 
-  const loginMutation = useMutation({
-    mutationFn: async (data: LoginFormValues) => {
-      const response = await api.post("/auth/login", data);
-      return response.data;
-    },
-    onSuccess: (data) => {
-      addToast("Login successful", "success");
-      localStorage.setItem("token", data.token); 
-      router.push("/space"); 
-    },
-    onError: (error: any) => {
-      addToast(
-        error.response?.data?.error.message || "Login failed", "error"
-      );
-      console.error(
-        "Login failed:",
-        error.response?.data || error.message
-      );
-    },
-  });
+  const loginMutation = useLogin();
 
   const onSubmit = (data: LoginFormValues) => {
     console.log("Submitted data:", data);

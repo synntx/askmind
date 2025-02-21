@@ -27,8 +27,14 @@ export const updateSpaceSchema = z.object({
   Description: z.string().optional(),
 });
 
+export const CreateConversationSchema = z.object({
+  SpaceId: z.string().uuid(),
+  Title: z.string(),
+});
+
 // INFER TYPES:
 export type LoginFormValues = z.infer<typeof loginSchema>;
 export type RegisterFormValues = z.infer<typeof registerSchema>;
 export type CreateSpace = z.infer<typeof createSpaceSchema>;
 export type UpdateSpace = z.infer<typeof updateSpaceSchema>;
+export type CreateConversation = z.infer<typeof CreateConversationSchema>;
