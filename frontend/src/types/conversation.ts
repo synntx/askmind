@@ -11,5 +11,5 @@ export interface Conversation {
 }
 
 export type GetConversation = {
-  data: Conversation;
+  data: Conversation[];
 };

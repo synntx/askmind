@@ -68,9 +68,9 @@ export const convApi = {
     const params = new URLSearchParams({ conv_id: conv_id, status: status });
     await api.put(`/space/update/status?${params}`);
   },
-  listSpaceConversations: async () => {
-    const res = await api.get<GetConversation>("/c/list/space");
-    console.log(res.data);
+  listSpaceConversations: async (spaceId: string) => {
+    const params = new URLSearchParams({ space_id: spaceId });
+    const res = await api.get<GetConversation>(`/c/list/space?${params}`);
     return res.data.data;
   },
   delete: async (conv_id: string) => {
