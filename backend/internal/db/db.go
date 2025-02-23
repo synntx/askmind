@@ -35,7 +35,7 @@ type DB interface {
 	FindSimilarChunks(ctx context.Context, embedding []float32, limit int, filters models.ChunkFilters) ([]models.Chunk, error)
 
 	// Conversation operations
-	CreateConversation(ctx context.Context, conv *models.Conversation) error
+	CreateConversation(ctx context.Context, conv *models.Conversation) (*models.Conversation, error)
 	GetConversation(ctx context.Context, convId string) (*models.Conversation, error)
 	UpdateConversationTitle(ctx context.Context, convId string, title string) error
 	UpdateConversationStatus(ctx context.Context, convId string, status models.ConversationStatus) error

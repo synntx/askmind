@@ -206,20 +206,28 @@ func middlewareChain(h http.Handler, middlewares ...mw.Middleware) http.Handler 
 }
 
 func publicRoute(h http.Handler, method string, logger *zap.Logger) http.Handler {
+	corsConfig := mw.NewCORSConfig()
+	corsConfig.AllowedOrigins = []string{"http://localhost:3000", "http://172.22.181.121:3000"}
+
 	return middlewareChain(
 		h,
 		mw.RequireMethod(method, logger),
 		mw.LoggingMiddleware(logger),
 		mw.RecoverPanic(logger),
+		mw.CORSWithConfig(corsConfig, logger),
 	)
 }
 
 func protectedRoute(h http.Handler, method string, logger *zap.Logger) http.Handler {
+	corsConfig := mw.NewCORSConfig()
+	corsConfig.AllowedOrigins = []string{"http://localhost:3000", "http://172.22.181.121:3000"}
+
 	return middlewareChain(
 		h,
 		mw.AuthMiddleware(logger),
 		mw.RequireMethod(method, logger),
 		mw.LoggingMiddleware(logger),
 		mw.RecoverPanic(logger),
+		mw.CORSWithConfig(corsConfig, logger),
 	)
 }

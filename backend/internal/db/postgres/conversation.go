@@ -7,20 +7,33 @@ import (
 	"github.com/synntx/askmind/internal/utils"
 )
 
-func (db *Postgres) CreateConversation(ctx context.Context, conv *models.Conversation) error {
+func (db *Postgres) CreateConversation(ctx context.Context, conv *models.Conversation) (*models.Conversation, error) {
 	sql := `INSERT INTO conversations
 	(space_id, user_id, title, status)
-	VALUES ($1, $2, $3, $4)`
+	VALUES ($1, $2, $3, $4)
+	RETURNING conversation_id, space_id, user_id, title, status, created_at, updated_at`
 
-	if _, err := db.pool.Exec(ctx, sql,
+	var conversation models.Conversation
+
+	err := db.pool.QueryRow(ctx, sql,
 		conv.SpaceId,
 		conv.UserId,
 		conv.Title,
 		conv.Status,
-	); err != nil {
-		return utils.HandlePgError(err, "CreateConversation")
+	).Scan(
+		&conversation.ConversationId,
+		&conversation.SpaceId,
+		&conversation.UserId,
+		&conversation.Title,
+		&conversation.Status,
+		&conversation.CreatedAt,
+		&conversation.UpdatedAt,
+	)
+	if err != nil {
+		return nil, utils.HandlePgError(err, "CreateConversation")
 	}
-	return nil
+
+	return &conversation, nil
 }
 
 func (db *Postgres) GetConversation(ctx context.Context, convId string) (*models.Conversation, error) {

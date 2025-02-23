@@ -9,7 +9,7 @@ import (
 )
 
 type ConversationService interface {
-	CreateConversation(ctx context.Context, conv *models.Conversation) error
+	CreateConversation(ctx context.Context, conv *models.Conversation) (*models.Conversation, error)
 	GetConversation(ctx context.Context, convId string) (*models.Conversation, error)
 	UpdateConversationTitle(ctx context.Context, convId string, title string) error
 	UpdateConversationStatus(ctx context.Context, convId string, status models.ConversationStatus) error
@@ -30,7 +30,7 @@ func NewConversationService(db db.DB, logger *zap.Logger) *conversationService {
 	}
 }
 
-func (c *conversationService) CreateConversation(ctx context.Context, conv *models.Conversation) error {
+func (c *conversationService) CreateConversation(ctx context.Context, conv *models.Conversation) (*models.Conversation, error) {
 	return c.db.CreateConversation(ctx, conv)
 }
 

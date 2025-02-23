@@ -27,7 +27,7 @@ func main() {
 
 	gemini := llm.NewGemini(client, logger, "gemini-1.5-pro")
 
-	muxRouter := router.NewRouter(os.Getenv("DATABASE_URL"), os.Getenv("AUTH_PEPPER"), logger, gemini)
+	muxRouter := router.NewRouter(os.Getenv("DB_URI"), os.Getenv("AUTH_PEPPER"), logger, gemini)
 	router := muxRouter.CreateRoutes(ctx)
 
 	logger.Info("Listening on port 8080")

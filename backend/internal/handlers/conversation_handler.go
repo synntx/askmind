@@ -81,12 +81,13 @@ func (h *ConversationHandler) CreateConversationHandler(w http.ResponseWriter, r
 		Status:  models.ConversationStatusActive,
 	}
 
-	err = h.cs.CreateConversation(r.Context(), &conv)
+	conversation, err := h.cs.CreateConversation(r.Context(), &conv)
 	if err != nil {
 		utils.HandleError(w, h.logger, err)
+		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
+	utils.SendResponse(w, http.StatusOK, conversation)
 }
 
 func (h *ConversationHandler) GetConversationHandler(w http.ResponseWriter, r *http.Request) {
