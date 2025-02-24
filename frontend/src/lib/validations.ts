@@ -28,8 +28,8 @@ export const updateSpaceSchema = z.object({
 });
 
 export const CreateConversationSchema = z.object({
-  SpaceId: z.string().uuid(),
-  Title: z.string(),
+  space_id: z.string().uuid(),
+  title: z.string(),
 });
 
 // INFER TYPES:

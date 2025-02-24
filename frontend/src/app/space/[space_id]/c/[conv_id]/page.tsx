@@ -1,5 +1,6 @@
 "use client";
 
+import NewChatInput from "@/components/conversation/newChatInput";
 import { useParams } from "next/navigation";
 import React from "react";
 
@@ -8,8 +9,15 @@ const page = () => {
 
   return (
     <div>
-      <p>space_id {space_id}</p>
-      <p>conv_id {conv_id}</p>
+      {conv_id == "new" ? (
+        <div>
+          <NewChatInput />
+        </div>
+      ) : (
+        <div>Not New</div>
+      )}
+      {/* <p>space_id {space_id}</p> */}
+      {/* <p>conv_id {conv_id}</p> */}
     </div>
   );
 };

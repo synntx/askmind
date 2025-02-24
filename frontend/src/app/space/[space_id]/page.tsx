@@ -9,6 +9,9 @@ import {
   Wand2,
   ArrowRight,
 } from "lucide-react";
+import { useCreateConversation } from "@/hooks/useConversation";
+import { useParams } from "next/navigation";
+import { CreateConversation } from "@/lib/validations";
 
 interface Suggestion {
   text: string;
@@ -17,36 +20,40 @@ interface Suggestion {
   description: string;
 }
 
-  const suggestions: Suggestion[] = [
-    {
-      text: "Focus mode",
-      icon: <Search size={14} />,
-      prompt: "Help me create a focused work environment",
-      description: "Get personalized focus tips",
-    },
-    {
-      text: "Ask anything",
-      icon: <Command size={14} />,
-      prompt: "I'm curious about",
-      description: "Ask any question",
-    },
-    {
-      text: "Discover",
-      icon: <Sparkles size={14} />,
-      prompt: "Show me something interesting about",
-      description: "Explore random topics",
-    },
-    {
-      text: "Creative",
-      icon: <Wand2 size={14} />,
-      prompt: "Help me generate creative ideas for",
-      description: "Boost creativity",
-    },
-  ];
+const suggestions: Suggestion[] = [
+  {
+    text: "Focus mode",
+    icon: <Search size={14} />,
+    prompt: "Help me create a focused work environment",
+    description: "Get personalized focus tips",
+  },
+  {
+    text: "Ask anything",
+    icon: <Command size={14} />,
+    prompt: "I'm curious about",
+    description: "Ask any question",
+  },
+  {
+    text: "Discover",
+    icon: <Sparkles size={14} />,
+    prompt: "Show me something interesting about",
+    description: "Explore random topics",
+  },
+  {
+    text: "Creative",
+    icon: <Wand2 size={14} />,
+    prompt: "Help me generate creative ideas for",
+    description: "Boost creativity",
+  },
+];
 
 const NewChatInput: React.FC = () => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [inputData, setInputData] = useState("");
+  const { space_id }: { space_id: string } = useParams();
+
+  const { mutate, isPending } = useCreateConversation();
 
   const handleTextareaInput = (e: React.FormEvent<HTMLTextAreaElement>) => {
     const textarea = e.currentTarget;
@@ -62,6 +69,14 @@ const NewChatInput: React.FC = () => {
       // const event = new Event("input", { bubbles: true });
       // textareaRef.current.dispatchEvent(event);
     }
+  };
+
+  const handleSendMessage = () => {
+    const data: CreateConversation = {
+      space_id: space_id,
+      title: inputData,
+    };
+    mutate(data);
   };
 
   useEffect(() => {
@@ -83,14 +98,15 @@ const NewChatInput: React.FC = () => {
             rows={1}
             placeholder="Ask anything... "
             onInput={handleTextareaInput}
+            onChange={(e) => setInputData(e.target.value)}
             className="w-full bg-transparent text-sm placeholder:pt-0.5 text-gray-200 placeholder-gray-500 pl-10 pr-12 py-4 focus:outline-none resize-none overflow-hidden min-h-[56px]"
             style={{
               maxHeight: "200px",
             }}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) { 
-                e.preventDefault(); 
-                // handleSendMessage();
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSendMessage();
               }
             }}
           />

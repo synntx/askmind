@@ -4,6 +4,7 @@ import { CreateConversation } from "@/lib/validations";
 import { Conversation } from "@/types/conversation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
+import { useRouter } from "next/navigation";
 
 export const LIST_SPACE_CONVERSATIONS = "list_space_conversations";
 
@@ -15,17 +16,20 @@ export const useGetConversations = (spaceId: string) => {
   });
 };
 
-export const useCreateConversations = () => {
+export const useCreateConversation = () => {
   const queryClient = useQueryClient();
   const { addToast } = useToast();
+  const router = useRouter();
 
   return useMutation({
     mutationFn: async (data: CreateConversation) => {
-      await convApi.create(data);
+      const res = await convApi.create(data);
+      return res;
     },
-    onSuccess: () => {
+    onSuccess: (res) => {
       queryClient.invalidateQueries({ queryKey: [LIST_SPACE_CONVERSATIONS] });
-      addToast("Space Created Successfully", "success");
+      router.push(`/space/${res.space_id}/c/${res.conversation_id}`);
+      addToast("Conversation Created Successfully", "success");
     },
     onError: (error: any) => {
       addToast(

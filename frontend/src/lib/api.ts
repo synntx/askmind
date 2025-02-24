@@ -5,7 +5,12 @@ import {
   CreateSpace,
   UpdateSpace,
 } from "@/lib/validations";
-import { ConversationStatus, GetConversation } from "@/types/conversation";
+import {
+  Conversation,
+  ConversationStatus,
+  GetConversation,
+  GetConversations,
+} from "@/types/conversation";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080",
@@ -51,9 +56,18 @@ export const spaceApi = {
 // 6. /c/list/space?space_id=sdfh;oij
 // 7. /c/list/user
 
+// &conv.ConversationId,
+// &conv.SpaceId,
+// &conv.UserId,
+// &conv.Title,
+// &conv.Status,
+// &conv.CreatedAt,
+// &conv.UpdatedAt,
+
 export const convApi = {
   create: async (data: CreateConversation) => {
-    await api.post("/c/create", data);
+    const res = await api.post<GetConversation>("/c/create", data);
+    return res.data.data as Conversation;
   },
   get: async () => {
     const res = await api.get<GetConversation>("/c/get");
@@ -70,7 +84,7 @@ export const convApi = {
   },
   listSpaceConversations: async (spaceId: string) => {
     const params = new URLSearchParams({ space_id: spaceId });
-    const res = await api.get<GetConversation>(`/c/list/space?${params}`);
+    const res = await api.get<GetConversations>(`/c/list/space?${params}`);
     return res.data.data;
   },
   delete: async (conv_id: string) => {
