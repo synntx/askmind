@@ -16,7 +16,7 @@ const SpaceListItem = ({ space }: SpaceListItemProps) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
 
   const handleItemClick = () => {
-    router.push(`/space/${space.space_id}`);
+    router.push(`/space/${space.space_id}/c/new`);
   };
 
   return (

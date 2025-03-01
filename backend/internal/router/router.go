@@ -188,11 +188,15 @@ func (r *Router) CreateRoutes(ctx context.Context) *http.ServeMux {
 		http.MethodGet,
 		r.logger))
 
+	corsConfig := mw.NewCORSConfig()
+	corsConfig.AllowedOrigins = []string{"http://localhost:3000", "http://172.22.181.121:3000"}
+
 	mux.Handle("/c/completion", middlewareChain(
 		http.HandlerFunc(msgHandlers.CompletionHandler),
 		mw.AuthMiddleware(r.logger),
 		mw.RequireMethod(http.MethodPost, r.logger),
 		mw.RecoverPanic(r.logger),
+		mw.CORSWithConfig(corsConfig, r.logger),
 	))
 
 	return mux

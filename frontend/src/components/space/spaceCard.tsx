@@ -16,7 +16,7 @@ const SpaceCard = ({ space }: SpaceCardProps) => {
 
   return (
     <div key={space.space_id}>
-      <Link href={`/space/${space.space_id}`} className="block">
+      <Link href={`/space/${space.space_id}/c/new`} className="block">
         <div className="bg-[#1A1A1A] rounded-lg p-6 hover:bg-[#2232323] border border-transparent hover:border-[#282828] transition cursor-pointer group">
           <div className="flex items-start justify-between mb-4">
             <div>

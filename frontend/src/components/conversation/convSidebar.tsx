@@ -10,19 +10,28 @@ import {
   Settings,
   ChevronsLeft,
   ChevronsRight,
-  AlertCircle,
-  MessageSquare,
 } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useGetConversations } from "@/hooks/useConversation";
+import Link from "next/link";
 
-const ErrorState = ({ message }: any) => {
+const ErrorState = ({
+  message,
+  onRetry,
+}: {
+  message: string;
+  onRetry: () => void;
+}) => {
   return (
-    <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
-      <AlertCircle size={36} className="text-red-400 mb-3" />
-      <h3 className="text-lg font-medium mb-2">Unable to load conversations</h3>
-      <p className="text-[#CACACA] text-sm mb-4">{message}</p>
-      <button className="px-4 py-2 bg-red-500/5 text-red-500 rounded-lg text-sm hover:bg-red-500/10 transition-colors">
+    <div className="flex flex-col items-center justify-center py-6 px-4 text-center">
+      <h3 className="text-sm font-medium text-[#CACACA] mb-2">
+        Unable to load conversations
+      </h3>
+      <p className="text-[#CACACA]/60 text-xs mb-3">{message}</p>
+      <button
+        onClick={onRetry}
+        className="px-3 py-1.5 bg-red-500/5 text-red-400 rounded-lg text-xs hover:bg-red-500/10 transition-colors"
+      >
         Try Again
       </button>
     </div>
@@ -31,33 +40,39 @@ const ErrorState = ({ message }: any) => {
 
 const EmptyState = () => {
   return (
-    <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
-      <div className="bg-[#303134] p-4 rounded-full mb-4">
-        <MessageSquare size={32} className="text-[#8A92E3]" />
-      </div>
-      <h3 className="text-lg font-medium mb-2">No conversations yet</h3>
-      <p className="text-[#CACACA]/50 text-sm mb-5">
+    <div className="flex flex-col items-center justify-center py-6 px-4 text-center">
+      <h3 className="text-sm font-medium text-[#CACACA] mb-2">
+        No conversations yet
+      </h3>
+      <p className="text-[#CACACA]/50 text-xs">
         Start a new chat to begin asking questions
       </p>
-      {/*<button className="px-5 py-2.5 bg-[#8A92E3]/5 text-[#8A92E3] rounded-full text-sm hover:bg-[#8A92E3]/10 transition-colors flex items-center gap-2 active:bg-[#8A92E3]/15 duration-150">
-        <Plus size={16} />
-        New conversation
-      </button> */}
+    </div>
+  );
+};
+
+const LoadingState = () => {
+  return (
+    <div className="flex flex-col items-center justify-center py-8 px-4">
+      <div className="animate-pulse flex flex-col items-start w-full gap-3">
+        <div className="h-4 w-[85%] bg-[#303134] rounded"></div>
+        <div className="h-4 w-[70%] bg-[#303134] rounded"></div>
+        <div className="h-4 w-[90%] bg-[#303134] rounded"></div>
+      </div>
     </div>
   );
 };
 
 const ConvSidebar = () => {
   const { space_id }: { space_id: string } = useParams();
-
-  const { data, error, isError, isPending } = useGetConversations(space_id);
+  const { data, error, isError, isPending, refetch } =
+    useGetConversations(space_id);
 
   const [collapsed, setCollapsed] = useState(false);
   const [selectedChat, setSelectedChat] = useState<string | null>("1");
   const [isEditing, setIsEditing] = useState<string | null>(null);
   const [showMore, setShowMore] = useState(false);
 
-  // Reference to the chat list container
   const chatListRef = useRef<HTMLDivElement>(null);
 
   return (
@@ -90,7 +105,6 @@ const ConvSidebar = () => {
 
       <div className={`${collapsed ? "px-2" : "px-4"} pb-5`}>
         <button
-          // onClick={handleNewChat}
           className={`w-full md:max-w-32 flex items-center ${
             collapsed ? "justify-center" : "gap-2"
           } hover:bg-[#303134] text-gray-300 py-3 ${
@@ -103,91 +117,103 @@ const ConvSidebar = () => {
       </div>
 
       {!collapsed && (
-        <div className="px-4 pb-2">
-          <h3 className="text-sm font-medium text-[#CACACA]">Recent</h3>
-        </div>
-      )}
-
-      <div
-        ref={chatListRef}
-        className="flex-1 overflow-y-auto px-4 pt-2 pb-4 custom-scrollbar"
-      >
-        {!collapsed && isPending ? (
-          <p className="text-center py-12 text-sm text-[#CACACA]">
-            {"Loading Conversations..."}
-          </p>
-        ) : !collapsed && isError ? (
-          <ErrorState message={error?.message || "Something went wrong"} />
-        ) : !collapsed && (!data || data.length === 0) ? (
-          <EmptyState />
-        ) : (
-          data?.map((chat) => (
-            <div
-              key={chat.conversationId}
-              className={`group flex items-center my-1 px-3 py-2 hover:bg-[#303134] cursor-pointer rounded-lg ${
-                selectedChat === chat.conversationId ? "bg-[#303134]" : ""
-              }`}
-              onClick={() => setSelectedChat(chat.conversationId)}
-            >
-              <div className="flex-1 min-w-0">
-                {isEditing === chat.conversationId ? (
-                  <input
-                    type="text"
-                    defaultValue={chat.title}
-                    autoFocus
-                    // onBlur={(e) => handleEdit(chat.conversationId, e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        // handleEdit(chat.conversationId, e.currentTarget.value);
-                      }
-                    }}
-                    onClick={(e) => e.stopPropagation()}
-                    className="bg-[#3c3c3f] text-[#CACACA] rounded px-2 py-1 w-full text-sm"
-                  />
-                ) : (
-                  <div className="truncate text-sm">{chat.title}</div>
-                )}
-              </div>
-
-              <div className="opacity-0 group-hover:opacity-100 flex gap-1 ml-2">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsEditing(chat.conversationId);
-                  }}
-                  className="p-1 rounded-full hover:bg-[#3c3c3f] text-[#CACACA]"
-                >
-                  <Edit2 size={14} />
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    // deleteChat(chat.conversationId);
-                  }}
-                  className="p-1 rounded-full hover:bg-[#3c3c3f] text-[#CACACA]"
-                >
-                  <Trash2 size={14} />
-                </button>
-              </div>
-            </div>
-          ))
-        )}
-
-        {!collapsed && data && data.length > 5 && (
-          <div
-            className="flex items-center px-3 py-2 text-sm text-[#CACACA] hover:bg-[#303134] cursor-pointer rounded-lg mx-2"
-            onClick={() => setShowMore(!showMore)}
-          >
-            <ChevronDown
-              size={18}
-              className={`mr-2 transform transition-transform ${
-                showMore ? "rotate-180" : ""
-              }`}
-            />
-            {showMore ? "Less" : "More"}
+        <>
+          <div className="px-4 pb-2">
+            <h3 className="text-sm font-medium text-[#CACACA]">Recent</h3>
           </div>
-        )}
-      </div>
+
+          <div
+            ref={chatListRef}
+            className="flex-1 overflow-y-auto px-4 pt-2 pb-4 custom-scrollbar"
+          >
+            {isPending ? (
+              <LoadingState />
+            ) : isError ? (
+              <ErrorState
+                message={error?.message || "Something went wrong"}
+                onRetry={() => refetch()}
+              />
+            ) : !data || data.length === 0 ? (
+              <EmptyState />
+            ) : (
+              <>
+                {data?.map((chat) => (
+                  <Link
+                    href={`/space/${space_id}/c/${chat.conversation_id}`}
+                    key={chat.conversation_id}
+                    className={`group flex items-center justify-between my-1.5 px-2.5 py-1.5 hover:bg-[#2c2d31] cursor-pointer rounded-xl ${
+                      selectedChat === chat.conversation_id
+                        ? "bg-[#2c2d31]"
+                        : "bg-transparent"
+                    }`}
+                    onClick={() => setSelectedChat(chat.conversation_id)}
+                  >
+                    <div className="flex-1 min-w-0 pr-2">
+                      {isEditing === chat.conversation_id ? (
+                        <input
+                          type="text"
+                          defaultValue={chat.title}
+                          autoFocus
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              // handleEdit(chat.conversation_id, e.currentTarget.value);
+                            }
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                          onBlur={() => setIsEditing(null)} 
+                          className="bg-[#35363a] text-[#e0e0e0] rounded-lg px-3 py-1.5 w-full text-sm border border-[#45464a] focus:outline-none focus:border-[#5e5f64] transition-colors"
+                        />
+                      ) : (
+                        <div className="truncate text-sm text-[#d0d0d0] font-medium group-hover:text-[#e0e0e0] transition-colors">
+                          {chat.title}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsEditing(chat.conversation_id);
+                        }}
+                        className="p-1.5 rounded-lg hover:bg-[#3a3b3f] text-[#b0b0b0] hover:text-[#d0d0d0] transition-all duration-150"
+                        title="Edit chat title"
+                      >
+                        <Edit2 size={14} />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // deleteChat(chat.conversation_id);
+                        }}
+                        className="p-1.5 rounded-lg hover:bg-[#3a3b3f] text-[#b0b0b0] hover:text-[#d0d0d0] transition-all duration-150"
+                        title="Delete chat"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </Link>
+                ))}
+
+                {data && data.length > 5 && (
+                  <div
+                    className="flex items-center px-3 py-2 text-sm text-[#CACACA] hover:bg-[#303134] cursor-pointer rounded-lg mx-2"
+                    onClick={() => setShowMore(!showMore)}
+                  >
+                    <ChevronDown
+                      size={18}
+                      className={`mr-2 transform transition-transform ${
+                        showMore ? "rotate-180" : ""
+                      }`}
+                    />
+                    {showMore ? "Less" : "More"}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </>
+      )}
 
       <div className="mt-auto border-t border-gray-800 pt-2">
         <div className="py-2">
