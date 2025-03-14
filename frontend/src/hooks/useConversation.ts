@@ -2,6 +2,7 @@ import { useToast } from "@/components/ui/toast";
 import { convApi } from "@/lib/api";
 import { CreateConversation } from "@/lib/validations";
 import { Conversation } from "@/types/conversation";
+import { ApiError } from "@/types/errors";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 
@@ -28,7 +29,7 @@ export const useCreateConversation = () => {
       queryClient.invalidateQueries({ queryKey: [LIST_SPACE_CONVERSATIONS] });
       addToast("Conversation Created Successfully", "success");
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<ApiError>) => {
       addToast(
         error.response?.data?.error.message || "Conversation creation failed",
         "error",

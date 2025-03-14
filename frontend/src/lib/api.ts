@@ -11,6 +11,7 @@ import {
   GetConversation,
   GetConversations,
 } from "@/types/conversation";
+import { GetMessages } from "@/types/message";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080",
@@ -90,6 +91,16 @@ export const convApi = {
   delete: async (conv_id: string) => {
     const params = new URLSearchParams({ conv_id: conv_id });
     return await api.delete(`/space/delete?${params}`);
+  },
+};
+
+export const messageApi = {
+  getConvMessages: async (conv_id: string) => {
+    const res = await api.get<GetMessages>(
+      `/msg/get/all-msgs?conv_id=${conv_id}`,
+    );
+    console.log(res.data);
+    return res.data.data;
   },
 };
 

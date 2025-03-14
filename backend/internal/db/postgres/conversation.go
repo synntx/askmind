@@ -37,7 +37,7 @@ func (db *Postgres) CreateConversation(ctx context.Context, conv *models.Convers
 }
 
 func (db *Postgres) GetConversation(ctx context.Context, convId string) (*models.Conversation, error) {
-	sql := `SELECT * FROM conversations WHERE conversation_id = $1`
+	sql := `SELECT * FROM conversations WHERE conversation_id = $1 `
 	var conv models.Conversation
 	if err := db.pool.QueryRow(ctx, sql, convId).Scan(
 		&conv.ConversationId,
@@ -82,7 +82,7 @@ func (db *Postgres) DeleteConversation(ctx context.Context, convId string) error
 }
 
 func (db *Postgres) ListConversationsForSpace(ctx context.Context, spaceId string) ([]models.Conversation, error) {
-	sql := `SELECT * FROM conversations WHERE space_id = $1`
+	sql := `SELECT * FROM conversations WHERE space_id = $1 ORDER BY updated_at DESC`
 
 	rows, err := db.pool.Query(ctx, sql, spaceId)
 	if err != nil {

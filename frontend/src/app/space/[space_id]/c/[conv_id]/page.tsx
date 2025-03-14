@@ -2,13 +2,11 @@
 
 import Conversation from "@/components/conversation/conversationPage";
 import NewConvInput from "@/components/conversation/newConvInput";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import React from "react";
 
-const page = () => {
-  const { conv_id, space_id } = useParams();
-  const searchParams = useSearchParams();
-  const query = searchParams.get("q");
+const Page = () => {
+  const { conv_id } = useParams();
 
   return (
     <div>
@@ -25,4 +23,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

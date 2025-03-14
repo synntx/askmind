@@ -29,6 +29,7 @@ export default {
       fontFamily: {
         sans: ["var(--font-outfit)"],
         mono: ["var(--font-ibm-plex-mono)"],
+        inter: ["var(--font-inter)"],
       },
       colors: {
         background: "hsl(var(--background))",

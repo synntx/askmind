@@ -1,13 +1,14 @@
 import React from "react";
 
-type IconProps = {
+type IconProps = React.SVGProps<SVGSVGElement> & {
   className?: string;
 };
 
-const EditLight: React.FC<IconProps> = ({ className }) => {
+const EditLight: React.FC<IconProps> = (props) => {
   return (
     <svg
-      className={className}
+      {...props}
+      className={props.className}
       width="24"
       height="24"
       viewBox="0 0 24 24"
@@ -22,10 +23,11 @@ const EditLight: React.FC<IconProps> = ({ className }) => {
   );
 };
 
-const TrashLight: React.FC<IconProps> = ({ className }) => {
+const TrashLight: React.FC<IconProps> = (props) => {
   return (
     <svg
-      className={className}
+      {...props}
+      className={props.className}
       width="24"
       height="24"
       viewBox="0 0 24 24"
@@ -56,10 +58,11 @@ const TrashLight: React.FC<IconProps> = ({ className }) => {
   );
 };
 
-const Ellipse: React.FC<IconProps> = ({ className }) => {
+const Ellipse: React.FC<IconProps> = (props) => {
   return (
     <svg
-      className={className}
+      {...props}
+      className={props.className}
       xmlns="http://www.w3.org/2000/svg"
       width="9"
       height="9"
@@ -74,10 +77,11 @@ const Ellipse: React.FC<IconProps> = ({ className }) => {
   );
 };
 
-const Grid: React.FC<IconProps> = ({ className }) => {
+const Grid: React.FC<IconProps> = (props) => {
   return (
     <svg
-      className={className}
+      {...props}
+      className={props.className}
       xmlns="http://www.w3.org/2000/svg"
       width="24"
       height="24"
@@ -124,10 +128,11 @@ const Grid: React.FC<IconProps> = ({ className }) => {
   );
 };
 
-const List: React.FC<IconProps> = ({ className }) => {
+const List: React.FC<IconProps> = (props) => {
   return (
     <svg
-      className={className}
+      {...props}
+      className={props.className}
       xmlns="http://www.w3.org/2000/svg"
       width="24"
       height="24"
@@ -141,9 +146,9 @@ const List: React.FC<IconProps> = ({ className }) => {
   );
 };
 
-const LoadingIcon: React.FC<IconProps> = ({ className }) => {
+const LoadingIcon: React.FC<IconProps> = (props) => {
   return (
-    <svg className={className} viewBox="0 0 24 24">
+    <svg {...props} className={props.className} viewBox="0 0 24 24">
       <circle
         className="opacity-25"
         cx="12"
@@ -162,4 +167,77 @@ const LoadingIcon: React.FC<IconProps> = ({ className }) => {
   );
 };
 
-export { EditLight, TrashLight, Ellipse, Grid, List, LoadingIcon };
+const CopyLight: React.FC<IconProps> = (props) => {
+  return (
+    <svg
+      {...props}
+      className={props.className}
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M8 8V5.2C8 4.0799 8 3.51984 8.21799 3.09202C8.40973 2.71569 8.71569 2.40973 9.09202 2.21799C9.51984 2 10.0799 2 11.2 2H18.8C19.9201 2 20.4802 2 20.908 2.21799C21.2843 2.40973 21.5903 2.71569 21.782 3.09202C22 3.51984 22 4.0799 22 5.2V12.8C22 13.9201 22 14.4802 21.782 14.908C21.5903 15.2843 21.2843 15.5903 20.908 15.782C20.4802 16 19.9201 16 18.8 16H16M5.2 22H12.8C13.9201 22 14.4802 22 14.908 21.782C15.2843 21.5903 15.5903 21.2843 15.782 20.908C16 20.4802 16 19.9201 16 18.8V11.2C16 10.0799 16 9.51984 15.782 9.09202C15.5903 8.71569 15.2843 8.40973 14.908 8.21799C14.4802 8 13.9201 8 12.8 8H5.2C4.0799 8 3.51984 8 3.09202 8.21799C2.71569 8.40973 2.40973 8.71569 2.21799 9.09202C2 9.51984 2 10.0799 2 11.2V18.8C2 19.9201 2 20.4802 2.21799 20.908C2.40973 21.2843 2.71569 21.5903 3.09202 21.782C3.51984 22 4.07989 22 5.2 22Z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+};
+
+// New icon for the chat copy functionality
+const CopyIcon: React.FC<IconProps> = (props) => {
+  return (
+    <svg
+      {...props}
+      className={props.className}
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+    </svg>
+  );
+};
+
+// New checkmark icon for the copied state
+const CheckmarkIcon: React.FC<IconProps> = (props) => {
+  return (
+    <svg
+      {...props}
+      className={props.className}
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={props.stroke || "currentColor"}
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M20 6L9 17l-5-5"></path>
+    </svg>
+  );
+};
+
+export {
+  EditLight,
+  TrashLight,
+  Ellipse,
+  Grid,
+  List,
+  LoadingIcon,
+  CopyLight,
+  CopyIcon,
+  CheckmarkIcon,
+};
