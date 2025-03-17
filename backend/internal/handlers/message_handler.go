@@ -1,11 +1,12 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
-	"github.com/google/uuid"
 	"github.com/synntx/askmind/internal/llm"
 	"github.com/synntx/askmind/internal/models"
 	"github.com/synntx/askmind/internal/service"
@@ -14,16 +15,19 @@ import (
 )
 
 type MessageHandler struct {
-	ms     service.MessageService
-	llm    llm.LLM
-	logger *zap.Logger
+	ms                      service.MessageService
+	llm                     llm.LLM
+	logger                  *zap.Logger
+	completionStreamHandler *CompletionStreamHandler
 }
 
 func NewMessageHandler(ms service.MessageService, logger *zap.Logger, llm llm.LLM) *MessageHandler {
+	completionStreamHandler := NewCompletionStreamHandler(ms, logger, llm)
 	return &MessageHandler{
-		ms:     ms,
-		llm:    llm,
-		logger: logger,
+		ms:                      ms,
+		llm:                     llm,
+		logger:                  logger,
+		completionStreamHandler: completionStreamHandler,
 	}
 }
 
@@ -132,125 +136,37 @@ func (h *MessageHandler) GetConvUserMessageHandler(w http.ResponseWriter, r *htt
 }
 
 func (h *MessageHandler) CompletionHandler(w http.ResponseWriter, r *http.Request) {
-	convIdStr := r.FormValue("conv_id")
-	if convIdStr == "" {
-		utils.HandleError(w, h.logger, utils.ErrValidation.Wrap(
-			fmt.Errorf("missing required parameter conv_id"),
-		).WithDetails(utils.ValidationError{
-			Field:   "conv_id",
-			Message: "conv_id is required",
-		}))
-		return
-	}
+	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Minute)
+	defer cancel()
 
-	userMessage := r.FormValue("user_message")
-	if userMessage == "" {
-		utils.HandleError(w, h.logger, utils.ErrValidation.Wrap(
-			fmt.Errorf("missing required parameter user_message"),
-		).WithDetails(utils.ValidationError{
-			Field:   "user_message",
-			Message: "user_message is required",
-		}))
-		return
-	}
-
-	model := r.FormValue("model")
-	if model == "" {
-		utils.HandleError(w, h.logger, utils.ErrValidation.Wrap(
-			fmt.Errorf("missing required parameter model"),
-		).WithDetails(utils.ValidationError{
-			Field:   "model",
-			Message: "model is required",
-		}))
-		return
-	}
-
-	convId, err := uuid.Parse(convIdStr)
+	params, err := utils.ExtractCompletionRequestParams(r)
 	if err != nil {
-		utils.HandleError(w, h.logger, utils.ErrValidation.Wrap(
-			fmt.Errorf("failed to parse conv_id"),
-		).WithDetails(utils.ValidationError{
-			Field:   "conv_id",
-			Message: "invalid conv_id",
-		}))
+		utils.HandleError(w, h.logger, err)
 		return
 	}
 
 	userMsg := &models.CreateMessageRequest{
-		ConversationId: convId,
+		ConversationId: params.ConvID,
 		Role:           models.RoleUser,
-		Content:        userMessage,
-		Model:          model,
+		Content:        params.UserMessage,
+		Model:          params.Model,
 	}
 
-	if err = h.ms.CreateMessage(r.Context(), userMsg); err != nil {
+	if err = h.ms.CreateMessage(ctx, userMsg); err != nil {
 		utils.HandleError(w, h.logger, err)
 		return
 	}
 
-	resp, err := h.llm.GenerateContentStream(r.Context(), userMessage)
+	streamer, err := NewSSEStreamer(w, h.logger)
 	if err != nil {
-		h.logger.Error("error creating stream content: ", zap.String("Error", err.Error()))
-	}
-	w.Header().Set("Content-Type", "text/event-stream")
-	w.Header().Set("Cache-Control", "no-cache")
-	w.Header().Set("Connection", "keep-alive")
-	w.WriteHeader(http.StatusOK)
-	rc := http.NewResponseController(w)
-	err = rc.Flush()
-	if err != nil {
-		h.logger.Error("error flushing headers: ", zap.String("Error", err.Error()))
+		utils.HandleError(w, h.logger, utils.ErrSSEStreamInitFailed.Wrap(err))
 		return
 	}
 
-	var completeRespStr string
-	for chunk := range resp {
-		select {
-		case <-r.Context().Done():
-			h.logger.Info("stream cancelled by client", zap.String("conv_id", convIdStr))
-			return // Exit if context is cancelled
-		default:
-			// SSE format: data: <payload>\n\n
-			sseData := fmt.Sprintf("data: %s\n\n", chunk)
-			completeRespStr += chunk
-
-			fmt.Println(sseData)
-			fmt.Println()
-			_, err = fmt.Fprint(w, sseData)
-			if err != nil {
-				h.logger.Error("error writing SSE data: ", zap.String("Error", err.Error()))
-				return
-			}
-
-			err = rc.Flush()
-			if err != nil {
-				h.logger.Error("error flushing data: ", zap.String("Error", err.Error()))
-				return
-			}
-		}
+	err = h.completionStreamHandler.HandleCompletionStream(ctx, params.ConvID, params.UserMessage, params.Model, streamer)
+	if err != nil && err != context.Canceled && err != context.DeadlineExceeded {
+		// note: If HandleCompletionStream returns an error (that's not context cancellation/timeout), it means something went wrong internally in streaming logic,
+		// but error event to client should already be sent within HandleCompletionStream.
+		h.logger.Error("error handling completion stream", zap.Error(err), zap.String("conv_id", params.ConvID.String()))
 	}
-	_, err = fmt.Fprint(w, "event: complete\ndata: [DONE]\n\n")
-	if err != nil {
-		h.logger.Error("error writing end of stream event: ", zap.String("Error", err.Error()))
-		return
-	}
-	err = rc.Flush()
-	if err != nil {
-		h.logger.Error("error flushing end of stream event: ", zap.String("Error", err.Error()))
-		return
-	}
-
-	assistantMessage := &models.CreateMessageRequest{
-		ConversationId: convId,
-		Role:           models.RoleAssistant,
-		Content:        completeRespStr,
-		Model:          model,
-	}
-
-	if err = h.ms.CreateMessage(r.Context(), assistantMessage); err != nil {
-		utils.HandleError(w, h.logger, err)
-		return
-	}
-
-	h.logger.Info("stream completed successfully for conv_id", zap.String("conv_id", convIdStr))
 }

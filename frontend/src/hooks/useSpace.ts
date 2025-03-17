@@ -1,12 +1,13 @@
 import { useToast } from "@/components/ui/toast";
 import { spaceApi } from "@/lib/api";
 import { CreateSpace } from "@/lib/validations";
+import { AppError } from "@/types/errors";
 import { Space } from "@/types/space";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 
 export const useGetSpaces = () => {
-  return useQuery<Space[], AxiosError<ApiError>>({
+  return useQuery<Space[], AxiosError<AppError>>({
     queryKey: ["space"],
     queryFn: spaceApi.list,
     retry: 0,
@@ -27,7 +28,7 @@ export const useCreateSpace = () => {
       queryClient.invalidateQueries({ queryKey: ["space"] });
       addToast("Space Created Successfully", "success");
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<AppError>) => {
       addToast(
         error.response?.data?.error.message || "Space creation failed",
         "error",
@@ -49,12 +50,17 @@ export const useUpdateSpace = (spaceId: string) => {
       await spaceApi.update(spaceId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["space"] });
-      addToast("Space updated successfully", "success");
+      addToast("Space updated successfully", "success", {
+        variant: "magical",
+      });
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<AppError>) => {
       addToast(
         error.response?.data?.error.message || "Failed to update space",
         "error",
+        {
+          variant: "magical",
+        },
       );
     },
   });
@@ -68,12 +74,15 @@ export const useDeleteSpace = () => {
     mutationFn: async (spaceId: string) => await spaceApi.delete(spaceId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["space"] });
-      addToast("Space deleted successfully", "success");
+      addToast("Space deleted successfully", "success", {
+        variant: "magical",
+      });
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<AppError>) => {
       addToast(
         error.response?.data?.error.message || "Failed to delete space",
         "error",
+        { variant: "magical" },
       );
     },
   });

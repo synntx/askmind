@@ -5,6 +5,8 @@ import { LoginFormValues } from "@/lib/validations";
 import { User } from "@/types/user";
 import api from "@/lib/api";
 import { useToast } from "@/components/ui/toast";
+import { AxiosError } from "axios";
+import { AppError } from "@/types/errors";
 
 interface LoginResponse {
   status: string;
@@ -29,7 +31,7 @@ export const useLogin = () => {
         router.push("/space");
       }
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<AppError>) => {
       addToast(error.response?.data?.error.message || "Login failed", "error");
       console.error("Login failed:", error.response?.data || error.message);
     },

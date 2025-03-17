@@ -28,12 +28,13 @@ export default {
       },
       fontFamily: {
         sans: ["var(--font-outfit)"],
-        mono: ["var(--font-ibm-plex-mono)"],
+        mono: ["var(--font-jetbrains-mono)"],
         inter: ["var(--font-inter)"],
       },
       colors: {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        sidebar: "hsl(var(--sidebar))",
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
@@ -80,5 +81,5 @@ export default {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  // plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
 } satisfies Config;

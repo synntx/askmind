@@ -1,12 +1,13 @@
+import { AppError } from "@/types/errors";
 import { AxiosError } from "axios";
 import { RefreshCcw } from "lucide-react";
 import React from "react";
 
-interface Error {
-  err: AxiosError<ApiError, any>;
+interface SpaceErrorProps {
+  err: AxiosError<AppError>;
 }
 
-const SpaceError = ({ err }: Error) => {
+const SpaceError: React.FC<SpaceErrorProps> = ({ err }) => {
   return (
     <div className="flex flex-col items-center justify-center py-12">
       <div className="text-center">

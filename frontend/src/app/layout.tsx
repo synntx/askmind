@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, Outfit } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/components/common/theme-provider";
+// import { ThemeProvider } from "@/components/common/theme-provider";
 import { Providers } from "./providers";
+import { ThemeProvider } from "@/components/common/theme-provider";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -38,14 +39,21 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <script src="https://unpkg.com/react-scan/dist/auto.global.js" />
+        {/* <script src="https://unpkg.com/react-scan/dist/auto.global.js" /> */}
       </head>
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} ${outfit.variable} antialiased font-sans`}
       >
-        <ThemeProvider attribute="class" defaultTheme="dark">
-          <Providers>{children}</Providers>
-        </ThemeProvider>
+        <Providers>
+          <ThemeProvider
+            defaultTheme="dark"
+            attribute="class"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+          </ThemeProvider>
+        </Providers>
       </body>
     </html>
   );

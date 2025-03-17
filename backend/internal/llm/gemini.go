@@ -2,11 +2,14 @@ package llm
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 
 	"github.com/google/generative-ai-go/genai"
 	"go.uber.org/zap"
+	"google.golang.org/api/googleapi"
+	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
 )
 
@@ -14,6 +17,11 @@ type Gemini struct {
 	Client    *genai.Client
 	logger    *zap.Logger
 	ModelName string
+}
+
+type ContentChunk struct {
+	Content string
+	Err     error
 }
 
 func NewGemini(client *genai.Client, logger *zap.Logger, modelName string) *Gemini {
@@ -60,28 +68,61 @@ func (g *Gemini) GenerateEmbeddings(ctx context.Context, input string) (*genai.E
 	return em.EmbedContent(ctx, genai.Text(input))
 }
 
-func (g *Gemini) GenerateContentStream(ctx context.Context, input string) (<-chan string, error) {
+func (g *Gemini) GenerateContentStream(ctx context.Context, input string) <-chan ContentChunk {
 	model := g.Client.GenerativeModel(g.ModelName)
 	stream := model.GenerateContentStream(ctx, genai.Text(input))
-	contentStream := make(chan string)
+
+	contentStream := make(chan ContentChunk, 10)
 
 	go func() {
 		defer close(contentStream)
 
 		for {
 			resp, err := stream.Next()
-			if err == io.EOF {
+			if err == iterator.Done || err == io.EOF {
+				g.logger.Info("Gemini stream finished normally")
 				return
 			}
 			if err != nil {
-				continue
+				fmt.Println("Error while generating content: ", err)
+				var googleErr *googleapi.Error
+				if errors.As(err, &googleErr) && googleErr.Code == 429 {
+					g.logger.Error("Rate limit (429) error from Gemini stream Next()", zap.Error(err))
+					contentStream <- ContentChunk{Err: fmt.Errorf("rate_limit_exceeded: %w", err)}
+
+				} else {
+					g.logger.Error("Error from Gemini stream Next()", zap.Error(err))
+					contentStream <- ContentChunk{Err: fmt.Errorf("generation_error: %w", err)}
+				}
+				return
 			}
-			if text, ok := resp.Candidates[0].Content.Parts[0].(genai.Text); ok {
-				contentStream <- string(text)
-			} else {
-				g.logger.Warn("Unexpected part type in streamed response from Gemini, not text", zap.Any("part", resp.Candidates[0].Content.Parts[0]))
+
+			// Not so severe
+			if resp == nil || len(resp.Candidates) == 0 || len(resp.Candidates[0].Content.Parts) == 0 {
+				g.logger.Warn("Unexpected empty response or candidates from Gemini stream")
+				// errChan <- fmt.Errorf("empty_response: unexpected empty response from model")
+				continue // ignore
+			}
+
+			part := resp.Candidates[0].Content.Parts[0]
+			text, ok := part.(genai.Text)
+			if !ok {
+				g.logger.Warn("Unexpected part type in streamed response from Gemini, not text", zap.Any("part", part))
+				contentStream <- ContentChunk{Err: fmt.Errorf("invalid_response: expected text but got different type")}
+				return
+			}
+
+			chunk := string(text)
+			g.logger.Debug("Received text chunk from Gemini", zap.String("chunk", chunk))
+
+			select {
+			case contentStream <- ContentChunk{Content: chunk}:
+			case <-ctx.Done():
+				contentStream <- ContentChunk{Err: ctx.Err()}
+				return
 			}
 		}
 	}()
-	return contentStream, nil
+
+	return contentStream
 }

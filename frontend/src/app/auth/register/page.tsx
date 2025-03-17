@@ -8,136 +8,147 @@ import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import api from "@/lib/api";
 import { useToast } from "@/components/ui/toast";
+import { AxiosError } from "axios";
+import { AppError } from "@/types/errors";
+import { useRef } from "react";
 
 export default function Register() {
   const router = useRouter();
-  const { addToast } = useToast();
+  const { addToast, clearToasts, removeToast } = useToast();
+  const toastIdRef = useRef<string | null>(null);
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm<RegisterFormValues>({ resolver: zodResolver(registerSchema) });
+    formState: { errors, isSubmitting },
+  } = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema),
+    mode: "onChange",
+  });
 
   const registerMutation = useMutation({
     mutationFn: async (data: RegisterFormValues) => {
       const response = await api.post("/auth/register", data);
       return response.data;
     },
-    onSuccess: (data) => {
-      addToast("Registration successful", "success");
-      console.log("Registration successful:", data);
+    onSuccess: () => {
+      addToast("Account created!", "success", {
+        variant: "magical",
+      });
       router.push("/auth/login");
     },
-    onError: (error: any) => {
-      addToast(error.response?.data?.message || "Registration failed", "error");
-      console.error(
-        "Registration failed:",
-        error.response?.data.message || error.message,
+    onError: (error: AxiosError<AppError>) => {
+      toastIdRef.current = addToast(
+        error.response?.data?.error.message || "Registration failed",
+        "error",
+        {
+          variant: "magical",
+          action: {
+            label: "Go to Login",
+            onClick: () => {
+              router.push("login");
+              if (toastIdRef.current) {
+                removeToast(toastIdRef.current);
+              }
+              toastIdRef.current = null;
+            },
+          },
+        },
       );
+    },
+    onSettled: () => {
+      clearToasts();
     },
   });
 
   const onSubmit = (data: RegisterFormValues) => {
-    console.log("Submitted data:", data);
     registerMutation.mutate(data);
   };
 
   return (
     <div className="w-full max-w-sm">
-      <h2 className="text-2xl font-medium mb-8 text-center">
-        Create an Account
-      </h2>
-      <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-        <div>
-          <label
-            htmlFor="first_name"
-            className="block text-sm font-medium text-[#CACACA]"
-          >
-            First Name
-          </label>
-          <input
-            type="text"
-            id="first_name"
-            placeholder="John"
-            {...register("first_name")}
-            className="mt-1 block w-full border border-[#282828]  bg-[#1A1A1A] text-sm placeholder:text-sm placeholder-[#767676] rounded-md p-2 focus:outline-none focus:border-[#8A92E3]/40"
-          />
-          {errors.first_name && (
-            <p className="text-xs text-red-500 mt-1">
-              {errors.first_name.message}
-            </p>
-          )}
+      <h2 className="text-2xl font-medium mb-4 text-center">Join Us</h2>
+
+      <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+        <div className="flex gap-2">
+          <div className="flex-1">
+            <input
+              type="text"
+              placeholder="First name"
+              {...register("first_name")}
+              className="w-full border border-[#20242f] bg-[#1c1d27] rounded-md p-3
+                focus:outline-none focus:ring-1 focus:ring-[#8A92E3]
+                transition-all placeholder-[#767676] hover:border-[#3A3F4F]"
+            />
+            {errors.first_name && (
+              <p className="text-xs text-red-400 mt-1">
+                {errors.first_name.message}
+              </p>
+            )}
+          </div>
+
+          <div className="flex-1">
+            <input
+              type="text"
+              placeholder="Last name"
+              {...register("last_name")}
+              className="w-full border border-[#20242f] bg-[#1c1d27] rounded-md p-3
+                focus:outline-none focus:ring-1 focus:ring-[#8A92E3]
+                transition-all placeholder-[#767676] hover:border-[#3A3F4F]"
+            />
+            {errors.last_name && (
+              <p className="text-xs text-red-400 mt-1">
+                {errors.last_name.message}
+              </p>
+            )}
+          </div>
         </div>
+
         <div>
-          <label
-            htmlFor="last_name"
-            className="block text-sm font-medium text-[#CACACA]"
-          >
-            Last Name
-          </label>
-          <input
-            type="text"
-            id="last_name"
-            placeholder="Doe"
-            {...register("last_name")}
-            className="mt-1 block w-full border border-[#282828]  bg-[#1A1A1A] text-sm placeholder:text-sm placeholder-[#767676] rounded-md p-2 focus:outline-none focus:border-[#8A92E3]/40"
-          />
-          {errors.last_name && (
-            <p className="text-xs text-red-500 mt-1">
-              {errors.last_name.message}
-            </p>
-          )}
-        </div>
-        <div>
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-[#CACACA]"
-          >
-            Email
-          </label>
           <input
             type="email"
-            id="email"
-            placeholder="yourname@example.com"
+            placeholder="Email"
             {...register("email")}
-            className="mt-1 block w-full border border-[#282828]  bg-[#1A1A1A] text-sm placeholder:text-sm placeholder-[#767676] rounded-md p-2 focus:outline-none focus:border-[#8A92E3]/40"
+            className="w-full border border-[#20242f] bg-[#1c1d27] rounded-md p-3
+              focus:outline-none focus:ring-1 focus:ring-[#8A92E3]
+              transition-all placeholder-[#767676] hover:border-[#3A3F4F]"
           />
           {errors.email && (
-            <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>
+            <p className="text-xs text-red-400 mt-1">{errors.email.message}</p>
           )}
         </div>
+
         <div>
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium text-[#CACACA]"
-          >
-            Password
-          </label>
           <input
             type="password"
-            id="password"
-            placeholder="secure-password..."
+            placeholder="Password"
             {...register("password")}
-            className="mt-1 block w-full border border-[#282828]  bg-[#1A1A1A] text-sm placeholder:text-sm placeholder-[#767676] rounded-md p-2 focus:outline-none focus:border-[#8A92E3]/40"
+            className="w-full border border-[#20242f] bg-[#1c1d27] rounded-md p-3
+              focus:outline-none focus:ring-1 focus:ring-[#8A92E3]
+              transition-all placeholder-[#767676] hover:border-[#3A3F4F]"
           />
           {errors.password && (
-            <p className="text-xs text-red-500 mt-1">
+            <p className="text-xs text-red-400 mt-1">
               {errors.password.message}
             </p>
           )}
         </div>
+
         <button
           type="submit"
-          className="w-full bg-[#D3D3D3] text-black font-medium py-2 rounded-md transition-colors"
+          disabled={isSubmitting || registerMutation.isPending}
+          className="w-full bg-[#8A92E3] hover:bg-[#7A82D3] text-black font-medium p-3
+            rounded-md transition-colors duration-200 mt-2 relative overflow-hidden
+            disabled:opacity-70 disabled:cursor-not-allowed"
         >
-          Register
+          {registerMutation.isPending ? "Creating..." : "Create Account"}
         </button>
       </form>
+
       <p className="mt-4 text-center text-sm text-[#CACACA]">
-        {"Already have an account? "}
+        Already have an account?{" "}
         <Link href="/auth/login" className="text-[#8A92E3] hover:underline">
-          Login here
+          Login
         </Link>
       </p>
     </div>

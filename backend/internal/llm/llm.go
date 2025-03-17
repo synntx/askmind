@@ -9,5 +9,5 @@ import (
 type LLM interface {
 	GenerateContent(ctx context.Context, input string) (string, error)
 	GenerateEmbeddings(ctx context.Context, input string) (*genai.EmbedContentResponse, error)
-	GenerateContentStream(ctx context.Context, input string) (<-chan string, error)
+	GenerateContentStream(ctx context.Context, input string) <-chan ContentChunk
 }

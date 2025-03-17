@@ -22,7 +22,7 @@ export default function DeleteSpaceModal({
         handleClose();
       },
       onError: (error) => {
-        console.error('Delete failed:', error);
+        console.error("Delete failed:", error);
       },
     });
   };
@@ -49,22 +49,22 @@ export default function DeleteSpaceModal({
             animate={{ scale: 1, y: 0, opacity: 1 }}
             exit={{ scale: 0.95, y: 10, opacity: 0 }}
             transition={{ type: "spring", duration: 0.2 }}
-            className="bg-[#1A1A1A] border border-[#282828] rounded-lg w-full max-w-md p-6 relative"
+            className="bg-card border border-[#282828] rounded-lg w-full max-w-md p-6 relative"
           >
             <button
               onClick={handleClose}
-              className="absolute right-4 top-4 p-2 rounded-md text-gray-400 hover:text-white hover:bg-secondary transition-colors"
+              className="absolute right-4 top-4 p-2 rounded-md text-gray-400 hover:text-white hover:bg-muted/60 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
             <h2 className="text-xl font-semibold mb-6">Delete Space</h2>
             <p className="block text-md text-[#CACACA]">
               Are you sure you want to delete{" "}
-              <span className="font-semibold">"{space.title}"</span>?
+              <span className="font-semibold">&quot;{space.title}&quot;</span>?
             </p>
             <div className="flex justify-end gap-3 mt-6">
               <button
-                className="px-4 py-2 rounded-md text-gray-300 hover:text-white hover:bg-secondary transition-colors"
+                className="px-4 py-2 rounded-md text-gray-300 hover:text-white hover:bg-muted/60 transition-colors"
                 onClick={handleClose}
               >
                 Cancel

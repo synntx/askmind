@@ -6,9 +6,12 @@ import CreateSpaceModal from "@/components/space/createSpaceModal";
 import SpaceCard from "@/components/space/spaceCard";
 import SpaceListItem from "@/components/space/spaceListItem";
 import { useCreateSpace, useGetSpaces } from "@/hooks/useSpace";
-import { List, Grid } from "@/icons";
-import { Plus } from "lucide-react";
 import { useState } from "react";
+import { List, Grid } from "@/icons";
+import { AxiosError } from "axios";
+import { Plus } from "lucide-react";
+import { AppError } from "@/types/errors";
+import { motion, AnimatePresence } from "motion/react";
 
 export default function SpacesPage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -24,17 +27,18 @@ export default function SpacesPage() {
     <div className="min-h-screen">
       <Header />
 
-      <main className="max-w-4xl mx-auto px-4 py-8 mt-14">
+      <main className="max-w-4xl mx-auto px-4 py-8 mt-14 overflow-hidden">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-5">
             <h2 className="text-3xl">My Spaces</h2>
             {spaces && spaces.length > 0 && (
               <button
                 onClick={openCreateModal}
-                className="flex items-center gap-2 bg-[#1A1A1A] hover:bg-[#1A1A1A]/50 border border-[#282828] transition-all duration-150 px-4 py-1.5 rounded-lg active:scale-[0.95] ease-in-out"
+                className="flex items-center gap-2 bg-transparent hover:bg-[hsla(234,10%,14%,0.6)] text-[#B0B0B0] px-3 py-1.5 rounded-md transition-all duration-150 active:scale-[0.97]"
+                aria-label="Create new space"
               >
-                <Plus className="w-5 h-5 text-[#B0B0B0]" />
-                Create Space
+                <Plus className="w-4 h-4" />
+                <span>Create Space</span>
               </button>
             )}
           </div>
@@ -86,34 +90,51 @@ export default function SpacesPage() {
             </p>
           </div>
         ) : isError ? (
-          <SpaceError err={error as any} />
+          <SpaceError err={error as AxiosError<AppError>} />
         ) : !spaces || spaces.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12">
             <h3 className="text-2xl font-semibold mb-4">No Spaces Found</h3>
             <p className="text-gray-400 mb-6">
-              Looks like you haven't created any spaces yet.
+              Looks like you haven not created any spaces yet.
             </p>
             <button
               onClick={openCreateModal}
-              className="flex items-center gap-2 bg-[#1A1A1A] hover:bg-[#1A1A1A]/50 border border-[#282828] transition-all duration-150 px-4 py-1.5 rounded-lg active:scale-[0.95] ease-in-out"
+              className="flex items-center gap-2 bg-[hsl(234,10%,14%)] hover:bg-[hsl(234,10%,18%)] px-4 py-2 rounded-lg transition-all duration-150 text-white active:scale-[0.97]"
             >
-              <Plus className="w-5 h-5 text-[#B0B0B0]" />
+              <Plus className="w-5 h-5" />
               Create Space
             </button>
           </div>
-        ) : 
-        viewMode === "grid" ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {spaces.map((space, index) => (
-              <SpaceCard space={space} key={index} />
-            ))}
-          </div>
         ) : (
-          <div className="grid grid-cols-1 gap-4">
-            {spaces.map((space, index) => (
-              <SpaceListItem space={space} key={index} />
-            ))}
-          </div>
+          <AnimatePresence mode="wait" initial={false}>
+            {viewMode === "grid" ? (
+              <motion.div
+                key="grid-view"
+                initial={{ x: -100, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: -100, opacity: 0 }}
+                transition={{ duration: 0.15, ease: "easeInOut" }}
+                className="grid grid-cols-1 md:grid-cols-2 gap-6"
+              >
+                {spaces.map((space, index) => (
+                  <SpaceCard space={space} key={index} />
+                ))}
+              </motion.div>
+            ) : (
+              <motion.div
+                key="list-view"
+                initial={{ x: 100, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: 100, opacity: 0 }}
+                transition={{ duration: 0.15, ease: "easeInOut" }}
+                className="grid grid-cols-1"
+              >
+                {spaces.map((space, index) => (
+                  <SpaceListItem space={space} key={index} />
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
         )}
       </main>
       <CreateSpaceModal

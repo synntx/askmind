@@ -9,17 +9,19 @@ const Page = () => {
   const { conv_id } = useParams();
 
   return (
-    <div>
-      {conv_id == "new" ? (
-        <div>
-          <NewConvInput />
-        </div>
-      ) : (
-        <div>
-          <Conversation />
-        </div>
-      )}
-    </div>
+    <>
+      <div>
+        {conv_id == "new" ? (
+          <div>
+            <NewConvInput />
+          </div>
+        ) : (
+          <div>
+            <Conversation />
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 

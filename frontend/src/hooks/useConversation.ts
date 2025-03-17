@@ -2,14 +2,14 @@ import { useToast } from "@/components/ui/toast";
 import { convApi } from "@/lib/api";
 import { CreateConversation } from "@/lib/validations";
 import { Conversation } from "@/types/conversation";
-import { ApiError } from "@/types/errors";
+import { AppError } from "@/types/errors";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 
 export const LIST_SPACE_CONVERSATIONS = "list_space_conversations";
 
 export const useGetConversations = (spaceId: string) => {
-  return useQuery<Conversation[], AxiosError<ApiError>>({
+  return useQuery<Conversation[], AxiosError<AppError>>({
     queryKey: [LIST_SPACE_CONVERSATIONS],
     queryFn: () => convApi.listSpaceConversations(spaceId),
     retry: 0,
@@ -29,7 +29,7 @@ export const useCreateConversation = () => {
       queryClient.invalidateQueries({ queryKey: [LIST_SPACE_CONVERSATIONS] });
       addToast("Conversation Created Successfully", "success");
     },
-    onError: (error: AxiosError<ApiError>) => {
+    onError: (error: AxiosError<AppError>) => {
       addToast(
         error.response?.data?.error.message || "Conversation creation failed",
         "error",

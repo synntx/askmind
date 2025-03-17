@@ -1,9 +1,11 @@
 package utils
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -69,6 +71,18 @@ var (
 	ErrNotNullViolation    = AppError{Code: "not_null_violation", Message: "A required field is missing", HTTPStatus: http.StatusBadRequest}            // 23502
 	ErrForeignKeyViolation = AppError{Code: "foreign_key_violation", Message: "Invalid reference to another record", HTTPStatus: http.StatusBadRequest} // 23503
 
+	// LLM Specific Errors
+	ErrPromptTooLong         = AppError{Code: "prompt_too_long", Message: "Prompt exceeds maximum length", HTTPStatus: http.StatusBadRequest}
+	ErrInvalidPrompt         = AppError{Code: "invalid_prompt", Message: "Invalid prompt format or content", HTTPStatus: http.StatusBadRequest}
+	ErrLLMServiceUnavailable = AppError{Code: "llm_service_unavailable", Message: "LLM service is currently unavailable", HTTPStatus: http.StatusServiceUnavailable}
+	ErrLLMGenerationFailed   = AppError{Code: "llm_generation_failed", Message: "Failed to generate text from LLM", HTTPStatus: http.StatusInternalServerError}
+	ErrRateLimited           = AppError{Code: "rate_limited", Message: "Too many requests, please try again later", HTTPStatus: http.StatusTooManyRequests}
+	ErrContextWindowExceeded = AppError{Code: "context_window_exceeded", Message: "The combined prompt and response exceeds the context window", HTTPStatus: http.StatusBadRequest} // Important for conversational agents
+	ErrInvalidModel          = AppError{Code: "invalid_model", Message: "The specified LLM model is invalid or unavailable", HTTPStatus: http.StatusBadRequest}
+
+	ErrSSEStreamInitFailed = AppError{Code: "sse_stream_init_failed", Message: "Failed to initialize SSE stream", HTTPStatus: http.StatusInternalServerError}
+	ErrSSEEventSendFailed  = AppError{Code: "sse_event_send_failed", Message: "Failed to send SSE event", HTTPStatus: http.StatusInternalServerError}
+
 	// System
 	ErrInternal = AppError{Code: "internal_error", Message: "Something went wrong", HTTPStatus: http.StatusInternalServerError}
 )
@@ -95,4 +109,41 @@ func HandlePgError(err error, context string) error {
 		return ErrNotFound.Wrap(fmt.Errorf("%s: not found", context))
 	}
 	return ErrDatabase.Wrap(err)
+}
+
+func SendErrorEvent(w http.ResponseWriter, rc *http.ResponseController, errorType string, errorMessage string, details map[string]any) error {
+	errorEvent := map[string]any{
+		"p": "",
+		"o": "patch",
+		"v": []map[string]any{
+			{
+				"p": "/error",
+				"o": "replace",
+				"v": map[string]any{
+					"type":      errorType,
+					"message":   errorMessage,
+					"details":   details,
+					"timestamp": float64(time.Now().Unix()) + float64(time.Now().Nanosecond())/1e9,
+				},
+			},
+			{
+				"p": "/message/status",
+				"o": "replace",
+				"v": "finished_with_error",
+			},
+		},
+	}
+
+	errorJSON, err := json.Marshal(errorEvent)
+	if err != nil {
+		return err
+	}
+
+	eventStr := fmt.Sprintf("event: delta\ndata: %s\n\n", string(errorJSON))
+	_, err = fmt.Fprint(w, eventStr)
+	if err != nil {
+		return err
+	}
+
+	return rc.Flush()
 }

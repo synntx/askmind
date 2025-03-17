@@ -10,8 +10,11 @@ export default function Login() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm<LoginFormValues>({ resolver: zodResolver(loginSchema) });
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    mode: "onChange",
+  });
 
   const loginMutation = useLogin();
 
@@ -22,54 +25,50 @@ export default function Login() {
 
   return (
     <div className="w-full max-w-sm">
-      <h2 className="text-2xl font-medium mb-8 text-center">Login</h2>
-      <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+      <h2 className="text-2xl font-medium mb-4 text-center">Login</h2>
+
+      <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
         <div>
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-[#CACACA]"
-          >
-            Email
-          </label>
           <input
             type="email"
-            id="email"
-            placeholder="yourname@example.com"
+            placeholder="Email"
             {...register("email")}
-            className="mt-1 block w-full border border-[#282828] bg-[#1A1A1A] text-sm placeholder:text-sm placeholder-[#767676] rounded-md p-2 focus:outline-none focus:border-[#8A92E3]/40"
+            className="w-full border border-[#20242f] bg-[#1c1d27] rounded-md p-3
+              focus:outline-none focus:ring-1 focus:ring-[#8A92E3]
+              transition-all placeholder-[#767676] hover:border-[#3A3F4F]"
           />
           {errors.email && (
-            <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>
+            <p className="text-xs text-red-400 mt-1">{errors.email.message}</p>
           )}
         </div>
+
         <div>
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium text-[#CACACA]"
-          >
-            Password
-          </label>
           <input
             type="password"
-            id="password"
-            placeholder="your-password..."
+            placeholder="Password"
             {...register("password")}
-            className="mt-1 block w-full border border-[#282828] bg-[#1A1A1A] text-sm placeholder:text-sm placeholder-[#767676] rounded-md p-2 focus:outline-none focus:border-[#8A92E3]/40"
+            className="w-full border border-[#20242f] bg-[#1c1d27] rounded-md p-3
+              focus:outline-none focus:ring-1 focus:ring-[#8A92E3]
+              transition-all placeholder-[#767676] hover:border-[#3A3F4F]"
           />
           {errors.password && (
-            <p className="text-xs text-red-500 mt-1">
+            <p className="text-xs text-red-400 mt-1">
               {errors.password.message}
             </p>
           )}
         </div>
+
         <button
           type="submit"
-          disabled={loginMutation.isPending}
-          className="w-full bg-[#D3D3D3] text-black font-medium py-2 rounded-md transition-colors hover:bg-[#BEBEBE] disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={isSubmitting || loginMutation.isPending}
+          className="w-full bg-[#8A92E3] hover:bg-[#7A82D3] text-black font-medium p-3
+            rounded-md transition-colors duration-200 mt-2 relative overflow-hidden
+            disabled:opacity-70 disabled:cursor-not-allowed"
         >
           {loginMutation.isPending ? "Logging in..." : "Login"}
         </button>
       </form>
+
       <p className="mt-4 text-center text-sm text-[#CACACA]">
         {"Don't have an account? "}
         <Link href="/auth/register" className="text-[#8A92E3] hover:underline">

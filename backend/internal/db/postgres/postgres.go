@@ -114,7 +114,7 @@ CREATE INDEX IF NOT EXISTS conversations_status_idx ON conversations(status);
 CREATE TABLE IF NOT EXISTS chat_messages (
     message_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     conversation_id UUID NOT NULL REFERENCES conversations(conversation_id) ON DELETE CASCADE,
-    role TEXT NOT NULL CHECK (role IN ('user', 'assistant', 'system')),
+    role TEXT NOT NULL CHECK (role IN ('user', 'assistant', 'system', 'error')),
     content TEXT NOT NULL,
     tokens_used INTEGER,
     model TEXT,

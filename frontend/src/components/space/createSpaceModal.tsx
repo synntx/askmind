@@ -60,7 +60,7 @@ export default function CreateSpaceModal({
             animate={{ scale: 1, y: 0, opacity: 1 }}
             exit={{ scale: 0.95, y: 10, opacity: 0 }}
             transition={{ type: "spring", duration: 0.2 }}
-            className="bg-[#1A1A1A] border border-[#282828] rounded-lg w-full max-w-md p-6 relative"
+            className="bg-card border border-[#282828] rounded-lg w-full max-w-md p-6 relative"
           >
             <button
               onClick={onClose}
