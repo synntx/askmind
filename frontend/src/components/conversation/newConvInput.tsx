@@ -50,7 +50,7 @@ const NewConvInput: React.FC = () => {
           rows={1}
           placeholder="Ask anything..."
           onInput={handleTextareaInput}
-          className="w-full bg-transparent text-white/90 placeholder-white/30 p-0 pr-6 focus:outline-none resize-none text-xl font-light custom-scrollbar"
+          className="w-full bg-transparent text-foreground/90 placeholder-foreground/30 p-0 pr-6 focus:outline-none resize-none text-xl font-light custom-scrollbar"
           style={{ maxHeight: "300px", overflow: "auto" }}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {

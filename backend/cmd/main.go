@@ -18,18 +18,18 @@ func main() {
 	}
 	defer logger.Sync()
 
-  // Load the env
-  err = godotenv.Load()
-  if err != nil {
+	// Load the env
+	err = godotenv.Load()
+	if err != nil {
 		logger.Error("Error loading .env file", zap.Error(err))
 	}
 
-  requiredEnvVars := []string{"GEMINI_API_KEY", "DB_URI", "AUTH_PEPPER"}
-  for _, envVar := range requiredEnvVars {
-    if os.Getenv(envVar) == "" {
+	requiredEnvVars := []string{"GEMINI_API_KEY", "DB_URI", "AUTH_PEPPER"}
+	for _, envVar := range requiredEnvVars {
+		if os.Getenv(envVar) == "" {
 			logger.Fatal("Missing required environment variable", zap.String("envVar", envVar))
 		}
-  }
+	}
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()

@@ -52,7 +52,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
         placeholder={placeholder}
         value={inputData}
         onInput={handleTextareaInput}
-        className="w-full bg-transparent text-white/90 placeholder-white/30 p-0 pr-12 focus:outline-none resize-none text-xl font-light custom-scrollbar"
+        className="w-full bg-background text-foreground/90 placeholder-foreground/30 p-0 pr-12 focus:outline-none resize-none text-xl font-light custom-scrollbar"
         style={{ maxHeight: "300px", overflow: "auto" }}
         onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
           if (e.key === "Enter" && !e.shiftKey) {
@@ -67,7 +67,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
           onClick={handleSend}
           disabled={isPending}
           aria-label={isPending ? "Sending message..." : "Send message"}
-          className="absolute right-4 bottom-1 opacity-40 hover:opacity-80 transition-opacity duration-200 disabled:opacity-20"
+          className="absolute right-4 bottom-1 text-muted-foreground hover:text-foreground transition-colors duration-200 disabled:text-muted-foreground/50"
           type="button"
         >
           {isPending ? (

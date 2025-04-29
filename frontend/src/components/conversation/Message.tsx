@@ -35,20 +35,18 @@ export const Message: React.FC<MessageProps> = ({
 
   return (
     <div
-      className={`flex ${
-        message.role === "user"
-          ? "justify-end px-4"
-          : message.role === "assistant"
-            ? "justify-start px-4"
-            : "justify-start py-2"
-      } group`}
+      className={`flex ${message.role === "user"
+        ? "justify-end px-4"
+        : message.role === "assistant"
+          ? "justify-start px-4"
+          : "justify-start py-2"
+        } group`}
     >
       <div
-        className={`rounded-2xl font-inter text-[16px] max-w-full relative ${
-          message.role === "user"
-            ? "bg-[#2c2d31]/10 text-white/90 px-4"
-            : "text-white/80"
-        }`}
+        className={`rounded-2xl font-inter text-[16px] max-w-full relative ${message.role === "user"
+          ? "bg-card text-foreground/80 px-4"
+          : "text-foreground/80"
+          }`}
       >
         <div className="absolute top-3.5 -right-4 opacity-0 group-hover:opacity-100 transition-opacity">
           <CopyButton
@@ -58,7 +56,11 @@ export const Message: React.FC<MessageProps> = ({
             setCopiedId={setCopiedId}
           />
         </div>
-        <MarkdownContent content={message.content} />
+        {message.role === "user" ? (
+          <div className="whitespace-pre-wrap py-2.5">{message.content}</div>
+        ) : (
+          <MarkdownContent content={message.content} />
+        )}
       </div>
     </div>
   );
@@ -128,7 +130,7 @@ export const StreamingMessage: React.FC<StreamingMessageProps> = ({
   setCopiedId,
 }) => (
   <div className="flex justify-start group">
-    <div className="rounded-2xl px-4 max-w-full text-white/80 relative">
+    <div className="rounded-2xl px-4 max-w-full text-foreground/80 relative">
       <div className="absolute top-3.5 -right-4 opacity-0 group-hover:opacity-100 transition-opacity">
         <CopyButton
           text={content}

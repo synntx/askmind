@@ -88,7 +88,7 @@ const Conversation: React.FC = () => {
   return (
     <div className="h-screen flex flex-col bg-background text-white/90">
       <div
-        className="flex-1 overflow-y-auto p-6 pb-8 custom-scrollbar"
+        className="flex-1 overflow-y-auto py-6 pb-8 custom-scrollbar"
         ref={containerRef}
       >
         <MessageList
@@ -102,8 +102,7 @@ const Conversation: React.FC = () => {
           setCopiedId={setCopiedId}
         />
       </div>
-
-      <div className="border-t border-[#2c2d31]/50 p-6 relative z-10">
+      <div className="border-t border-border/70 p-6 relative z-10">
         <div className="max-w-full sm:max-w-[90vw] md:max-w-[75vw] lg:max-w-[55vw] mx-auto space-y-4 px-4">
           <MessageInput
             onSendMessage={getCompletion}

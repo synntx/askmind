@@ -9,13 +9,18 @@ import { useCreateSpace, useGetSpaces } from "@/hooks/useSpace";
 import { useState } from "react";
 import { List, Grid } from "@/icons";
 import { AxiosError } from "axios";
-import { Plus } from "lucide-react";
+import { Plus, Settings } from "lucide-react";
 import { AppError } from "@/types/errors";
 import { motion, AnimatePresence } from "motion/react";
+import { SettingsModal } from "@/components/settings/SettingsModal";
 
 export default function SpacesPage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  const [isSettingsModalOpen, setIsSettingsModalOpen] =
+    useState<boolean>(false);
+  const [currentTheme, setCurrentTheme] = useState<string>("");
 
   const { data: spaces, error, isPending, isError } = useGetSpaces();
   const { mutate: CreateSpace } = useCreateSpace();
@@ -23,10 +28,36 @@ export default function SpacesPage() {
   const openCreateModal = () => setIsCreateModalOpen(true);
   const closeCreateModal = () => setIsCreateModalOpen(false);
 
+  const openSettingsModal = () => setIsSettingsModalOpen(true);
+  const closeSettingsModal = () => setIsSettingsModalOpen(false);
+
+  const applyTheme = (themeClass: string) => {
+    const html = document.documentElement;
+    html.classList.remove(
+      "dark",
+      "theme-a",
+      "theme-a-dark",
+      "theme-b",
+      "theme-b-dark",
+      "theme-c",
+      "theme-c-dark",
+      "theme-d",
+      "theme-d-dark",
+    );
+    if (themeClass) {
+      html.classList.add(themeClass);
+    }
+  };
+
+  const handleThemeChange = (themeClass: string) => {
+    setCurrentTheme(themeClass);
+    applyTheme(themeClass);
+    localStorage.setItem("app-theme", themeClass);
+  };
+
   return (
     <div className="min-h-screen">
       <Header />
-
       <main className="max-w-4xl mx-auto px-4 py-8 mt-14 overflow-hidden">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-5">
@@ -34,7 +65,7 @@ export default function SpacesPage() {
             {spaces && spaces.length > 0 && (
               <button
                 onClick={openCreateModal}
-                className="flex items-center gap-2 bg-transparent hover:bg-[hsla(234,10%,14%,0.6)] text-[#B0B0B0] px-3 py-1.5 rounded-md transition-all duration-150 active:scale-[0.97]"
+                className="flex items-center gap-2 bg-transparent hover:bg-card text-card-foreground px-3 py-1.5 rounded-md transition-all duration-150 active:scale-[0.97]"
                 aria-label="Create new space"
               >
                 <Plus className="w-4 h-4" />
@@ -42,6 +73,14 @@ export default function SpacesPage() {
               </button>
             )}
           </div>
+          <button
+            onClick={openSettingsModal}
+            className="p-2 rounded-md hover:bg-muted/60 text-muted-foreground flex-shrink-0 transition-colors"
+            aria-label="Open Settings"
+            title="Settings"
+          >
+            <Settings size={18} />
+          </button>
           <div className="flex items-center p-0.5 rounded-lg bg-secondary/20">
             <button
               onClick={() => setViewMode("grid")}
@@ -142,6 +181,15 @@ export default function SpacesPage() {
         onSubmit={(data) => CreateSpace(data)}
         onClose={closeCreateModal}
       />
+
+      {isSettingsModalOpen && (
+        <SettingsModal
+          isOpen={isSettingsModalOpen}
+          onClose={closeSettingsModal}
+          currentTheme={currentTheme}
+          onThemeChange={handleThemeChange}
+        />
+      )}
     </div>
   );
 }

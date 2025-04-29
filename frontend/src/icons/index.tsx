@@ -230,6 +230,30 @@ const CheckmarkIcon: React.FC<IconProps> = (props) => {
   );
 };
 
+const MenuIcon: React.FC<IconProps> = (props) => {
+  return (
+    <svg
+      {...props}
+      className={props.className}
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={props.stroke || "currentColor"}
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M5 7H19" />
+      <path d="M5 12H15" />
+      <path d="M5 17H11" />
+    </svg>
+  );
+};
+
+export default MenuIcon;
+
+
 export {
   EditLight,
   TrashLight,
@@ -240,4 +264,5 @@ export {
   CopyLight,
   CopyIcon,
   CheckmarkIcon,
+  MenuIcon,
 };

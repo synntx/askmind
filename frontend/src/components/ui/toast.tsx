@@ -360,7 +360,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     <ToastContext.Provider value={{ addToast, removeToast, clearToasts }}>
       {children}
       <div
-        className="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-[90vw] w-[420px]"
+        className="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-[90vw] w-auto"
         role="region"
         aria-label="Notifications"
       >
@@ -513,18 +513,17 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                           onClick={toast.options.action.onClick}
                           className={`
                             mt-2 px-3 py-1 text-xs font-medium rounded
-                            ${
-                              toast.options.variant === "accent"
-                                ? "bg-white/20 hover:bg-white/30 text-white"
-                                : toast.type === "success"
-                                  ? "bg-emerald-100 dark:bg-emerald-600/30 text-emerald-700 dark:text-emerald-200"
-                                  : toast.type === "error"
-                                    ? "bg-red-100 dark:bg-red-600/30 text-red-700 dark:text-red-300"
-                                    : toast.type === "warning"
-                                      ? "bg-amber-100 dark:bg-amber-600/30 text-amber-700 dark:text-amber-200"
-                                      : toast.type === "premium"
-                                        ? "bg-purple-100 dark:bg-purple-600/30 text-purple-700 dark:text-purple-200"
-                                        : "bg-blue-100 dark:bg-blue-600/30 text-blue-700 dark:text-blue-200"
+                            ${toast.options.variant === "accent"
+                              ? "bg-white/20 hover:bg-white/30 text-white"
+                              : toast.type === "success"
+                                ? "bg-emerald-100 dark:bg-emerald-600/30 text-emerald-700 dark:text-emerald-200"
+                                : toast.type === "error"
+                                  ? "bg-red-100 dark:bg-red-600/30 text-red-700 dark:text-red-300"
+                                  : toast.type === "warning"
+                                    ? "bg-amber-100 dark:bg-amber-600/30 text-amber-700 dark:text-amber-200"
+                                    : toast.type === "premium"
+                                      ? "bg-purple-100 dark:bg-purple-600/30 text-purple-700 dark:text-purple-200"
+                                      : "bg-blue-100 dark:bg-blue-600/30 text-blue-700 dark:text-blue-200"
                             }
                             transition-colors
                           `}

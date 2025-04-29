@@ -1,0 +1,113 @@
+/* Apply the variables to highlight.js classes */
+.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 1em;
+  /* Add padding back here if needed, or control via CodeBlock's p-4 */
+  color: var(--hljs-text);
+  background: var(--hljs-bg);
+}
+
+.hljs-comment,
+.hljs-quote {
+  color: var(--hljs-comment);
+  /* font-style: italic; */
+  /* Optional: some themes italicize comments */
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-subst {
+  color: var(--hljs-keyword);
+}
+
+.hljs-number,
+.hljs-literal,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag .hljs-attr {
+  color: var(--hljs-number);
+  /* Often shared color */
+}
+
+.hljs-string,
+.hljs-doctag {
+  color: var(--hljs-string);
+}
+
+.hljs-title,
+.hljs-section,
+.hljs-selector-id,
+.hljs-selector-class {
+  color: var(--hljs-title);
+  /* Often shared color */
+  /* font-weight: bold; */
+  /* Optional */
+}
+
+.hljs-type,
+.hljs-class .hljs-title {
+  color: var(--hljs-class);
+  /* font-weight: bold; */
+  /* Optional */
+}
+
+.hljs-tag,
+.hljs-name,
+.hljs-attribute {
+  color: var(--hljs-tag);
+  /* Often shared color */
+}
+
+.hljs-regexp,
+.hljs-link {
+  color: var(--hljs-regexp);
+  /* Often shared color */
+}
+
+.hljs-symbol,
+.hljs-bullet {
+  color: var(--hljs-symbol);
+}
+
+.hljs-built_in,
+.hljs-builtin-name {
+  color: var(--hljs-built_in);
+}
+
+.hljs-meta {
+  color: var(--hljs-meta);
+  /* font-weight: bold; */
+  /* Optional */
+}
+
+.hljs-deletion {
+  background: var(--hljs-deletion);
+  /* Often use background for diffs */
+  color: var(--hljs-text);
+  /* Adjust text for contrast if needed */
+}
+
+.hljs-addition {
+  background: var(--hljs-addition);
+  /* Often use background for diffs */
+  color: var(--hljs-text);
+  /* Adjust text for contrast if needed */
+}
+
+.hljs-emphasis {
+  font-style: var(--hljs-emphasis, italic);
+}
+
+.hljs-strong {
+  font-weight: var(--hljs-strong, bold);
+}
+
+/* Add any other specific hljs-* classes you need to style */
+.hljs-params {
+  color: var(--hljs-params);
+}
+
+.hljs-attr {
+  color: var(--hljs-attr);
+}

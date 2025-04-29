@@ -64,7 +64,7 @@ const SpaceCard = ({ space }: SpaceCardProps) => {
   return (
     <div key={space.space_id}>
       {isEditing ? (
-        <div className="bg-[hsl(234,10%,12%)] rounded-lg p-6 border border-[#282828] transition shadow-sm">
+        < div className="bg-card rounded-lg p-6 border border-[#282828] transition shadow-sm">
           <div className="mb-4">
             <input
               ref={titleInputRef}
@@ -119,7 +119,7 @@ const SpaceCard = ({ space }: SpaceCardProps) => {
         </div>
       ) : (
         <Link href={`/space/${space.space_id}/c/new`} className="block">
-          <div className="bg-[hsl(234,10%,12%)] rounded-lg p-6 border border-transparent hover:border-[#282828] transition cursor-pointer group">
+          <div className="bg-card/60 rounded-lg p-6 border border-transparent hover:border-border transition cursor-pointer group">
             <div className="flex items-start justify-between mb-4">
               <div>
                 <h3 className="text-lg mb-2">{space.title}</h3>
@@ -155,14 +155,15 @@ const SpaceCard = ({ space }: SpaceCardProps) => {
             </div>
           </div>
         </Link>
-      )}
+      )
+      }
 
       <DeleteSpaceModal
         space={space}
         isOpen={isDeleteModalOpen}
         handleClose={() => setIsDeleteModalOpen(false)}
       />
-    </div>
+    </div >
   );
 };
 
