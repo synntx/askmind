@@ -39,7 +39,11 @@ func main() {
 		panic("failed to create gemini client: " + err.Error())
 	}
 
-	gemini := llm.NewGemini(client, logger, "gemini-1.5-pro")
+	// gemini-2.5-pro-exp-03-25
+	// gemini-2.0-flash-lite
+	LLM_MODEL := "gemini-2.0-flash-lite"
+
+	gemini := llm.NewGemini(client, logger, LLM_MODEL)
 
 	muxRouter := router.NewRouter(os.Getenv("DB_URI"), os.Getenv("AUTH_PEPPER"), logger, gemini)
 	router := muxRouter.CreateRoutes(ctx)

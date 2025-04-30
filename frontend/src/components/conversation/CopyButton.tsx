@@ -35,12 +35,12 @@ export const CopyButton: React.FC<CopyButtonProps> = ({
 
   return (
     <button
-      className="text-white/30 hover:text-white/60 transition-colors p-1 rounded-full"
+      className="text-muted-foreground hover:text-muted-foreground/60 transition-colors p-1 rounded-full"
       onClick={copyToClipboard}
       title={isCopied ? "Copied!" : "Copy message"}
       type="button"
     >
-      {isCopied ? <CheckmarkIcon stroke="#4ade80" /> : <CopyIcon />}
+      {isCopied ? <CheckmarkIcon className="stroke-green-500" /> : <CopyIcon />}
     </button>
   );
 };

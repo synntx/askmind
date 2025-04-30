@@ -69,7 +69,7 @@ const ConvSidebar: React.FC<ConvSidebarProps> = ({
     useGetConversations(space_id);
 
   const [selectedChat, setSelectedChat] = useState<string | null>(
-    conversation_id || null,
+    conversation_id || null
   );
   const [isEditing, setIsEditing] = useState<string | null>(null);
   const chatListRef = useRef<HTMLDivElement>(null);
@@ -114,17 +114,16 @@ const ConvSidebar: React.FC<ConvSidebarProps> = ({
   return (
     <div
       className={`
-        h-screen bg-sidebar flex flex-col rounded-r-2xl
+        h-screen bg-sidebar flex flex-col rounded-r-2xl fixed
         ${collapsed ? "w-0" : "w-80"} text-foreground
-        overflow-hidden transition-all duration-300 relative border-r border-border/50
+        overflow-hidden transition-[width] duration-300 relative border-r border-border/50
       `}
       style={{ overflowX: "hidden" }}
     >
       <div
         className={`
-          flex items-center justify-between p-3 mx-2 my-2 mb-3
-          transition-opacity duration-200
-          ${collapsed ? "opacity-0 invisible" : "opacity-100 visible"}
+          flex items-center justify-between p-3 mx-2 my-2 mb-3 w-80
+          ${collapsed ? "invisible" : "visible"}
         `}
       >
         <Link
@@ -149,13 +148,13 @@ const ConvSidebar: React.FC<ConvSidebarProps> = ({
 
       <div
         className={`
-          px-4 pb-3 transition-opacity duration-200
-          ${collapsed ? "opacity-0 invisible pointer-events-none" : "opacity-100 visible"}
+          px-4 pb-3 w-80
+          ${collapsed ? "invisible pointer-events-none" : "visible"}
         `}
       >
         <button
           onClick={startNewChat}
-          className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-card border border-border hover:border-border transition-all duration-150 active:scale-[0.98]"
+          className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-card border border-border hover:border-border hover:bg-card/80 transition-[transform,background-color,border-color] duration-150 active:scale-[0.98]"
         >
           <Plus size={18} className="text-primary" />
           <span className="font-medium text-sm text-foreground">New chat</span>
@@ -165,9 +164,8 @@ const ConvSidebar: React.FC<ConvSidebarProps> = ({
       <div
         ref={chatListRef}
         className={`
-          flex-1 overflow-y-auto px-2 pt-1 pb-4 custom-scrollbar
-          transition-opacity duration-200
-          ${collapsed ? "opacity-0 invisible pointer-events-none" : "opacity-100 visible"}
+          flex-1 overflow-y-auto px-2 pt-1 pb-4 custom-scrollbar w-80
+          ${collapsed ? "invisible" : "visible"}
         `}
       >
         {isPending ? (
@@ -212,7 +210,7 @@ const ConvSidebar: React.FC<ConvSidebarProps> = ({
                         if (e.key === "Enter") {
                           handleEditChat(
                             chat.conversation_id,
-                            (e.target as HTMLInputElement).value,
+                            (e.target as HTMLInputElement).value
                           );
                         } else if (e.key === "Escape") {
                           setIsEditing(null);
@@ -223,7 +221,7 @@ const ConvSidebar: React.FC<ConvSidebarProps> = ({
                           if (isEditing === chat.conversation_id) {
                             handleEditChat(
                               chat.conversation_id,
-                              e.target.value,
+                              e.target.value
                             );
                           }
                         }, 100)

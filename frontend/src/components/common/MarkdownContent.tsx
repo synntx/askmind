@@ -306,7 +306,11 @@ const CodeBlock: React.FC<CodeBlockProps> = ({
           title={isCopied ? "Copied!" : "Copy code"}
           type="button"
         >
-          {isCopied ? <CheckmarkIcon stroke="#4ade80" /> : <CopyIcon />}
+          {isCopied ? (
+            <CheckmarkIcon className="stroke-green-500" />
+          ) : (
+            <CopyIcon />
+          )}
         </button>
       </div>
       <div className="overflow-auto">
@@ -327,13 +331,11 @@ function getTextFromChildren(nodes: React.ReactNode): string {
   React.Children.forEach(nodes, (node) => {
     if (typeof node === "string" || typeof node === "number") {
       text += node;
-    }
-    else if (Array.isArray(node)) {
-      node.forEach(child => {
+    } else if (Array.isArray(node)) {
+      node.forEach((child) => {
         text += getTextFromChildren(child);
       });
-    }
-    else if (
+    } else if (
       React.isValidElement<{ children?: React.ReactNode }>(node) &&
       node.props.children
     ) {
