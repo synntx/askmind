@@ -291,8 +291,8 @@ const CodeBlock: React.FC<CodeBlockProps> = ({
       {children}
     </code>
   ) : (
-    <div className="relative my-6 overflow-hidden rounded-lg border border-border bg-card">
-      <div className="flex h-10 items-center justify-between px-4 border-b border-border bg-muted">
+    <div className="relative my-6 overflow-hidden rounded-lg border border-border dark:border-muted bg-card">
+      <div className="flex h-10 items-center justify-between px-4 border-b border-border dark:border-muted bg-muted">
         <div className="flex items-center gap-2">
           {language && (
             <span className="text-[13px] text-right font-mono text-muted-foreground">

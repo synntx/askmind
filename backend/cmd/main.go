@@ -8,6 +8,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/synntx/askmind/internal/llm"
 	"github.com/synntx/askmind/internal/router"
+	"github.com/synntx/askmind/internal/tools"
 	"go.uber.org/zap"
 )
 
@@ -39,11 +40,15 @@ func main() {
 		panic("failed to create gemini client: " + err.Error())
 	}
 
+	toolRegistry := tools.NewToolRegistry()
+	toolRegistry.Register(&tools.SearchTool{})
+	genaiTools := toolRegistry.ConvertToGenaiTools()
+
 	// gemini-2.5-pro-exp-03-25
 	// gemini-2.0-flash-lite
 	LLM_MODEL := "gemini-2.0-flash-lite"
 
-	gemini := llm.NewGemini(client, logger, LLM_MODEL)
+	gemini := llm.NewGemini(client, logger, LLM_MODEL, genaiTools, toolRegistry)
 
 	muxRouter := router.NewRouter(os.Getenv("DB_URI"), os.Getenv("AUTH_PEPPER"), logger, gemini)
 	router := muxRouter.CreateRoutes(ctx)

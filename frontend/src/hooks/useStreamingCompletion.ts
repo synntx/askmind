@@ -1,10 +1,17 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 
+interface ToolCall {
+  name: string;
+  // eslint-disable-next-line
+  result: any;
+}
+
 interface Message {
   message_id: string;
   conversation_id: string;
   role: "user" | "assistant";
   content: string;
+  tool_calls?: ToolCall[];
   tokens_used: number;
   model: string;
   created_at: string;
@@ -46,6 +53,7 @@ export const useStreamingCompletion = ({
   const messagePartsRef = useRef<string[]>([""]);
   // Reference to store current message ID
   const messageIdRef = useRef<string | null>(null);
+  const toolCallsRef = useRef<ToolCall[]>([]);
 
   const getCompletion = useCallback(
     async (userMessage: string): Promise<void> => {
@@ -54,6 +62,7 @@ export const useStreamingCompletion = ({
       setStreamingResponse("");
       messagePartsRef.current = [""]; // Reset message parts
       messageIdRef.current = null; // Reset message ID
+      toolCallsRef.current = [];
 
       // Abort any existing request
       if (abortControllerRef.current) {
@@ -176,6 +185,14 @@ export const useStreamingCompletion = ({
 
                 // Handle initial message structure
                 if (deltaData.o === "add" && deltaData.v?.message) {
+                  if (
+                    deltaData.v.message.metadata?.tool_call &&
+                    Array.isArray(deltaData.v.message.metadata.tool_call)
+                  ) {
+                    toolCallsRef.current = [
+                      ...deltaData.v.message.metadata.tool_call,
+                    ];
+                  }
                   // Store the message ID for later use
                   messageIdRef.current = deltaData.v.message.id;
                 }
@@ -199,6 +216,19 @@ export const useStreamingCompletion = ({
                   // Update the streaming response
                   const fullText = messagePartsRef.current.join("");
                   setStreamingResponse(fullText);
+                } else if (
+                  deltaData.o === "append" &&
+                  deltaData.p === "/message/metadata/tool_call"
+                ) {
+                  if (deltaData.v && typeof deltaData.v.name === "string") {
+                    toolCallsRef.current.push(deltaData.v as ToolCall);
+                    console.log("Tool call received:", deltaData.v);
+                  } else {
+                    console.warn(
+                      "Received malformed tool_call append data:",
+                      deltaData.v,
+                    );
+                  }
                 }
                 // Handle patch operations (multiple updates)
                 else if (
@@ -220,7 +250,10 @@ export const useStreamingCompletion = ({
                       });
 
                       // If there was partial content, we can use it as an error message
-                      if (messagePartsRef.current[0]) {
+                      if (
+                        messagePartsRef.current.join("").length > 0 ||
+                        toolCallsRef.current.length > 0
+                      ) {
                         // Add partial assistant message with error info to cache
                         const errorMsg =
                           "**Note**: Response generation was interrupted: " +
@@ -233,6 +266,10 @@ export const useStreamingCompletion = ({
                           role: "assistant",
                           content:
                             messagePartsRef.current[0] + "\n\n" + errorMsg,
+                          tool_calls:
+                            toolCallsRef.current.length > 0
+                              ? [...toolCallsRef.current]
+                              : undefined,
                           tokens_used: 0,
                           model: "idk",
                           created_at: new Date().toISOString(),
@@ -305,6 +342,10 @@ export const useStreamingCompletion = ({
             conversation_id: conv_id,
             role: "assistant",
             content: finalMessage,
+            tool_calls:
+              toolCallsRef.current.length > 0
+                ? [...toolCallsRef.current]
+                : undefined,
             tokens_used: 0,
             model: "idk",
             created_at: new Date().toISOString(),
@@ -342,7 +383,7 @@ export const useStreamingCompletion = ({
         abortControllerRef.current = null;
       }
     },
-    [conv_id, apiBaseURL, updateMessageCache, error],
+    [conv_id, apiBaseURL, updateMessageCache],
   );
 
   // Clean up on unmount

@@ -5,6 +5,7 @@ export interface Message {
   content: string;
   tokens_used: number;
   model: string;
+  tool_calls?: ToolCall[];
   metadata: string;
   created_at: string;
   updated_at: string;
@@ -13,3 +14,9 @@ export interface Message {
 export type GetMessages = {
   data: Message[];
 };
+
+export interface ToolCall {
+  name: string;
+  // eslint-disable-next-line
+  result: any;
+}

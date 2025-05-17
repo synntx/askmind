@@ -70,6 +70,7 @@ func (csh *CompletionStreamHandler) HandleCompletionStream(
 					"content_references": []any{},
 					"message_type":       "next",
 					"model_slug":         model,
+					"tool_call":          []any{},
 				},
 				"recipient": "all",
 				"channel":   nil,
@@ -93,26 +94,45 @@ func (csh *CompletionStreamHandler) HandleCompletionStream(
 			return nil
 		}
 
-		select {
-		case <-ctx.Done():
-			if ctx.Err() == context.DeadlineExceeded {
-				csh.handleTimeoutError(streamer, convID.String())
-			} else {
-				csh.logger.Info("stream cancelled by client", zap.String("conv_id", convID.String()))
-			}
-			return ctx.Err()
-		default:
-			completeRespStr += chunk.Content
-
+		if chunk.ToolInfo != nil {
+			csh.logger.Debug("Tool result", zap.Any("result", chunk.ToolInfo))
 			deltaEvent := map[string]any{
-				"p": "/message/content/parts/0",
+				"p": "/message/metadata/tool_call",
 				"o": "append",
-				"v": chunk.Content,
+				"v": map[string]any{
+					"name":   chunk.ToolInfo.Name,
+					"result": chunk.ToolInfo.Result,
+				},
 			}
+
 			if err := streamer.SendDeltaEvent(deltaEvent); err != nil {
 				csh.handleStreamingError(streamer, convID.String())
 				return nil
 			}
+
+		} else {
+			select {
+			case <-ctx.Done():
+				if ctx.Err() == context.DeadlineExceeded {
+					csh.handleTimeoutError(streamer, convID.String())
+				} else {
+					csh.logger.Info("stream cancelled by client", zap.String("conv_id", convID.String()))
+				}
+				return ctx.Err()
+			default:
+				completeRespStr += chunk.Content
+
+				deltaEvent := map[string]any{
+					"p": "/message/content/parts/0",
+					"o": "append",
+					"v": chunk.Content,
+				}
+				if err := streamer.SendDeltaEvent(deltaEvent); err != nil {
+					csh.handleStreamingError(streamer, convID.String())
+					return nil
+				}
+			}
+
 		}
 	}
 
