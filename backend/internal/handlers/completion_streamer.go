@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/generative-ai-go/genai"
 	"github.com/google/uuid"
 	"github.com/synntx/askmind/internal/llm"
 	"github.com/synntx/askmind/internal/models"
@@ -84,17 +85,59 @@ func (csh *CompletionStreamHandler) HandleCompletionStream(
 		return err
 	}
 
-	resp := csh.llm.GenerateContentStream(ctx, userMessage)
+	convMessages, err := csh.ms.GetConversationMessages(ctx, convID.String())
+	if err != nil {
+		csh.logger.Error("Failed to get conversation messages", zap.Error(err), zap.String("conv_id", convID.String()))
+		errorDetails := map[string]any{
+			"conv_id": convID.String(),
+			"error":   err.Error(),
+		}
+		streamer.SendErrorEvent("history_fetch_failed", "Could not retrieve conversation history", errorDetails)
+		return err
+	}
+
+	llmHistory := make([]*genai.Content, 0, len(convMessages)+1)
+
+	for _, msg := range convMessages {
+		var role string
+		switch msg.Role {
+		case models.RoleUser:
+			role = "user"
+		case models.RoleAssistant:
+			role = "model"
+		default:
+			continue
+		}
+
+		content := &genai.Content{
+			Role: role,
+			Parts: []genai.Part{
+				genai.Text(msg.Content),
+			},
+		}
+		llmHistory = append(llmHistory, content)
+	}
+
+	currentUserContent := &genai.Content{
+		Role: "user",
+		Parts: []genai.Part{
+			genai.Text(userMessage),
+		},
+	}
+	llmHistory = append(llmHistory, currentUserContent)
+
+	resp := csh.llm.GenerateContentStream(ctx, llmHistory, userMessage)
 
 	var completeRespStr string
 	for chunk := range resp {
 		if chunk.Err != nil {
 			csh.logger.Error("Error in LLM stream", zap.Error(chunk.Err))
-			csh.handleLLMStreamError(ctx, streamer, convID.String(), model, chunk.Err)
-			return nil
+			// Note: I think we should send the error in event stream silently
+			// csh.handleLLMStreamError(ctx, streamer, convID.String(), model, chunk.Err)
+			// return nil
 		}
 
-		if chunk.ToolInfo != nil {
+		if chunk.ToolInfo != nil && chunk.ToolInfo.Status == llm.StatusEnd {
 			csh.logger.Debug("Tool result", zap.Any("result", chunk.ToolInfo))
 			deltaEvent := map[string]any{
 				"p": "/message/metadata/tool_call",

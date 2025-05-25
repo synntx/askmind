@@ -21,14 +21,14 @@ const ErrorState = ({
   onRetry: () => void;
 }) => (
   <div className="flex flex-col items-center justify-center py-6 px-4 text-center">
-    <HelpCircle size={24} className="text-destructive mb-2" />
+    <HelpCircle size={24} className="text-red-500 mb-2" />
     <h3 className="text-sm font-medium text-foreground mb-2">
       Unable to load conversations
     </h3>
     <p className="text-muted-foreground text-xs mb-3">{message}</p>
     <button
       onClick={onRetry}
-      className="px-3 py-1.5 bg-destructive/5 text-destructive rounded-lg text-xs hover:bg-destructive/10 transition-colors"
+      className="px-3 py-1.5 bg-red-500/5 text-red-500 rounded-lg text-xs hover:bg-red-500/10 transition-colors"
     >
       Try Again
     </button>
@@ -69,7 +69,7 @@ const ConvSidebar: React.FC<ConvSidebarProps> = ({
     useGetConversations(space_id);
 
   const [selectedChat, setSelectedChat] = useState<string | null>(
-    conversation_id || null
+    conversation_id || null,
   );
   const [isEditing, setIsEditing] = useState<string | null>(null);
   const chatListRef = useRef<HTMLDivElement>(null);
@@ -127,7 +127,7 @@ const ConvSidebar: React.FC<ConvSidebarProps> = ({
         `}
       >
         <Link
-          href={`/space/${space_id}`}
+          href={`/space`}
           className="flex hover:opacity-80 transition-opacity"
         >
           <h2 className="text-xl font-semibold tracking-tight text-foreground">
@@ -210,7 +210,7 @@ const ConvSidebar: React.FC<ConvSidebarProps> = ({
                         if (e.key === "Enter") {
                           handleEditChat(
                             chat.conversation_id,
-                            (e.target as HTMLInputElement).value
+                            (e.target as HTMLInputElement).value,
                           );
                         } else if (e.key === "Escape") {
                           setIsEditing(null);
@@ -221,7 +221,7 @@ const ConvSidebar: React.FC<ConvSidebarProps> = ({
                           if (isEditing === chat.conversation_id) {
                             handleEditChat(
                               chat.conversation_id,
-                              e.target.value
+                              e.target.value,
                             );
                           }
                         }, 100)

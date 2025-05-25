@@ -6,7 +6,7 @@ import CreateSpaceModal from "@/components/space/createSpaceModal";
 import SpaceCard from "@/components/space/spaceCard";
 import SpaceListItem from "@/components/space/spaceListItem";
 import { useCreateSpace, useGetSpaces } from "@/hooks/useSpace";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { List, Grid } from "@/icons";
 import { AxiosError } from "axios";
 import { Plus, Settings } from "lucide-react";
@@ -54,6 +54,19 @@ export default function SpacesPage() {
     applyTheme(themeClass);
     localStorage.setItem("app-theme", themeClass);
   };
+
+  // Effect to read theme from localStorage on mount
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("app-theme");
+    if (savedTheme) {
+      setCurrentTheme(savedTheme);
+      applyTheme(savedTheme);
+    } else {
+      // Optional: Apply a default theme if none is saved
+      // applyTheme(""); // Or a specific default class
+      // setCurrentTheme(""); // Or the default class
+    }
+  }, []);
 
   return (
     <div className="min-h-screen">

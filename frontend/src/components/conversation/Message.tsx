@@ -44,14 +44,14 @@ export const Message: React.FC<MessageProps> = ({
       } group`}
     >
       <div
-        className={`rounded-2xl font-inter text-[16px] max-w-full relative ${
+        className={`rounded-2xl font-onest text-[16px] max-w-full relative ${
           message.role === "user"
             ? "bg-card text-foreground/80 px-4"
             : "text-foreground/80"
         }`}
       >
         <div
-          className={`absolute ${message.role === "user" ? "bottom-1.5 -left-7" : "-bottom-5"} left-0 opacity-0 group-hover:opacity-100 transition-opacity`}
+          className={`absolute ${message.role === "user" ? "bottom-1.5 -left-6" : "-bottom-5"} left-0 opacity-0 group-hover:opacity-100 transition-opacity`}
         >
           <CopyButton
             text={message.content}
@@ -61,7 +61,10 @@ export const Message: React.FC<MessageProps> = ({
           />
         </div>
         {message.role === "user" ? (
-          <div className="whitespace-pre-wrap py-2.5">{message.content}</div>
+          <div className="whitespace-pre-wrap py-2.5 overflow-y-hidden">
+            {/* <MarkdownContent content={message.content} /> */}
+            {message.content}
+          </div>
         ) : (
           <MarkdownContent content={message.content} />
         )}
@@ -76,7 +79,7 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
   onClearError,
 }) => (
   <div className="flex justify-start group">
-    <div className="rounded-2xl font-inter text-[16px] px-5 py-4 max-w-full bg-purple-900/10 text-purple-200 border border-purple-500/10 shadow-sm">
+    <div className="rounded-2xl font-onest text-[16px] px-5 py-4 max-w-full bg-purple-900/10 text-purple-200 border border-purple-500/10 shadow-sm">
       <div className="flex items-start">
         <div className="mr-3 flex-shrink-0">
           <svg

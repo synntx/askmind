@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"os"
 
@@ -41,12 +42,32 @@ func main() {
 	}
 
 	toolRegistry := tools.NewToolRegistry()
-	toolRegistry.Register(&tools.SearchTool{})
+	webSearchToolInstance := tools.NewWebSearchTool()
+	reddit := tools.NewRedditSubredditScraperTool()
+	youtube, err := tools.NewYouTubeSearchTool()
+	if err != nil {
+		log.Fatalf("Error creating YouTube tool: %v", err)
+	}
+	research, err := tools.NewResearchTool(webSearchToolInstance, youtube)
+	if err != nil {
+		log.Fatalf("Error creating YouTube tool: %v", err)
+	}
+
+	image := tools.NewImageSearchTool()
+	page := tools.NewWebPageStructureAnalyzerTool()
+
+	toolRegistry.Register(webSearchToolInstance)
+	toolRegistry.Register(reddit)
+	toolRegistry.Register(youtube)
+	toolRegistry.Register(research)
+	toolRegistry.Register(image)
+	toolRegistry.Register(page)
 	genaiTools := toolRegistry.ConvertToGenaiTools()
 
 	// gemini-2.5-pro-exp-03-25
 	// gemini-2.0-flash-lite
-	LLM_MODEL := "gemini-2.0-flash-lite"
+	// gemini-2.5-flash-preview-04-17
+	LLM_MODEL := "gemini-2.0-flash"
 
 	gemini := llm.NewGemini(client, logger, LLM_MODEL, genaiTools, toolRegistry)
 

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono, Outfit } from "next/font/google";
+import { Inter, JetBrains_Mono, Outfit, Onest } from "next/font/google";
 import "./globals.css";
 // import { ThemeProvider } from "@/components/common/theme-provider";
 import { Providers } from "./providers";
@@ -7,6 +7,13 @@ import { ThemeProvider } from "@/components/common/theme-provider";
 
 const inter = Inter({
   variable: "--font-inter",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+
+const onest = Onest({
+  variable: "--font-onest",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   display: "swap",
@@ -42,7 +49,7 @@ export default function RootLayout({
         {/* <script src="https://unpkg.com/react-scan/dist/auto.global.js" /> */}
       </head>
       <body
-        className={`${inter.variable} ${jetbrainsMono.variable} ${outfit.variable} antialiased font-sans`}
+        className={`${inter.variable} ${jetbrainsMono.variable} ${outfit.variable} ${onest.variable} antialiased font-sans`}
       >
         <Providers>
           <ThemeProvider

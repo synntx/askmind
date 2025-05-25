@@ -3,790 +3,932 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --font-sans: var(--font-outfit), system-ui, sans-serif;
-    --font-mono: var(--font-jetbrains-mono), monospace;
-    --font-inter: var(--font-inter), system-ui, sans-serif;
+    :root {
+        --font-sans: var(--font-outfit), system-ui, sans-serif;
+        --font-mono: var(--font-jetbrains-mono), monospace;
+        --font-inter: var(--font-inter), system-ui, sans-serif;
+        --font-onest: var(--font-onest), system-ui, sans-serif;
 
-    --background: 0 0% 100%;
-    --sidebar: 225 6% 86%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 234 62% 71%;
-    --primary-foreground: 355.7 100% 97.3%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 142.1 76.2% 36.3%;
-    --radius: 0.5rem;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+        --background: 0 0% 100%;
+        --sidebar: 225 6% 86%;
+        --foreground: 240 10% 3.9%;
+        --card: 0 0% 100%;
+        --card-foreground: 240 10% 3.9%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 240 10% 3.9%;
+        --primary: 234 62% 71%;
+        --primary-80: 230 60% 65%;
+        --primary-foreground: 355.7 100% 97.3%;
+        --secondary: 240 4.8% 95.9%;
+        --secondary-foreground: 240 5.9% 10%;
+        --muted: 240 4.8% 95.9%;
+        --muted-foreground: 240 3.8% 46.1%;
+        --accent: 240 4.8% 95.9%;
+        --accent-foreground: 240 5.9% 10%;
+        --destructive: 0 84.2% 60.2%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 240 5.9% 90%;
+        --input: 240 5.9% 90%;
+        --ring: 142.1 76.2% 36.3%;
+        --radius: 0.5rem;
+        --chart-1: 12 76% 61%;
+        --chart-2: 173 58% 39%;
+        --chart-3: 197 37% 24%;
+        --chart-4: 43 74% 66%;
+        --chart-5: 27 87% 67%;
 
+        /* Highlight Variables for :root (Light Theme) */
+        --hljs-bg: hsl(240 4.8% 97%);
+        /* Slightly off-white, from --secondary */
+        --hljs-text: hsl(240 10% 15%);
+        /* Darker than default foreground */
+        --hljs-comment: hsl(var(--muted-foreground));
+        /* Muted Gray */
+        --hljs-keyword: hsl(var(--destructive));
+        /* Red */
+        --hljs-string: hsl(145 60% 35%);
+        /* Greenish (derived) */
+        --hljs-number: hsl(var(--primary), -10%, +5%);
+        /* Darker Purple */
+        --hljs-built_in: hsl(var(--primary), -20%, 0%);
+        /* Even Darker Purple */
+        --hljs-literal: hsl(var(--primary), -10%, +5%);
+        --hljs-function: hsl(210 70% 45%);
+        /* Blueish */
+        --hljs-class: hsl(210 70% 45%);
+        --hljs-params: hsl(var(--foreground));
+        --hljs-title: hsl(210 70% 45%);
+        --hljs-attr: hsl(var(--secondary-foreground));
+        /* Dark Gray */
+        --hljs-tag: hsl(var(--primary));
+        /* Light Purple */
+        --hljs-meta: hsl(var(--muted-foreground));
+        --hljs-regexp: hsl(145 60% 35%);
+        --hljs-variable: hsl(30 70% 45%);
+        /* Orange/Brownish */
+        --hljs-symbol: hsl(var(--primary), -10%, +5%);
+        --hljs-section: hsl(var(--primary));
+        --hljs-attribute: hsl(30 70% 45%);
+        --hljs-selector-tag: hsl(var(--destructive));
+        --hljs-selector-id: hsl(var(--primary));
+        --hljs-selector-class: hsl(var(--primary));
+        --hljs-selector-attr: hsl(145 60% 35%);
+        --hljs-selector-pseudo: hsl(145 60% 35%);
+        --hljs-addition: hsl(120 60% 85%);
+        /* Light Green Bg */
+        --hljs-deletion: hsl(0 70% 90%);
+        /* Light Red Bg */
+        --hljs-emphasis: italic;
+        --hljs-strong: bold;
+        --hljs-link: hsl(210 70% 45%);
+    }
 
-    /* Highlight Variables for :root (Light Theme) */
-    --hljs-bg: hsl(240 4.8% 97%);
-    /* Slightly off-white, from --secondary */
-    --hljs-text: hsl(240 10% 15%);
-    /* Darker than default foreground */
-    --hljs-comment: hsl(var(--muted-foreground));
-    /* Muted Gray */
-    --hljs-keyword: hsl(var(--destructive));
-    /* Red */
-    --hljs-string: hsl(145 60% 35%);
-    /* Greenish (derived) */
-    --hljs-number: hsl(var(--primary), -10%, +5%);
-    /* Darker Purple */
-    --hljs-built_in: hsl(var(--primary), -20%, 0%);
-    /* Even Darker Purple */
-    --hljs-literal: hsl(var(--primary), -10%, +5%);
-    --hljs-function: hsl(210 70% 45%);
-    /* Blueish */
-    --hljs-class: hsl(210 70% 45%);
-    --hljs-params: hsl(var(--foreground));
-    --hljs-title: hsl(210 70% 45%);
-    --hljs-attr: hsl(var(--secondary-foreground));
-    /* Dark Gray */
-    --hljs-tag: hsl(var(--primary));
-    /* Light Purple */
-    --hljs-meta: hsl(var(--muted-foreground));
-    --hljs-regexp: hsl(145 60% 35%);
-    --hljs-variable: hsl(30 70% 45%);
-    /* Orange/Brownish */
-    --hljs-symbol: hsl(var(--primary), -10%, +5%);
-    --hljs-section: hsl(var(--primary));
-    --hljs-attribute: hsl(30 70% 45%);
-    --hljs-selector-tag: hsl(var(--destructive));
-    --hljs-selector-id: hsl(var(--primary));
-    --hljs-selector-class: hsl(var(--primary));
-    --hljs-selector-attr: hsl(145 60% 35%);
-    --hljs-selector-pseudo: hsl(145 60% 35%);
-    --hljs-addition: hsl(120 60% 85%);
-    /* Light Green Bg */
-    --hljs-deletion: hsl(0 70% 90%);
-    /* Light Red Bg */
-    --hljs-emphasis: italic;
-    --hljs-strong: bold;
-    --hljs-link: hsl(210 70% 45%);
-  }
+    .dark {
+        --background: 234 10% 11%;
+        --sidebar: 230 12% 9%;
+        --foreground: 0 0% 95%;
+        --card: 234 8% 14%;
+        --card-foreground: 0 0% 95%;
+        --popover: 232 14% 8%;
+        --popover-foreground: 0 0% 95%;
+        --primary: 234 62% 71%;
+        --primary-80: 234 62% 71%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 235 8% 18%;
+        --secondary-foreground: 0 0% 98%;
+        --muted: 235 5% 20%;
+        --muted-foreground: 240 5% 64.9%;
+        --accent: 235 15% 20%;
+        --accent-foreground: 0 0% 98%;
+        --destructive: 0 62.8% 30.6%;
+        --destructive-foreground: 0 85.7% 97.3%;
+        --border: 235 10% 16%;
+        --input: 235 8% 16%;
+        --ring: 230 60% 45%;
+        --chart-1: 220 70% 50%;
+        --chart-2: 160 60% 45%;
+        --chart-3: 30 80% 55%;
+        --chart-4: 280 65% 60%;
+        --chart-5: 340 75% 55%;
 
-  .dark {
-    --background: 234 10% 11%;
-    --sidebar: 230 12% 9%;
-    --foreground: 0 0% 95%;
-    --card: 234 8% 14%;
-    --card-foreground: 0 0% 95%;
-    --popover: 232 14% 8%;
-    --popover-foreground: 0 0% 95%;
-    --primary: 234 62% 71%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 235 8% 18%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 235 5% 20%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 235 15% 20%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 85.7% 97.3%;
-    --border: 235 10% 16%;
-    --input: 235 8% 16%;
-    --ring: 230 60% 45%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+        /* Highlight Variables for .dark */
+        --hljs-bg: hsl(var(--card));
+        /* Dark Card BG */
+        --hljs-text: hsl(var(--card-foreground), -10%);
+        /* Slightly dimmer white */
+        --hljs-comment: hsl(var(--muted-foreground));
+        /* Muted Gray */
+        --hljs-keyword: hsl(0 75% 70%);
+        /* Brighter Red/Pink */
+        --hljs-string: hsl(145 50% 70%);
+        /* Medium Green */
+        --hljs-number: hsl(var(--primary), +5%);
+        /* Slightly brighter Lavender */
+        --hljs-built_in: hsl(30 70% 70%);
+        /* Orange */
+        --hljs-literal: hsl(var(--primary), +5%);
+        --hljs-function: hsl(210 80% 75%);
+        /* Light Blue */
+        --hljs-class: hsl(210 80% 75%);
+        --hljs-params: hsl(var(--card-foreground), -15%);
+        --hljs-title: hsl(210 80% 75%);
+        --hljs-attr: hsl(var(--card-foreground), -20%);
+        /* Dimmer white */
+        --hljs-tag: hsl(var(--primary));
+        /* Lavender */
+        --hljs-meta: hsl(var(--muted-foreground));
+        --hljs-regexp: hsl(145 50% 70%);
+        --hljs-variable: hsl(30 70% 70%);
+        --hljs-symbol: hsl(var(--primary), +5%);
+        --hljs-section: hsl(var(--primary));
+        --hljs-attribute: hsl(30 70% 70%);
+        --hljs-selector-tag: hsl(0 75% 70%);
+        --hljs-selector-id: hsl(var(--primary));
+        --hljs-selector-class: hsl(var(--primary));
+        --hljs-selector-attr: hsl(145 50% 70%);
+        --hljs-selector-pseudo: hsl(145 50% 70%);
+        --hljs-addition: hsla(120, 40%, 30%, 0.5);
+        /* Dark Green Bg */
+        --hljs-deletion: hsla(0, 50%, 35%, 0.5);
+        /* Dark Red Bg */
+        --hljs-emphasis: italic;
+        --hljs-strong: bold;
+        --hljs-link: hsl(210 80% 75%);
+    }
 
-    /* Highlight Variables for .dark */
-    --hljs-bg: hsl(var(--card));
-    /* Dark Card BG */
-    --hljs-text: hsl(var(--card-foreground), -10%);
-    /* Slightly dimmer white */
-    --hljs-comment: hsl(var(--muted-foreground));
-    /* Muted Gray */
-    --hljs-keyword: hsl(0 75% 70%);
-    /* Brighter Red/Pink */
-    --hljs-string: hsl(145 50% 70%);
-    /* Medium Green */
-    --hljs-number: hsl(var(--primary), +5%);
-    /* Slightly brighter Lavender */
-    --hljs-built_in: hsl(30 70% 70%);
-    /* Orange */
-    --hljs-literal: hsl(var(--primary), +5%);
-    --hljs-function: hsl(210 80% 75%);
-    /* Light Blue */
-    --hljs-class: hsl(210 80% 75%);
-    --hljs-params: hsl(var(--card-foreground), -15%);
-    --hljs-title: hsl(210 80% 75%);
-    --hljs-attr: hsl(var(--card-foreground), -20%);
-    /* Dimmer white */
-    --hljs-tag: hsl(var(--primary));
-    /* Lavender */
-    --hljs-meta: hsl(var(--muted-foreground));
-    --hljs-regexp: hsl(145 50% 70%);
-    --hljs-variable: hsl(30 70% 70%);
-    --hljs-symbol: hsl(var(--primary), +5%);
-    --hljs-section: hsl(var(--primary));
-    --hljs-attribute: hsl(30 70% 70%);
-    --hljs-selector-tag: hsl(0 75% 70%);
-    --hljs-selector-id: hsl(var(--primary));
-    --hljs-selector-class: hsl(var(--primary));
-    --hljs-selector-attr: hsl(145 50% 70%);
-    --hljs-selector-pseudo: hsl(145 50% 70%);
-    --hljs-addition: hsla(120, 40%, 30%, 0.5);
-    /* Dark Green Bg */
-    --hljs-deletion: hsla(0, 50%, 35%, 0.5);
-    /* Dark Red Bg */
-    --hljs-emphasis: italic;
-    --hljs-strong: bold;
-    --hljs-link: hsl(210 80% 75%);
+    .theme-a {
+        --background: 48 100% 98%;
+        --sidebar: 48 100% 92%;
+        --foreground: 48 60% 10%;
+        --card: 48 100% 96%;
+        --card-foreground: 48 60% 10%;
+        --popover: 48 100% 98%;
+        --popover-foreground: 48 60% 10%;
+        --primary: 34 100% 50%;
+        --primary-80: 34 90% 80%;
+        --primary-foreground: 48 100% 98%;
+        --secondary: 48 60% 90%;
+        --secondary-foreground: 48 60% 20%;
+        --muted: 48 60% 90%;
+        --muted-foreground: 48 30% 40%;
+        --accent: 34 100% 90%;
+        --accent-foreground: 34 100% 30%;
+        --destructive: 0 80% 60%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 48 30% 85%;
+        --input: 48 30% 85%;
+        --ring: 34 100% 50%;
+        --radius: 0.5rem;
+        --chart-1: 34 100% 50%;
+        --chart-2: 48 100% 60%;
+        --chart-3: 120 60% 50%;
+        --chart-4: 200 60% 60%;
+        --chart-5: 340 80% 60%;
 
-  }
+        /* Highlight Variables for theme-a */
+        --hljs-bg: hsl(var(--card));
+        --hljs-text: hsl(48 60% 20%);
+        /* Darker Brown/Yellow */
+        --hljs-comment: hsl(var(--muted-foreground));
+        /* 48 30% 40% */
+        --hljs-keyword: hsl(var(--primary));
+        /* Orange */
+        --hljs-string: hsl(120 40% 35%);
+        /* Muted Green */
+        --hljs-number: hsl(260 50% 55%);
+        /* Purple */
+        --hljs-built_in: hsl(var(--primary), -10%, -5%);
+        /* Darker Orange */
+        --hljs-literal: hsl(260 50% 55%);
+        --hljs-function: hsl(var(--primary), -20%, -10%);
+        /* Darkest Orange */
+        --hljs-class: hsl(var(--primary), -20%, -10%);
+        --hljs-params: hsl(var(--foreground));
+        --hljs-title: hsl(var(--primary), -20%, -10%);
+        --hljs-attr: hsl(var(--secondary-foreground));
+        /* 48 60% 20% */
+        --hljs-tag: hsl(190 60% 45%);
+        /* Teal */
+        --hljs-meta: hsl(var(--muted-foreground));
+        --hljs-regexp: hsl(120 40% 35%);
+        --hljs-variable: hsl(var(--accent-foreground));
+        /* 34 100% 30% */
+        --hljs-symbol: hsl(260 50% 55%);
+        --hljs-section: hsl(var(--primary));
+        --hljs-attribute: hsl(var(--accent-foreground));
+        --hljs-selector-tag: hsl(var(--primary));
+        --hljs-selector-id: hsl(190 60% 45%);
+        --hljs-selector-class: hsl(190 60% 45%);
+        --hljs-selector-attr: hsl(120 40% 35%);
+        --hljs-selector-pseudo: hsl(120 40% 35%);
+        --hljs-addition: hsl(120 60% 90%);
+        --hljs-deletion: hsl(0 70% 92%);
+        --hljs-emphasis: italic;
+        --hljs-strong: bold;
+        --hljs-link: hsl(190 60% 45%);
+    }
 
-  .theme-a {
-    --background: 48 100% 98%;
-    --sidebar: 48 100% 92%;
-    --foreground: 48 60% 10%;
-    --card: 48 100% 96%;
-    --card-foreground: 48 60% 10%;
-    --popover: 48 100% 98%;
-    --popover-foreground: 48 60% 10%;
-    --primary: 34 100% 50%;
-    --primary-foreground: 48 100% 98%;
-    --secondary: 48 60% 90%;
-    --secondary-foreground: 48 60% 20%;
-    --muted: 48 60% 90%;
-    --muted-foreground: 48 30% 40%;
-    --accent: 34 100% 90%;
-    --accent-foreground: 34 100% 30%;
-    --destructive: 0 80% 60%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 48 30% 85%;
-    --input: 48 30% 85%;
-    --ring: 34 100% 50%;
-    --radius: 0.5rem;
-    --chart-1: 34 100% 50%;
-    --chart-2: 48 100% 60%;
-    --chart-3: 120 60% 50%;
-    --chart-4: 200 60% 60%;
-    --chart-5: 340 80% 60%;
+    .theme-a-dark {
+        --background: 48 20% 12%;
+        --sidebar: 48 20% 10%;
+        --foreground: 48 20% 90%;
+        --card: 48 20% 16%;
+        --card-foreground: 48 20% 90%;
+        --popover: 48 20% 8%;
+        --popover-foreground: 48 20% 90%;
+        --primary: 34 100% 60%;
+        --primary-80: 30 50% 50;
+        --primary-foreground: 48 20% 98%;
+        --secondary: 48 20% 18%;
+        --secondary-foreground: 48 20% 98%;
+        --muted: 48 20% 20%;
+        --muted-foreground: 48 20% 64.9%;
+        --accent: 34 100% 20%;
+        --accent-foreground: 34 100% 98%;
+        --destructive: 0 80% 40%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 48 20% 16%;
+        --input: 48 20% 16%;
+        --ring: 34 100% 60%;
+        --chart-1: 34 100% 60%;
+        --chart-2: 48 100% 40%;
+        --chart-3: 120 60% 40%;
+        --chart-4: 200 60% 50%;
+        --chart-5: 340 80% 50%;
 
-    /* Highlight Variables for theme-a */
-    --hljs-bg: hsl(var(--card));
-    --hljs-text: hsl(48 60% 20%);
-    /* Darker Brown/Yellow */
-    --hljs-comment: hsl(var(--muted-foreground));
-    /* 48 30% 40% */
-    --hljs-keyword: hsl(var(--primary));
-    /* Orange */
-    --hljs-string: hsl(120 40% 35%);
-    /* Muted Green */
-    --hljs-number: hsl(260 50% 55%);
-    /* Purple */
-    --hljs-built_in: hsl(var(--primary), -10%, -5%);
-    /* Darker Orange */
-    --hljs-literal: hsl(260 50% 55%);
-    --hljs-function: hsl(var(--primary), -20%, -10%);
-    /* Darkest Orange */
-    --hljs-class: hsl(var(--primary), -20%, -10%);
-    --hljs-params: hsl(var(--foreground));
-    --hljs-title: hsl(var(--primary), -20%, -10%);
-    --hljs-attr: hsl(var(--secondary-foreground));
-    /* 48 60% 20% */
-    --hljs-tag: hsl(190 60% 45%);
-    /* Teal */
-    --hljs-meta: hsl(var(--muted-foreground));
-    --hljs-regexp: hsl(120 40% 35%);
-    --hljs-variable: hsl(var(--accent-foreground));
-    /* 34 100% 30% */
-    --hljs-symbol: hsl(260 50% 55%);
-    --hljs-section: hsl(var(--primary));
-    --hljs-attribute: hsl(var(--accent-foreground));
-    --hljs-selector-tag: hsl(var(--primary));
-    --hljs-selector-id: hsl(190 60% 45%);
-    --hljs-selector-class: hsl(190 60% 45%);
-    --hljs-selector-attr: hsl(120 40% 35%);
-    --hljs-selector-pseudo: hsl(120 40% 35%);
-    --hljs-addition: hsl(120 60% 90%);
-    --hljs-deletion: hsl(0 70% 92%);
-    --hljs-emphasis: italic;
-    --hljs-strong: bold;
-    --hljs-link: hsl(190 60% 45%);
+        /* Highlight Variables for theme-a-dark */
+        --hljs-bg: hsl(var(--card));
+        --hljs-text: hsl(48 20% 85%);
+        /* Off-white yellow tint */
+        --hljs-comment: hsl(var(--muted-foreground));
+        /* 48 20% 64.9% */
+        --hljs-keyword: hsl(var(--primary));
+        /* Bright Orange */
+        --hljs-string: hsl(130 50% 70%);
+        /* Light Green */
+        --hljs-number: hsl(270 60% 75%);
+        /* Light Purple */
+        --hljs-built_in: hsl(var(--primary), +10%);
+        /* Even Brighter Orange */
+        --hljs-literal: hsl(270 60% 75%);
+        --hljs-function: hsl(190 70% 70%);
+        /* Light Teal */
+        --hljs-class: hsl(190 70% 70%);
+        --hljs-params: hsl(var(--foreground));
+        --hljs-title: hsl(190 70% 70%);
+        --hljs-attr: hsl(var(--card-foreground), -10%);
+        /* Dimmer text color */
+        --hljs-tag: hsl(var(--accent-foreground));
+        /* 34 100% 98% (Nearly White) */
+        --hljs-meta: hsl(var(--muted-foreground));
+        --hljs-regexp: hsl(130 50% 70%);
+        --hljs-variable: hsl(var(--primary), +10%);
+        --hljs-symbol: hsl(270 60% 75%);
+        --hljs-section: hsl(var(--primary));
+        --hljs-attribute: hsl(var(--primary), +10%);
+        --hljs-selector-tag: hsl(var(--primary));
+        --hljs-selector-id: hsl(var(--accent-foreground));
+        --hljs-selector-class: hsl(var(--accent-foreground));
+        --hljs-selector-attr: hsl(130 50% 70%);
+        --hljs-selector-pseudo: hsl(130 50% 70%);
+        --hljs-addition: hsla(120, 40%, 30%, 0.6);
+        --hljs-deletion: hsla(0, 50%, 35%, 0.6);
+        --hljs-emphasis: italic;
+        --hljs-strong: bold;
+        --hljs-link: hsl(190 70% 70%);
+    }
 
-  }
+    /* === THEME B === */
+    .theme-b {
+        --background: 210 60% 98%;
+        --sidebar: 210 60% 92%;
+        --foreground: 210 40% 15%;
+        --card: 210 60% 96%;
+        --card-foreground: 210 40% 15%;
+        --popover: 210 60% 98%;
+        --popover-foreground: 210 40% 15%;
+        --primary: 200 100% 50%;
+        --primary-foreground: 210 60% 98%;
+        --secondary: 210 40% 90%;
+        --secondary-foreground: 210 40% 20%;
+        --muted: 210 40% 90%;
+        --muted-foreground: 210 20% 40%;
+        --accent: 200 100% 90%;
+        --accent-foreground: 200 100% 30%;
+        --destructive: 0 80% 60%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 210 20% 85%;
+        --input: 210 20% 85%;
+        --ring: 200 100% 50%;
+        --radius: 0.5rem;
+        --chart-1: 200 100% 50%;
+        --chart-2: 210 60% 60%;
+        --chart-3: 120 60% 50%;
+        --chart-4: 40 80% 60%;
+        --chart-5: 340 80% 60%;
 
-  .theme-a-dark {
-    --background: 48 20% 12%;
-    --sidebar: 48 20% 10%;
-    --foreground: 48 20% 90%;
-    --card: 48 20% 16%;
-    --card-foreground: 48 20% 90%;
-    --popover: 48 20% 8%;
-    --popover-foreground: 48 20% 90%;
-    --primary: 34 100% 60%;
-    --primary-foreground: 48 20% 98%;
-    --secondary: 48 20% 18%;
-    --secondary-foreground: 48 20% 98%;
-    --muted: 48 20% 20%;
-    --muted-foreground: 48 20% 64.9%;
-    --accent: 34 100% 20%;
-    --accent-foreground: 34 100% 98%;
-    --destructive: 0 80% 40%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 48 20% 16%;
-    --input: 48 20% 16%;
-    --ring: 34 100% 60%;
-    --chart-1: 34 100% 60%;
-    --chart-2: 48 100% 40%;
-    --chart-3: 120 60% 40%;
-    --chart-4: 200 60% 50%;
-    --chart-5: 340 80% 50%;
+        /* Highlight Variables for theme-b */
+        --hljs-bg: hsl(var(--card));
+        --hljs-text: hsl(210 40% 20%);
+        /* Dark Blue */
+        --hljs-comment: hsl(var(--muted-foreground));
+        /* 210 20% 40% */
+        --hljs-keyword: hsl(var(--primary));
+        /* Cyan */
+        --hljs-string: hsl(100 40% 40%);
+        /* Green */
+        --hljs-number: hsl(340 70% 55%);
+        /* Pink/Magenta */
+        --hljs-built_in: hsl(var(--primary), -15%, -10%);
+        /* Darker Cyan */
+        --hljs-literal: hsl(340 70% 55%);
+        --hljs-function: hsl(var(--accent-foreground));
+        /* 200 100% 30% - Darkest Cyan */
+        --hljs-class: hsl(var(--accent-foreground));
+        --hljs-params: hsl(var(--foreground));
+        --hljs-title: hsl(var(--accent-foreground));
+        --hljs-attr: hsl(var(--secondary-foreground));
+        /* 210 40% 20% */
+        --hljs-tag: hsl(260 50% 50%);
+        /* Purple */
+        --hljs-meta: hsl(var(--muted-foreground));
+        --hljs-regexp: hsl(100 40% 40%);
+        --hljs-variable: hsl(var(--primary), -15%, -10%);
+        --hljs-symbol: hsl(340 70% 55%);
+        --hljs-section: hsl(var(--primary));
+        --hljs-attribute: hsl(var(--primary), -15%, -10%);
+        --hljs-selector-tag: hsl(var(--primary));
+        --hljs-selector-id: hsl(260 50% 50%);
+        --hljs-selector-class: hsl(260 50% 50%);
+        --hljs-selector-attr: hsl(100 40% 40%);
+        --hljs-selector-pseudo: hsl(100 40% 40%);
+        --hljs-addition: hsl(120 60% 90%);
+        --hljs-deletion: hsl(0 70% 92%);
+        --hljs-emphasis: italic;
+        --hljs-strong: bold;
+        --hljs-link: hsl(260 50% 50%);
+    }
 
-    /* Highlight Variables for theme-a-dark */
-    --hljs-bg: hsl(var(--card));
-    --hljs-text: hsl(48 20% 85%);
-    /* Off-white yellow tint */
-    --hljs-comment: hsl(var(--muted-foreground));
-    /* 48 20% 64.9% */
-    --hljs-keyword: hsl(var(--primary));
-    /* Bright Orange */
-    --hljs-string: hsl(130 50% 70%);
-    /* Light Green */
-    --hljs-number: hsl(270 60% 75%);
-    /* Light Purple */
-    --hljs-built_in: hsl(var(--primary), +10%);
-    /* Even Brighter Orange */
-    --hljs-literal: hsl(270 60% 75%);
-    --hljs-function: hsl(190 70% 70%);
-    /* Light Teal */
-    --hljs-class: hsl(190 70% 70%);
-    --hljs-params: hsl(var(--foreground));
-    --hljs-title: hsl(190 70% 70%);
-    --hljs-attr: hsl(var(--card-foreground), -10%);
-    /* Dimmer text color */
-    --hljs-tag: hsl(var(--accent-foreground));
-    /* 34 100% 98% (Nearly White) */
-    --hljs-meta: hsl(var(--muted-foreground));
-    --hljs-regexp: hsl(130 50% 70%);
-    --hljs-variable: hsl(var(--primary), +10%);
-    --hljs-symbol: hsl(270 60% 75%);
-    --hljs-section: hsl(var(--primary));
-    --hljs-attribute: hsl(var(--primary), +10%);
-    --hljs-selector-tag: hsl(var(--primary));
-    --hljs-selector-id: hsl(var(--accent-foreground));
-    --hljs-selector-class: hsl(var(--accent-foreground));
-    --hljs-selector-attr: hsl(130 50% 70%);
-    --hljs-selector-pseudo: hsl(130 50% 70%);
-    --hljs-addition: hsla(120, 40%, 30%, 0.6);
-    --hljs-deletion: hsla(0, 50%, 35%, 0.6);
-    --hljs-emphasis: italic;
-    --hljs-strong: bold;
-    --hljs-link: hsl(190 70% 70%);
+    .theme-b-dark {
+        --background: 210 20% 12%;
+        --sidebar: 210 20% 10%;
+        --foreground: 210 20% 90%;
+        --card: 210 20% 16%;
+        --card-foreground: 210 20% 90%;
+        --popover: 210 20% 8%;
+        --popover-foreground: 210 20% 90%;
+        --primary: 200 100% 60%;
+        --primary-foreground: 210 20% 98%;
+        --secondary: 210 20% 18%;
+        --secondary-foreground: 210 20% 98%;
+        --muted: 210 20% 20%;
+        --muted-foreground: 210 20% 64.9%;
+        --accent: 200 100% 20%;
+        --accent-foreground: 200 100% 98%;
+        --destructive: 0 80% 40%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 210 20% 16%;
+        --input: 210 20% 16%;
+        --ring: 200 100% 60%;
+        --chart-1: 200 100% 60%;
+        --chart-2: 210 60% 40%;
+        --chart-3: 120 60% 40%;
+        --chart-4: 40 80% 50%;
+        --chart-5: 340 80% 50%;
 
-  }
+        /* Highlight Variables for theme-b-dark */
+        --hljs-bg: hsl(var(--card));
+        --hljs-text: hsl(210 20% 88%);
+        /* Off-white blue tint */
+        --hljs-comment: hsl(var(--muted-foreground));
+        /* 210 20% 64.9% */
+        --hljs-keyword: hsl(var(--primary));
+        /* Bright Cyan */
+        --hljs-string: hsl(110 50% 70%);
+        /* Light Green */
+        --hljs-number: hsl(330 70% 75%);
+        /* Light Pink */
+        --hljs-built_in: hsl(var(--primary), +10%);
+        /* Even Brighter Cyan */
+        --hljs-literal: hsl(330 70% 75%);
+        --hljs-function: hsl(260 60% 75%);
+        /* Light Purple */
+        --hljs-class: hsl(260 60% 75%);
+        --hljs-params: hsl(var(--foreground));
+        --hljs-title: hsl(260 60% 75%);
+        --hljs-attr: hsl(var(--card-foreground), -10%);
+        --hljs-tag: hsl(var(--accent-foreground));
+        /* 200 100% 98% - Near White */
+        --hljs-meta: hsl(var(--muted-foreground));
+        --hljs-regexp: hsl(110 50% 70%);
+        --hljs-variable: hsl(var(--primary), +10%);
+        --hljs-symbol: hsl(330 70% 75%);
+        --hljs-section: hsl(var(--primary));
+        --hljs-attribute: hsl(var(--primary), +10%);
+        --hljs-selector-tag: hsl(var(--primary));
+        --hljs-selector-id: hsl(var(--accent-foreground));
+        --hljs-selector-class: hsl(var(--accent-foreground));
+        --hljs-selector-attr: hsl(110 50% 70%);
+        --hljs-selector-pseudo: hsl(110 50% 70%);
+        --hljs-addition: hsla(120, 40%, 30%, 0.6);
+        --hljs-deletion: hsla(0, 50%, 35%, 0.6);
+        --hljs-emphasis: italic;
+        --hljs-strong: bold;
+        --hljs-link: hsl(260 60% 75%);
+    }
 
-  /* === THEME B === */
-  .theme-b {
-    --background: 210 60% 98%;
-    --sidebar: 210 60% 92%;
-    --foreground: 210 40% 15%;
-    --card: 210 60% 96%;
-    --card-foreground: 210 40% 15%;
-    --popover: 210 60% 98%;
-    --popover-foreground: 210 40% 15%;
-    --primary: 200 100% 50%;
-    --primary-foreground: 210 60% 98%;
-    --secondary: 210 40% 90%;
-    --secondary-foreground: 210 40% 20%;
-    --muted: 210 40% 90%;
-    --muted-foreground: 210 20% 40%;
-    --accent: 200 100% 90%;
-    --accent-foreground: 200 100% 30%;
-    --destructive: 0 80% 60%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 210 20% 85%;
-    --input: 210 20% 85%;
-    --ring: 200 100% 50%;
-    --radius: 0.5rem;
-    --chart-1: 200 100% 50%;
-    --chart-2: 210 60% 60%;
-    --chart-3: 120 60% 50%;
-    --chart-4: 40 80% 60%;
-    --chart-5: 340 80% 60%;
+    /* === THEME C (Protocol Inspired) === */
+    .theme-c {
+        --background: 220 20% 98%;
+        --sidebar: 220 15% 95%;
+        --foreground: 220 10% 10%;
+        --card: 220 20% 96%;
+        --card-foreground: 220 10% 15%;
+        --popover: 220 20% 98%;
+        --popover-foreground: 220 10% 10%;
+        --primary: 145 60% 38%;
+        --primary-foreground: 145 20% 96%;
+        --secondary: 220 15% 92%;
+        --secondary-foreground: 220 10% 20%;
+        --muted: 220 15% 92%;
+        --muted-foreground: 220 10% 45%;
+        --accent: 145 50% 90%;
+        --accent-foreground: 145 60% 25%;
+        --destructive: 0 80% 60%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 220 15% 88%;
+        --input: 220 15% 88%;
+        --ring: 145 60% 38%;
+        --radius: 0.5rem;
+        --chart-1: 145 60% 45%;
+        --chart-2: 160 50% 40%;
+        --chart-3: 180 40% 50%;
+        --chart-4: 100 40% 55%;
+        --chart-5: 40 50% 60%;
 
+        /* Highlight Variables for theme-c */
+        --hljs-bg: hsl(var(--card));
+        --hljs-text: hsl(220 10% 20%);
+        /* Dark Gray */
+        --hljs-comment: hsl(var(--muted-foreground));
+        /* 220 10% 45% */
+        --hljs-keyword: hsl(var(--primary));
+        /* Green */
+        --hljs-string: hsl(190 50% 35%);
+        /* Teal */
+        --hljs-number: hsl(30 70% 45%);
+        /* Orange/Brown */
+        --hljs-built_in: hsl(var(--primary), -10%, -8%);
+        /* Darker Green */
+        --hljs-literal: hsl(30 70% 45%);
+        --hljs-function: hsl(var(--accent-foreground));
+        /* 145 60% 25% - Darkest Green */
+        --hljs-class: hsl(var(--accent-foreground));
+        --hljs-params: hsl(var(--foreground));
+        --hljs-title: hsl(var(--accent-foreground));
+        --hljs-attr: hsl(var(--secondary-foreground));
+        /* 220 10% 20% */
+        --hljs-tag: hsl(230 50% 55%);
+        /* Blue/Purple */
+        --hljs-meta: hsl(var(--muted-foreground));
+        --hljs-regexp: hsl(190 50% 35%);
+        --hljs-variable: hsl(var(--primary), -10%, -8%);
+        --hljs-symbol: hsl(30 70% 45%);
+        --hljs-section: hsl(var(--primary));
+        --hljs-attribute: hsl(var(--primary), -10%, -8%);
+        --hljs-selector-tag: hsl(var(--primary));
+        --hljs-selector-id: hsl(230 50% 55%);
+        --hljs-selector-class: hsl(230 50% 55%);
+        --hljs-selector-attr: hsl(190 50% 35%);
+        --hljs-selector-pseudo: hsl(190 50% 35%);
+        --hljs-addition: hsl(120 60% 90%);
+        --hljs-deletion: hsl(0 70% 92%);
+        --hljs-emphasis: italic;
+        --hljs-strong: bold;
+        --hljs-link: hsl(230 50% 55%);
+    }
 
-    /* Highlight Variables for theme-b */
-    --hljs-bg: hsl(var(--card));
-    --hljs-text: hsl(210 40% 20%);
-    /* Dark Blue */
-    --hljs-comment: hsl(var(--muted-foreground));
-    /* 210 20% 40% */
-    --hljs-keyword: hsl(var(--primary));
-    /* Cyan */
-    --hljs-string: hsl(100 40% 40%);
-    /* Green */
-    --hljs-number: hsl(340 70% 55%);
-    /* Pink/Magenta */
-    --hljs-built_in: hsl(var(--primary), -15%, -10%);
-    /* Darker Cyan */
-    --hljs-literal: hsl(340 70% 55%);
-    --hljs-function: hsl(var(--accent-foreground));
-    /* 200 100% 30% - Darkest Cyan */
-    --hljs-class: hsl(var(--accent-foreground));
-    --hljs-params: hsl(var(--foreground));
-    --hljs-title: hsl(var(--accent-foreground));
-    --hljs-attr: hsl(var(--secondary-foreground));
-    /* 210 40% 20% */
-    --hljs-tag: hsl(260 50% 50%);
-    /* Purple */
-    --hljs-meta: hsl(var(--muted-foreground));
-    --hljs-regexp: hsl(100 40% 40%);
-    --hljs-variable: hsl(var(--primary), -15%, -10%);
-    --hljs-symbol: hsl(340 70% 55%);
-    --hljs-section: hsl(var(--primary));
-    --hljs-attribute: hsl(var(--primary), -15%, -10%);
-    --hljs-selector-tag: hsl(var(--primary));
-    --hljs-selector-id: hsl(260 50% 50%);
-    --hljs-selector-class: hsl(260 50% 50%);
-    --hljs-selector-attr: hsl(100 40% 40%);
-    --hljs-selector-pseudo: hsl(100 40% 40%);
-    --hljs-addition: hsl(120 60% 90%);
-    --hljs-deletion: hsl(0 70% 92%);
-    --hljs-emphasis: italic;
-    --hljs-strong: bold;
-    --hljs-link: hsl(260 50% 50%);
+    .theme-c-dark {
+        --background: 220 10% 10%;
+        --sidebar: 220 10% 12%;
+        --foreground: 0 0% 95%;
+        --card: 220 10% 15%;
+        --card-foreground: 220 5% 70%;
+        --popover: 220 12% 8%;
+        --popover-foreground: 0 0% 95%;
+        --primary: 145 65% 50%;
+        --primary-foreground: 0 0% 98%;
+        --secondary: 220 10% 15%;
+        --secondary-foreground: 0 0% 98%;
+        --muted: 220 10% 13%;
+        --muted-foreground: 220 10% 65%;
+        --accent: 220 10% 18%;
+        --accent-foreground: 0 0% 98%;
+        --destructive: 0 70% 40%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 220 10% 18%;
+        --input: 220 10% 15%;
+        --ring: 145 65% 40%;
+        --chart-1: 145 65% 50%;
+        --chart-2: 160 55% 45%;
+        --chart-3: 180 45% 55%;
+        --chart-4: 100 45% 60%;
+        --chart-5: 40 55% 65%;
 
-  }
+        /* Highlight Variables for theme-c-dark */
+        --hljs-bg: hsl(var(--card));
+        --hljs-text: hsl(var(--card-foreground));
+        /* Use card-foreground */
+        --hljs-comment: hsl(var(--muted-foreground));
+        /* 220 10% 65% */
+        --hljs-keyword: hsl(var(--primary));
+        /* Bright Green */
+        --hljs-string: hsl(190 60% 65%);
+        /* Light Teal */
+        --hljs-number: hsl(30 80% 70%);
+        /* Light Orange */
+        --hljs-built_in: hsl(var(--primary), +10%, +5%);
+        /* Brighter Green */
+        --hljs-literal: hsl(30 80% 70%);
+        --hljs-function: hsl(230 60% 75%);
+        /* Light Blue/Purple */
+        --hljs-class: hsl(230 60% 75%);
+        --hljs-params: hsl(var(--foreground));
+        /* Main White Text */
+        --hljs-title: hsl(230 60% 75%);
+        --hljs-attr: hsl(var(--card-foreground), +10%);
+        /* Slightly Brighter Muted Gray */
+        --hljs-tag: hsl(var(--accent-foreground));
+        /* Near White */
+        --hljs-meta: hsl(var(--muted-foreground));
+        --hljs-regexp: hsl(190 60% 65%);
+        --hljs-variable: hsl(var(--primary), +10%, +5%);
+        --hljs-symbol: hsl(30 80% 70%);
+        --hljs-section: hsl(var(--primary));
+        --hljs-attribute: hsl(var(--primary), +10%, +5%);
+        --hljs-selector-tag: hsl(var(--primary));
+        --hljs-selector-id: hsl(var(--accent-foreground));
+        --hljs-selector-class: hsl(var(--accent-foreground));
+        --hljs-selector-attr: hsl(190 60% 65%);
+        --hljs-selector-pseudo: hsl(190 60% 65%);
+        --hljs-addition: hsla(120, 40%, 30%, 0.6);
+        --hljs-deletion: hsla(0, 50%, 35%, 0.6);
+        --hljs-emphasis: italic;
+        --hljs-strong: bold;
+        --hljs-link: hsl(230 60% 75%);
+    }
 
-  .theme-b-dark {
-    --background: 210 20% 12%;
-    --sidebar: 210 20% 10%;
-    --foreground: 210 20% 90%;
-    --card: 210 20% 16%;
-    --card-foreground: 210 20% 90%;
-    --popover: 210 20% 8%;
-    --popover-foreground: 210 20% 90%;
-    --primary: 200 100% 60%;
-    --primary-foreground: 210 20% 98%;
-    --secondary: 210 20% 18%;
-    --secondary-foreground: 210 20% 98%;
-    --muted: 210 20% 20%;
-    --muted-foreground: 210 20% 64.9%;
-    --accent: 200 100% 20%;
-    --accent-foreground: 200 100% 98%;
-    --destructive: 0 80% 40%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 210 20% 16%;
-    --input: 210 20% 16%;
-    --ring: 200 100% 60%;
-    --chart-1: 200 100% 60%;
-    --chart-2: 210 60% 40%;
-    --chart-3: 120 60% 40%;
-    --chart-4: 40 80% 50%;
-    --chart-5: 340 80% 50%;
+    /* === THEME D (CacheAdvance Inspired) === */
+    .theme-d {
+        /* Light version derived from dark */
+        --background: 225 60% 98%;
+        /* Very light cool gray/blue */
+        --sidebar: 225 50% 94%;
+        /* Slightly darker light blue */
+        --foreground: 225 30% 15%;
+        /* Dark desaturated blue text */
+        --card: 225 60% 96%;
+        /* Light blue card */
+        --card-foreground: 225 30% 20%;
+        /* Dark desaturated blue text */
+        --popover: 225 60% 98%;
+        /* Very light blue */
+        --popover-foreground: 225 30% 15%;
+        /* Dark desaturated blue text */
+        --primary: 195 80% 45%;
+        /* Darker cyan/blue */
+        --primary-foreground: 195 20% 98%;
+        /* Very light cyan text */
+        --secondary: 225 40% 92%;
+        /* Light blue */
+        --secondary-foreground: 225 30% 25%;
+        /* Dark blue */
+        --muted: 225 40% 92%;
+        /* Light blue */
+        --muted-foreground: 225 20% 45%;
+        /* Medium desaturated blue */
+        --accent: 195 70% 90%;
+        /* Very light cyan */
+        --accent-foreground: 195 80% 30%;
+        /* Dark cyan */
+        --destructive: 0 80% 60%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 225 40% 88%;
+        /* Light blue border */
+        --input: 225 40% 88%;
+        /* Light blue input */
+        --ring: 195 80% 45%;
+        /* Darker cyan/blue */
+        --radius: 0.5rem;
+        --chart-1: 195 80% 50%;
+        --chart-2: 210 60% 55%;
+        --chart-3: 230 50% 60%;
+        --chart-4: 250 55% 65%;
+        --chart-5: 30 70% 60%;
 
-    /* Highlight Variables for theme-b-dark */
-    --hljs-bg: hsl(var(--card));
-    --hljs-text: hsl(210 20% 88%);
-    /* Off-white blue tint */
-    --hljs-comment: hsl(var(--muted-foreground));
-    /* 210 20% 64.9% */
-    --hljs-keyword: hsl(var(--primary));
-    /* Bright Cyan */
-    --hljs-string: hsl(110 50% 70%);
-    /* Light Green */
-    --hljs-number: hsl(330 70% 75%);
-    /* Light Pink */
-    --hljs-built_in: hsl(var(--primary), +10%);
-    /* Even Brighter Cyan */
-    --hljs-literal: hsl(330 70% 75%);
-    --hljs-function: hsl(260 60% 75%);
-    /* Light Purple */
-    --hljs-class: hsl(260 60% 75%);
-    --hljs-params: hsl(var(--foreground));
-    --hljs-title: hsl(260 60% 75%);
-    --hljs-attr: hsl(var(--card-foreground), -10%);
-    --hljs-tag: hsl(var(--accent-foreground));
-    /* 200 100% 98% - Near White */
-    --hljs-meta: hsl(var(--muted-foreground));
-    --hljs-regexp: hsl(110 50% 70%);
-    --hljs-variable: hsl(var(--primary), +10%);
-    --hljs-symbol: hsl(330 70% 75%);
-    --hljs-section: hsl(var(--primary));
-    --hljs-attribute: hsl(var(--primary), +10%);
-    --hljs-selector-tag: hsl(var(--primary));
-    --hljs-selector-id: hsl(var(--accent-foreground));
-    --hljs-selector-class: hsl(var(--accent-foreground));
-    --hljs-selector-attr: hsl(110 50% 70%);
-    --hljs-selector-pseudo: hsl(110 50% 70%);
-    --hljs-addition: hsla(120, 40%, 30%, 0.6);
-    --hljs-deletion: hsla(0, 50%, 35%, 0.6);
-    --hljs-emphasis: italic;
-    --hljs-strong: bold;
-    --hljs-link: hsl(260 60% 75%);
+        /* Highlight Variables for theme-d (Using user's provided base) */
+        --hljs-bg: hsl(225 60% 97%);
+        /* Adjusted slightly from user */
+        --hljs-text: hsl(225 30% 25%);
+        /* Adjusted slightly from user */
+        --hljs-comment: hsl(225 20% 55%);
+        /* Derived */
+        --hljs-keyword: hsl(0 80% 55%);
+        /* Red - good contrast */
+        --hljs-string: hsl(210 70% 35%);
+        /* Dark Blue */
+        --hljs-number: hsl(260 60% 50%);
+        /* Purple */
+        --hljs-built_in: hsl(var(--primary), -10%, -15%);
+        /* Dark Cyan/Blue */
+        --hljs-literal: hsl(260 60% 50%);
+        --hljs-function: hsl(var(--primary), -5%, -10%);
+        /* Darker Cyan/Blue */
+        --hljs-class: hsl(var(--primary), -5%, -10%);
+        --hljs-params: hsl(var(--foreground));
+        --hljs-title: hsl(var(--primary), -5%, -10%);
+        --hljs-attr: hsl(var(--foreground));
+        --hljs-tag: hsl(var(--primary));
+        /* Cyan/Blue */
+        --hljs-meta: hsl(225 20% 55%);
+        --hljs-regexp: hsl(210 70% 35%);
+        --hljs-variable: hsl(30 70% 45%);
+        /* Orange/Brown */
+        --hljs-symbol: hsl(260 60% 50%);
+        --hljs-section: hsl(var(--primary));
+        --hljs-attribute: hsl(30 70% 45%);
+        --hljs-selector-tag: hsl(0 80% 55%);
+        --hljs-selector-id: hsl(var(--primary));
+        --hljs-selector-class: hsl(var(--primary));
+        --hljs-selector-attr: hsl(210 70% 35%);
+        --hljs-selector-pseudo: hsl(210 70% 35%);
+        --hljs-addition: hsl(120 60% 90%);
+        --hljs-deletion: hsl(0 70% 92%);
+        --hljs-emphasis: italic;
+        --hljs-strong: bold;
+        --hljs-link: hsl(210 70% 35%);
+    }
 
-  }
+    .theme-d-dark {
+        --background: 225 20% 12%;
+        --sidebar: 225 20% 10%;
+        --foreground: 0 0% 95%;
+        --card: 225 15% 14%;
+        --card-foreground: 220 15% 80%;
+        --popover: 225 20% 8%;
+        --popover-foreground: 0 0% 95%;
+        --primary: 195 90% 55%;
+        --primary-foreground: 225 20% 15%;
+        --secondary: 225 15% 18%;
+        --secondary-foreground: 0 0% 98%;
+        --muted: 225 15% 16%;
+        --muted-foreground: 220 15% 65%;
+        --accent: 195 80% 20%;
+        --accent-foreground: 195 20% 96%;
+        --destructive: 0 70% 40%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 225 15% 18%;
+        --input: 225 15% 16%;
+        --ring: 195 90% 45%;
+        --chart-1: 195 90% 55%;
+        --chart-2: 210 70% 50%;
+        --chart-3: 230 60% 60%;
+        --chart-4: 250 65% 65%;
+        --chart-5: 30 80% 55%;
 
-  /* === THEME C (Protocol Inspired) === */
-  .theme-c {
-    --background: 220 20% 98%;
-    --sidebar: 220 15% 95%;
-    --foreground: 220 10% 10%;
-    --card: 220 20% 96%;
-    --card-foreground: 220 10% 15%;
-    --popover: 220 20% 98%;
-    --popover-foreground: 220 10% 10%;
-    --primary: 145 60% 38%;
-    --primary-foreground: 145 20% 96%;
-    --secondary: 220 15% 92%;
-    --secondary-foreground: 220 10% 20%;
-    --muted: 220 15% 92%;
-    --muted-foreground: 220 10% 45%;
-    --accent: 145 50% 90%;
-    --accent-foreground: 145 60% 25%;
-    --destructive: 0 80% 60%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 220 15% 88%;
-    --input: 220 15% 88%;
-    --ring: 145 60% 38%;
-    --radius: 0.5rem;
-    --chart-1: 145 60% 45%;
-    --chart-2: 160 50% 40%;
-    --chart-3: 180 40% 50%;
-    --chart-4: 100 40% 55%;
-    --chart-5: 40 50% 60%;
-
-    /* Highlight Variables for theme-c */
-    --hljs-bg: hsl(var(--card));
-    --hljs-text: hsl(220 10% 20%);
-    /* Dark Gray */
-    --hljs-comment: hsl(var(--muted-foreground));
-    /* 220 10% 45% */
-    --hljs-keyword: hsl(var(--primary));
-    /* Green */
-    --hljs-string: hsl(190 50% 35%);
-    /* Teal */
-    --hljs-number: hsl(30 70% 45%);
-    /* Orange/Brown */
-    --hljs-built_in: hsl(var(--primary), -10%, -8%);
-    /* Darker Green */
-    --hljs-literal: hsl(30 70% 45%);
-    --hljs-function: hsl(var(--accent-foreground));
-    /* 145 60% 25% - Darkest Green */
-    --hljs-class: hsl(var(--accent-foreground));
-    --hljs-params: hsl(var(--foreground));
-    --hljs-title: hsl(var(--accent-foreground));
-    --hljs-attr: hsl(var(--secondary-foreground));
-    /* 220 10% 20% */
-    --hljs-tag: hsl(230 50% 55%);
-    /* Blue/Purple */
-    --hljs-meta: hsl(var(--muted-foreground));
-    --hljs-regexp: hsl(190 50% 35%);
-    --hljs-variable: hsl(var(--primary), -10%, -8%);
-    --hljs-symbol: hsl(30 70% 45%);
-    --hljs-section: hsl(var(--primary));
-    --hljs-attribute: hsl(var(--primary), -10%, -8%);
-    --hljs-selector-tag: hsl(var(--primary));
-    --hljs-selector-id: hsl(230 50% 55%);
-    --hljs-selector-class: hsl(230 50% 55%);
-    --hljs-selector-attr: hsl(190 50% 35%);
-    --hljs-selector-pseudo: hsl(190 50% 35%);
-    --hljs-addition: hsl(120 60% 90%);
-    --hljs-deletion: hsl(0 70% 92%);
-    --hljs-emphasis: italic;
-    --hljs-strong: bold;
-    --hljs-link: hsl(230 50% 55%);
-
-  }
-
-  .theme-c-dark {
-    --background: 220 10% 10%;
-    --sidebar: 220 10% 12%;
-    --foreground: 0 0% 95%;
-    --card: 220 10% 15%;
-    --card-foreground: 220 5% 70%;
-    --popover: 220 12% 8%;
-    --popover-foreground: 0 0% 95%;
-    --primary: 145 65% 50%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 220 10% 15%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 220 10% 13%;
-    --muted-foreground: 220 10% 65%;
-    --accent: 220 10% 18%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 70% 40%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 220 10% 18%;
-    --input: 220 10% 15%;
-    --ring: 145 65% 40%;
-    --chart-1: 145 65% 50%;
-    --chart-2: 160 55% 45%;
-    --chart-3: 180 45% 55%;
-    --chart-4: 100 45% 60%;
-    --chart-5: 40 55% 65%;
-
-    /* Highlight Variables for theme-c-dark */
-    --hljs-bg: hsl(var(--card));
-    --hljs-text: hsl(var(--card-foreground));
-    /* Use card-foreground */
-    --hljs-comment: hsl(var(--muted-foreground));
-    /* 220 10% 65% */
-    --hljs-keyword: hsl(var(--primary));
-    /* Bright Green */
-    --hljs-string: hsl(190 60% 65%);
-    /* Light Teal */
-    --hljs-number: hsl(30 80% 70%);
-    /* Light Orange */
-    --hljs-built_in: hsl(var(--primary), +10%, +5%);
-    /* Brighter Green */
-    --hljs-literal: hsl(30 80% 70%);
-    --hljs-function: hsl(230 60% 75%);
-    /* Light Blue/Purple */
-    --hljs-class: hsl(230 60% 75%);
-    --hljs-params: hsl(var(--foreground));
-    /* Main White Text */
-    --hljs-title: hsl(230 60% 75%);
-    --hljs-attr: hsl(var(--card-foreground), +10%);
-    /* Slightly Brighter Muted Gray */
-    --hljs-tag: hsl(var(--accent-foreground));
-    /* Near White */
-    --hljs-meta: hsl(var(--muted-foreground));
-    --hljs-regexp: hsl(190 60% 65%);
-    --hljs-variable: hsl(var(--primary), +10%, +5%);
-    --hljs-symbol: hsl(30 80% 70%);
-    --hljs-section: hsl(var(--primary));
-    --hljs-attribute: hsl(var(--primary), +10%, +5%);
-    --hljs-selector-tag: hsl(var(--primary));
-    --hljs-selector-id: hsl(var(--accent-foreground));
-    --hljs-selector-class: hsl(var(--accent-foreground));
-    --hljs-selector-attr: hsl(190 60% 65%);
-    --hljs-selector-pseudo: hsl(190 60% 65%);
-    --hljs-addition: hsla(120, 40%, 30%, 0.6);
-    --hljs-deletion: hsla(0, 50%, 35%, 0.6);
-    --hljs-emphasis: italic;
-    --hljs-strong: bold;
-    --hljs-link: hsl(230 60% 75%);
-
-  }
-
-  /* === THEME D (CacheAdvance Inspired) === */
-  .theme-d {
-    /* Light version derived from dark */
-    --background: 225 60% 98%;
-    /* Very light cool gray/blue */
-    --sidebar: 225 50% 94%;
-    /* Slightly darker light blue */
-    --foreground: 225 30% 15%;
-    /* Dark desaturated blue text */
-    --card: 225 60% 96%;
-    /* Light blue card */
-    --card-foreground: 225 30% 20%;
-    /* Dark desaturated blue text */
-    --popover: 225 60% 98%;
-    /* Very light blue */
-    --popover-foreground: 225 30% 15%;
-    /* Dark desaturated blue text */
-    --primary: 195 80% 45%;
-    /* Darker cyan/blue */
-    --primary-foreground: 195 20% 98%;
-    /* Very light cyan text */
-    --secondary: 225 40% 92%;
-    /* Light blue */
-    --secondary-foreground: 225 30% 25%;
-    /* Dark blue */
-    --muted: 225 40% 92%;
-    /* Light blue */
-    --muted-foreground: 225 20% 45%;
-    /* Medium desaturated blue */
-    --accent: 195 70% 90%;
-    /* Very light cyan */
-    --accent-foreground: 195 80% 30%;
-    /* Dark cyan */
-    --destructive: 0 80% 60%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 225 40% 88%;
-    /* Light blue border */
-    --input: 225 40% 88%;
-    /* Light blue input */
-    --ring: 195 80% 45%;
-    /* Darker cyan/blue */
-    --radius: 0.5rem;
-    --chart-1: 195 80% 50%;
-    --chart-2: 210 60% 55%;
-    --chart-3: 230 50% 60%;
-    --chart-4: 250 55% 65%;
-    --chart-5: 30 70% 60%;
-
-    /* Highlight Variables for theme-d (Using user's provided base) */
-    --hljs-bg: hsl(225 60% 97%);
-    /* Adjusted slightly from user */
-    --hljs-text: hsl(225 30% 25%);
-    /* Adjusted slightly from user */
-    --hljs-comment: hsl(225 20% 55%);
-    /* Derived */
-    --hljs-keyword: hsl(0 80% 55%);
-    /* Red - good contrast */
-    --hljs-string: hsl(210 70% 35%);
-    /* Dark Blue */
-    --hljs-number: hsl(260 60% 50%);
-    /* Purple */
-    --hljs-built_in: hsl(var(--primary), -10%, -15%);
-    /* Dark Cyan/Blue */
-    --hljs-literal: hsl(260 60% 50%);
-    --hljs-function: hsl(var(--primary), -5%, -10%);
-    /* Darker Cyan/Blue */
-    --hljs-class: hsl(var(--primary), -5%, -10%);
-    --hljs-params: hsl(var(--foreground));
-    --hljs-title: hsl(var(--primary), -5%, -10%);
-    --hljs-attr: hsl(var(--foreground));
-    --hljs-tag: hsl(var(--primary));
-    /* Cyan/Blue */
-    --hljs-meta: hsl(225 20% 55%);
-    --hljs-regexp: hsl(210 70% 35%);
-    --hljs-variable: hsl(30 70% 45%);
-    /* Orange/Brown */
-    --hljs-symbol: hsl(260 60% 50%);
-    --hljs-section: hsl(var(--primary));
-    --hljs-attribute: hsl(30 70% 45%);
-    --hljs-selector-tag: hsl(0 80% 55%);
-    --hljs-selector-id: hsl(var(--primary));
-    --hljs-selector-class: hsl(var(--primary));
-    --hljs-selector-attr: hsl(210 70% 35%);
-    --hljs-selector-pseudo: hsl(210 70% 35%);
-    --hljs-addition: hsl(120 60% 90%);
-    --hljs-deletion: hsl(0 70% 92%);
-    --hljs-emphasis: italic;
-    --hljs-strong: bold;
-    --hljs-link: hsl(210 70% 35%);
-  }
-
-  .theme-d-dark {
-    --background: 225 20% 12%;
-    --sidebar: 225 20% 10%;
-    --foreground: 0 0% 95%;
-    --card: 225 15% 14%;
-    --card-foreground: 220 15% 80%;
-    --popover: 225 20% 8%;
-    --popover-foreground: 0 0% 95%;
-    --primary: 195 90% 55%;
-    --primary-foreground: 225 20% 15%;
-    --secondary: 225 15% 18%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 225 15% 16%;
-    --muted-foreground: 220 15% 65%;
-    --accent: 195 80% 20%;
-    --accent-foreground: 195 20% 96%;
-    --destructive: 0 70% 40%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 225 15% 18%;
-    --input: 225 15% 16%;
-    --ring: 195 90% 45%;
-    --chart-1: 195 90% 55%;
-    --chart-2: 210 70% 50%;
-    --chart-3: 230 60% 60%;
-    --chart-4: 250 65% 65%;
-    --chart-5: 30 80% 55%;
-
-    /* Highlight Variables for theme-d-dark (Using user's provided base) */
-    --hljs-bg: hsl(var(--card));
-    /* Use card bg */
-    --hljs-text: hsl(var(--card-foreground));
-    /* Use card fg */
-    --hljs-comment: hsl(220 15% 55%);
-    /* Derived Muted Gray */
-    --hljs-keyword: hsl(0 80% 70%);
-    /* Pink/Red */
-    --hljs-string: hsl(195 60% 75%);
-    /* Light Cyan */
-    --hljs-number: hsl(270 60% 75%);
-    /* Light Purple */
-    --hljs-built_in: hsl(var(--primary), +10%);
-    /* Brighter Cyan */
-    --hljs-literal: hsl(270 60% 75%);
-    --hljs-function: hsl(var(--primary), +5%);
-    /* Slightly brighter Cyan */
-    --hljs-class: hsl(var(--primary), +5%);
-    --hljs-params: hsl(var(--foreground));
-    /* Main white */
-    --hljs-title: hsl(var(--primary), +5%);
-    --hljs-attr: hsl(var(--card-foreground), +5%);
-    /* Slightly brighter muted gray */
-    --hljs-tag: hsl(195 90% 80%);
-    /* Very Light Cyan */
-    --hljs-meta: hsl(220 15% 55%);
-    --hljs-regexp: hsl(195 60% 75%);
-    --hljs-variable: hsl(30 80% 70%);
-    /* Light Orange */
-    --hljs-symbol: hsl(270 60% 75%);
-    --hljs-section: hsl(var(--primary));
-    --hljs-attribute: hsl(30 80% 70%);
-    --hljs-selector-tag: hsl(0 80% 70%);
-    --hljs-selector-id: hsl(195 90% 80%);
-    --hljs-selector-class: hsl(195 90% 80%);
-    --hljs-selector-attr: hsl(195 60% 75%);
-    --hljs-selector-pseudo: hsl(195 60% 75%);
-    --hljs-addition: hsla(120, 40%, 30%, 0.6);
-    --hljs-deletion: hsla(0, 50%, 35%, 0.6);
-    --hljs-emphasis: italic;
-    --hljs-strong: bold;
-    --hljs-link: hsl(195 60% 75%);
-  }
+        /* Highlight Variables for theme-d-dark (Using user's provided base) */
+        --hljs-bg: hsl(var(--card));
+        /* Use card bg */
+        --hljs-text: hsl(var(--card-foreground));
+        /* Use card fg */
+        --hljs-comment: hsl(220 15% 55%);
+        /* Derived Muted Gray */
+        --hljs-keyword: hsl(0 80% 70%);
+        /* Pink/Red */
+        --hljs-string: hsl(195 60% 75%);
+        /* Light Cyan */
+        --hljs-number: hsl(270 60% 75%);
+        /* Light Purple */
+        --hljs-built_in: hsl(var(--primary), +10%);
+        /* Brighter Cyan */
+        --hljs-literal: hsl(270 60% 75%);
+        --hljs-function: hsl(var(--primary), +5%);
+        /* Slightly brighter Cyan */
+        --hljs-class: hsl(var(--primary), +5%);
+        --hljs-params: hsl(var(--foreground));
+        /* Main white */
+        --hljs-title: hsl(var(--primary), +5%);
+        --hljs-attr: hsl(var(--card-foreground), +5%);
+        /* Slightly brighter muted gray */
+        --hljs-tag: hsl(195 90% 80%);
+        /* Very Light Cyan */
+        --hljs-meta: hsl(220 15% 55%);
+        --hljs-regexp: hsl(195 60% 75%);
+        --hljs-variable: hsl(30 80% 70%);
+        /* Light Orange */
+        --hljs-symbol: hsl(270 60% 75%);
+        --hljs-section: hsl(var(--primary));
+        --hljs-attribute: hsl(30 80% 70%);
+        --hljs-selector-tag: hsl(0 80% 70%);
+        --hljs-selector-id: hsl(195 90% 80%);
+        --hljs-selector-class: hsl(195 90% 80%);
+        --hljs-selector-attr: hsl(195 60% 75%);
+        --hljs-selector-pseudo: hsl(195 60% 75%);
+        --hljs-addition: hsla(120, 40%, 30%, 0.6);
+        --hljs-deletion: hsla(0, 50%, 35%, 0.6);
+        --hljs-emphasis: italic;
+        --hljs-strong: bold;
+        --hljs-link: hsl(195 60% 75%);
+    }
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
+    * {
+        @apply border-border;
+    }
 
-  body {
-    @apply bg-background text-foreground;
-    font-family: var(--font-sans);
-  }
+    body {
+        @apply bg-background text-foreground;
+        font-family: var(--font-sans);
+    }
 
-  .font-inter {
-    font-family: var(--font-inter);
-  }
+    .font-inter {
+        font-family: var(--font-inter);
+    }
 
-  code,
-  pre,
-  .font-mono {
-    font-family: var(--font-mono);
-  }
+    code,
+    pre,
+    .font-mono {
+        font-family: var(--font-mono);
+    }
 }
 
 .custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
+    width: 6px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
+    background: transparent;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.2);
-  border-radius: 20px;
-  border: transparent;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    border: transparent;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(255, 255, 255, 0.3);
+    background-color: rgba(255, 255, 255, 0.3);
 }
 
 /* Firefox */
 .custom-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.ai-reveal-chunk {
+    display: inline; /* Or inline-block if needed, but inline is usually best for text flow */
+    filter: blur(5px);
+    opacity: 0;
+    transition:
+        filter 0.25s ease-out,
+        opacity 0.2s ease-out;
+}
+
+.ai-reveal-chunk-visible {
+    filter: blur(0px);
+    opacity: 1;
+}
+
+::selection {
+    background-color: hsl(var(--primary-80));
+    color: black;
+}
+.decor {
+    font-size: 12rem;
+    font-family: "Space Grotesk", sans-serif;
+    font-weight: 700;
+    z-index: -100;
+    color: var(--foreground);
+    -webkit-text-fill-color: #2e2a2a;
+    -webkit-text-stroke-width: 0;
+    -webkit-user-select: none;
+}
+
+/* Video Player Range Slider Styles */
+
+input[type="range"].video-progress-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 10px;
+    background: transparent;
+    border-radius: 9999px;
+    outline: none;
+    padding: 0;
+}
+
+input[type="range"].video-progress-slider::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 10px;
+    cursor: pointer;
+    background: transparent;
+    border-radius: 9999px;
+}
+
+input[type="range"].video-progress-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    background: white;
+    border-radius: 50%;
+    cursor: pointer;
+    margin-top: -2px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+input[type="range"].video-progress-slider::-moz-range-track {
+    width: 100%;
+    height: 10px;
+    cursor: pointer;
+    background: transparent;
+    border-radius: 9999px;
+    border: none;
+}
+
+input[type="range"].video-progress-slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    background: white;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+}
+
+input[type="range"].video-volume-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 8px;
+    background: transparent;
+    border-radius: 9999px;
+    outline: none;
+    padding: 0;
+}
+
+input[type="range"].video-volume-slider::-webkit-slider-runnable-track {
+    height: 8px;
+    cursor: pointer;
+    background: transparent;
+    border-radius: 9999px;
+}
+
+input[type="range"].video-volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    background: white;
+    border-radius: 50%;
+    cursor: pointer;
+    margin-top: -2px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+input[type="range"].video-volume-slider::-moz-range-track {
+    height: 8px;
+    cursor: pointer;
+    background: transparent;
+    border-radius: 9999px;
+    border: none;
+}
+
+input[type="range"].video-volume-slider::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    background: white;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+}
+
+.t-colors {
+    transition-property:
+        color, background-color, border-color, text-decoration-color, fill,
+        stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+.focus-visible:focus-visible {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0
+        var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+    --tw-ring-shadow: var(--tw-ring-inset) 0 0 0
+        calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+    box-shadow:
+        var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
+        var(--tw-shadow, 0 0 #0000);
+    --tw-ring-color: rgba(59, 130, 246, 0.5);
 }

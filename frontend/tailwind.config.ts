@@ -30,6 +30,7 @@ export default {
         sans: ["var(--font-outfit)"],
         mono: ["var(--font-jetbrains-mono)"],
         inter: ["var(--font-inter)"],
+        onest: ["var(--font-onest)"],
       },
       colors: {
         background: "hsl(var(--background))",

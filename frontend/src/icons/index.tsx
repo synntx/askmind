@@ -251,9 +251,68 @@ const MenuIcon: React.FC<IconProps> = (props) => {
   );
 };
 
+const CloseIcon: React.FC<IconProps> = (props) => {
+  return (
+    <svg
+      {...props}
+      className={props.className}
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M18 6L6 18"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M6 6L18 18"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+};
+
+const ChevronLeftIcon: React.FC<IconProps> = (props) => {
+  return (
+    <svg
+      {...props}
+      className={props.className}
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M15 6L9 12L15 18" stroke="currentColor" strokeWidth="2" />
+    </svg>
+  );
+};
+
+const ChevronRightIcon: React.FC<IconProps> = (props) => {
+  return (
+    <svg
+      {...props}
+      className={props.className}
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M9 6L15 12L9 18" stroke="currentColor" strokeWidth="2" />
+    </svg>
+  );
+};
+
 export default MenuIcon;
-
-
 export {
   EditLight,
   TrashLight,
@@ -265,4 +324,7 @@ export {
   CopyIcon,
   CheckmarkIcon,
   MenuIcon,
+  CloseIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
 };

@@ -40,7 +40,11 @@ export const CopyButton: React.FC<CopyButtonProps> = ({
       title={isCopied ? "Copied!" : "Copy message"}
       type="button"
     >
-      {isCopied ? <CheckmarkIcon className="stroke-green-500" /> : <CopyIcon />}
+      {isCopied ? (
+        <CheckmarkIcon className="stroke-primary" strokeWidth={3} />
+      ) : (
+        <CopyIcon />
+      )}
     </button>
   );
 };

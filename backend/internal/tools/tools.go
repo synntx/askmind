@@ -17,6 +17,9 @@ type Parameter struct {
 	Name        string     `json:"name"`
 	Description string     `json:"description"`
 	Type        genai.Type `json:"type"`
+	Required    bool       `json:"required,omitempty"`
+	Optional    bool       `json:"optional,omitempty"`
+	Enum        []string   `json:"enum,omitempty"`
 }
 
 type ToolRegistry struct {
@@ -56,16 +59,28 @@ func (r *ToolRegistry) ConvertToGenaiTools() []*genai.Tool {
 		}
 
 		properties := make(map[string]*genai.Schema)
-		required := []string{}
+		var requiredParams []string
+
 		for _, param := range customTool.Parameters() {
-			properties[param.Name] = &genai.Schema{
+			schema := &genai.Schema{
 				Type:        param.Type,
 				Description: param.Description,
 			}
-			required = append(required, param.Name)
+			if len(param.Enum) > 0 {
+				schema.Enum = param.Enum
+			}
+			properties[param.Name] = schema
+
+			if param.Required {
+				requiredParams = append(requiredParams, param.Name)
+			}
 		}
 		functionDecl.Parameters.Properties = properties
-		functionDecl.Parameters.Required = required
+		if len(requiredParams) > 0 {
+			functionDecl.Parameters.Required = requiredParams
+		} else {
+			functionDecl.Parameters.Required = []string{}
+		}
 
 		genaiTool := genai.Tool{
 			FunctionDeclarations: []*genai.FunctionDeclaration{&functionDecl},

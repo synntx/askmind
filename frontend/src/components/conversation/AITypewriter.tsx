@@ -9,7 +9,7 @@ export const AITypewriter: React.FC<AITypewriterProps> = ({ content }) => {
   const [displayedContent, setDisplayedContent] = useState<string>("");
   const lastContentRef = useRef<string>("");
   const animationRef = useRef<number | null>(null);
-  const charsPerFrameRef = useRef<number>(5);
+  const charsPerFrameRef = useRef<number>(15);
 
   useEffect(() => {
     if (content === lastContentRef.current && displayedContent === content) {
