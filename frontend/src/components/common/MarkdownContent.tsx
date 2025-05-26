@@ -19,6 +19,7 @@ import { UserProfileCard } from "./UserProfileCard";
 import { TimelineDisplay, TimelineItemDisplay } from "./TimeLine";
 import { Callout } from "./CallOut";
 import { VideoPlayer, VideoPlayerProps } from "./VideoPlayer";
+import { AudioPlayer, AudioPlayerProps } from "./AudioPlayer";
 
 interface MarkdownContentProps {
   content: string;
@@ -157,6 +158,7 @@ const sanitizeSchema: Options = {
     "timeline-item",
     "callout",
     "video-player",
+    "audio-player",
   ],
   attributes: {
     ...defaultSchema.attributes,
@@ -201,6 +203,21 @@ const sanitizeSchema: Options = {
       "muted",
       "width",
       "height",
+      "className",
+      "class",
+    ],
+    "audio-player": [
+      "src",
+      "title",
+      "artist",
+      "albumart",
+      "autoplay",
+      "loop",
+      "muted",
+      "defaultvolume",
+      "primarycolor",
+      "width",
+      "showtrackinfo",
       "className",
       "class",
     ],
@@ -474,6 +491,59 @@ export const MarkdownContent: React.FC<MarkdownContentProps> = ({
 
       return <VideoPlayer {...playerProps} />;
     },
+    "audio-player": (props: any) => {
+      const { node } = props;
+      const nodeProps = node?.properties || {};
+
+      const src = nodeProps.src ? String(nodeProps.src) : undefined;
+
+      if (!src) {
+        console.warn("<audio-player> tag is missing 'src' attribute.");
+        return (
+          <p className="my-4 text-red-500">
+            Error: Audio source missing for audio-player.
+          </p>
+        );
+      }
+
+      let playerClassName: string | undefined = undefined;
+      if (nodeProps.classname && Array.isArray(nodeProps.classname)) {
+        playerClassName = nodeProps.classname.join(" ");
+      } else if (nodeProps.classname) {
+        playerClassName = String(nodeProps.classname);
+      } else if (nodeProps.className && Array.isArray(nodeProps.className)) {
+        playerClassName = nodeProps.className.join(" ");
+      } else if (nodeProps.className) {
+        playerClassName = String(nodeProps.className);
+      } else if (nodeProps.class && Array.isArray(nodeProps.class)) {
+        playerClassName = nodeProps.class.join(" ");
+      } else if (nodeProps.class) {
+        playerClassName = String(nodeProps.class);
+      }
+
+      const audioPlayerProps: AudioPlayerProps = {
+        src: src,
+        title: nodeProps.title ? String(nodeProps.title) : undefined,
+        artist: nodeProps.artist ? String(nodeProps.artist) : undefined,
+        albumArt: nodeProps.albumart ? String(nodeProps.albumart) : undefined,
+        autoPlay: nodeProps.autoplay === "true" || nodeProps.autoplay === true,
+        loop: nodeProps.loop === "true" || nodeProps.loop === true,
+        muted: nodeProps.muted === "true" || nodeProps.muted === true,
+        defaultVolume: nodeProps.defaultvolume
+          ? parseFloat(String(nodeProps.defaultvolume))
+          : undefined,
+        primaryColor: nodeProps.primarycolor
+          ? String(nodeProps.primarycolor)
+          : undefined,
+        width: nodeProps.width ? String(nodeProps.width) : undefined,
+        showTrackInfo:
+          nodeProps.showtrackinfo !== "false" &&
+          nodeProps.showtrackinfo !== false,
+        className: playerClassName,
+      };
+
+      return <AudioPlayer {...audioPlayerProps} />;
+    },
     table: ({ ...props }) => (
       <div className="my-8 w-full overflow-y-auto rounded-lg border border-border">
         <table
@@ -541,12 +611,24 @@ export const MarkdownContent: React.FC<MarkdownContentProps> = ({
       />
     ),
 
-    p: ({ ...props }) => (
-      <p
-        className="my-4 text-[16.5px] leading-[27px] text-foreground/85"
-        {...props}
-      />
-    ),
+    p: ({ node, children, ...props }) => {
+      if (
+        node &&
+        node.children &&
+        node.children.length === 1 &&
+        node.children[0].type === "element"
+      ) {
+        return <>{children}</>;
+      }
+      return (
+        <p
+          className="my-4 text-[16.5px] leading-[27px] text-foreground/85"
+          {...props}
+        >
+          {children}
+        </p>
+      );
+    },
 
     a: ({ href, ...props }) => {
       const isExternal = href?.startsWith("http");

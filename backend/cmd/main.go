@@ -67,7 +67,7 @@ func main() {
 	// gemini-2.5-pro-exp-03-25
 	// gemini-2.0-flash-lite
 	// gemini-2.5-flash-preview-04-17
-	LLM_MODEL := "gemini-2.0-flash"
+	LLM_MODEL := "gemini-2.5-flash-preview-04-17"
 
 	gemini := llm.NewGemini(client, logger, LLM_MODEL, genaiTools, toolRegistry)
 

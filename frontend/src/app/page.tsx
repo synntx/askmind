@@ -3,6 +3,7 @@
 import { useToast } from "@/components/ui/toast";
 import { useState } from "react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 export default function Home() {
   const { addToast } = useToast();
@@ -245,6 +246,15 @@ export default function Home() {
         transition={{ delay: 0.8, duration: 0.5 }}
       >
         Try hovering over toasts to pause the timer
+      </motion.div>
+
+      <motion.div
+        className="mt-8 text-white/40 text-sm"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.8, duration: 0.5 }}
+      >
+        <Link href={"/space"}>Go To Space</Link>
       </motion.div>
     </div>
   );
