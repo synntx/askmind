@@ -383,7 +383,7 @@ export const useStreamingCompletion = ({
         abortControllerRef.current = null;
       }
     },
-    [conv_id, apiBaseURL, updateMessageCache],
+    [conv_id, apiBaseURL, updateMessageCache, error],
   );
 
   // Clean up on unmount

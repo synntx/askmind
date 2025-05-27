@@ -55,6 +55,7 @@ func main() {
 
 	image := tools.NewImageSearchTool()
 	page := tools.NewWebPageStructureAnalyzerTool()
+	image_extractor := tools.NewWebImageExtractorTool()
 
 	toolRegistry.Register(webSearchToolInstance)
 	toolRegistry.Register(reddit)
@@ -62,12 +63,15 @@ func main() {
 	toolRegistry.Register(research)
 	toolRegistry.Register(image)
 	toolRegistry.Register(page)
+	toolRegistry.Register(image_extractor)
+
 	genaiTools := toolRegistry.ConvertToGenaiTools()
 
 	// gemini-2.5-pro-exp-03-25
 	// gemini-2.0-flash-lite
 	// gemini-2.5-flash-preview-04-17
-	LLM_MODEL := "gemini-2.5-flash-preview-04-17"
+	// gemini-2.5-flash-preview-05-20
+	LLM_MODEL := "gemini-2.0-flash"
 
 	gemini := llm.NewGemini(client, logger, LLM_MODEL, genaiTools, toolRegistry)
 

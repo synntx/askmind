@@ -491,6 +491,7 @@ export const MarkdownContent: React.FC<MarkdownContentProps> = ({
 
       return <VideoPlayer {...playerProps} />;
     },
+    // eslint-disable-next-line
     "audio-player": (props: any) => {
       const { node } = props;
       const nodeProps = node?.properties || {};
@@ -531,9 +532,6 @@ export const MarkdownContent: React.FC<MarkdownContentProps> = ({
         muted: nodeProps.muted === "true" || nodeProps.muted === true,
         defaultVolume: nodeProps.defaultvolume
           ? parseFloat(String(nodeProps.defaultvolume))
-          : undefined,
-        primaryColor: nodeProps.primarycolor
-          ? String(nodeProps.primarycolor)
           : undefined,
         width: nodeProps.width ? String(nodeProps.width) : undefined,
         showTrackInfo:
