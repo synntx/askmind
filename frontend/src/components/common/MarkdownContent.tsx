@@ -9,7 +9,6 @@ import rehypeRaw from "rehype-raw";
 import rehypeSanitize, { defaultSchema, Options } from "rehype-sanitize";
 import rehypeHighlight from "rehype-highlight";
 import remarkGfm from "remark-gfm";
-// import "highlight.js/styles/github-dark.css";
 import { CheckmarkIcon, CopyIcon } from "@/icons";
 import { Element } from "hast";
 
@@ -18,8 +17,7 @@ import { GalleryImageItem, ImageGallery } from "./ImageGallery";
 import { UserProfileCard } from "./UserProfileCard";
 import { TimelineDisplay, TimelineItemDisplay } from "./TimeLine";
 import { Callout } from "./CallOut";
-import { VideoPlayer, VideoPlayerProps } from "./VideoPlayer";
-import { AudioPlayer, AudioPlayerProps } from "./AudioPlayer";
+import ThinkTag from "./Think";
 
 interface MarkdownContentProps {
   content: string;
@@ -98,7 +96,7 @@ const YouTubeEmbed: React.FC<YouTubeEmbedProps> = ({
 
   const iframeElement = (
     <iframe
-      className="absolute top-0 left-0 w-full h-full border-0" // Fills the container
+      className="absolute top-0 left-0 w-full h-full border-0"
       src={`https://www.youtube.com/embed/${videoId}`}
       title={title}
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -116,13 +114,12 @@ const YouTubeEmbed: React.FC<YouTubeEmbedProps> = ({
       aspectRatio:
         propWidth && propHeight
           ? `${Number(String(propWidth).replace("px", ""))}/${Number(String(propHeight).replace("px", ""))}`
-          : "16/9", // Calculate aspect ratio if both are numbers, else default
-      maxWidth: "100%", // prevent overflow
+          : "16/9",
+      maxWidth: "100%",
     };
     if (propHeight) {
       style.height =
         typeof propHeight === "number" ? `${propHeight}px` : propHeight;
-      // If height is set, aspect ratio might not be needed if width is also set
       if (propWidth) delete style.aspectRatio;
     }
 
@@ -132,11 +129,10 @@ const YouTubeEmbed: React.FC<YouTubeEmbedProps> = ({
       </div>
     );
   } else {
-    // Default to responsive 16:9 aspect ratio
     return (
       <div
         className={`my-6 relative w-full overflow-hidden ${className || ""}`}
-        style={{ paddingTop: "56.25%" /* 16:9 Aspect Ratio */ }}
+        style={{ paddingTop: "56.25%" }}
       >
         {iframeElement}
       </div>
@@ -157,8 +153,7 @@ const sanitizeSchema: Options = {
     "timeline-display",
     "timeline-item",
     "callout",
-    "video-player",
-    "audio-player",
+    "think",
   ],
   attributes: {
     ...defaultSchema.attributes,
@@ -193,34 +188,7 @@ const sanitizeSchema: Options = {
     "timeline-display": ["orientation", "className", "class"],
     "timeline-item": ["date", "title", "type", "icon", "className", "class"],
     callout: ["type", "title", "className", "class"],
-    "video-player": [
-      "src",
-      "poster",
-      "title",
-      "autoplay",
-      "controls",
-      "loop",
-      "muted",
-      "width",
-      "height",
-      "className",
-      "class",
-    ],
-    "audio-player": [
-      "src",
-      "title",
-      "artist",
-      "albumart",
-      "autoplay",
-      "loop",
-      "muted",
-      "defaultvolume",
-      "primarycolor",
-      "width",
-      "showtrackinfo",
-      "className",
-      "class",
-    ],
+    think: ["className", "class", "title"],
     "*": [
       ...(defaultSchema.attributes?.["*"] || []),
       "className",
@@ -250,7 +218,6 @@ export const MarkdownContent: React.FC<MarkdownContentProps> = ({
 
           const typedChildProps = child.props as ChildElementPropsWithNode;
 
-          // 3. Now access the node safely from the asserted type
           const childNode = typedChildProps.node;
           if (childNode && childNode.tagName === "gallery-item") {
             const itemProps = childNode.properties || {};
@@ -445,102 +412,22 @@ export const MarkdownContent: React.FC<MarkdownContentProps> = ({
       );
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    "video-player": (props: any) => {
-      const { node } = props;
+    think: (props: any) => {
+      const { node, children } = props;
       const nodeProps = node?.properties || {};
 
-      const src = nodeProps.src as string;
-
-      if (!src) {
-        console.warn("<video-player> tag is missing 'src' attribute.");
-        return null;
-      }
-
-      // const poster = nodeProps.poster as string | undefined;
-      const title = nodeProps.title as string | undefined;
-
-      // const autoPlay = nodeProps.autoplay === "true";
-      // const controls = nodeProps.controls === "true";
-      // const loop = nodeProps.loop === "true";
-      // const muted = nodeProps.muted === "true";
-
-      // const width = nodeProps.width as string | number | undefined;
-      // const height = nodeProps.height as string | number | undefined;
-
-      // let playerClassName: string | undefined = undefined;
-      // if (nodeProps.className && Array.isArray(nodeProps.className)) {
-      //   playerClassName = nodeProps.className.join(" ");
-      // } else if (nodeProps.className) {
-      //   playerClassName = String(nodeProps.className);
-      // }
-
-      const playerProps: VideoPlayerProps = {
-        src: src,
-        // poster: poster,
-        title: title,
-        // autoPlay: autoPlay,
-        // controls: controls,
-        // loop: loop,
-        // muted: muted,
-        // width: width,
-        // height: height,
-        // className: playerClassName,
-      };
-
-      console.log("<video-player> props:", playerProps);
-
-      return <VideoPlayer {...playerProps} />;
-    },
-    // eslint-disable-next-line
-    "audio-player": (props: any) => {
-      const { node } = props;
-      const nodeProps = node?.properties || {};
-
-      const src = nodeProps.src ? String(nodeProps.src) : undefined;
-
-      if (!src) {
-        console.warn("<audio-player> tag is missing 'src' attribute.");
-        return (
-          <p className="my-4 text-red-500">
-            Error: Audio source missing for audio-player.
-          </p>
-        );
-      }
-
-      let playerClassName: string | undefined = undefined;
-      if (nodeProps.classname && Array.isArray(nodeProps.classname)) {
-        playerClassName = nodeProps.classname.join(" ");
-      } else if (nodeProps.classname) {
-        playerClassName = String(nodeProps.classname);
-      } else if (nodeProps.className && Array.isArray(nodeProps.className)) {
-        playerClassName = nodeProps.className.join(" ");
+      let thinkClassName: string | undefined = undefined;
+      if (nodeProps.className && Array.isArray(nodeProps.className)) {
+        thinkClassName = nodeProps.className.join(" ");
       } else if (nodeProps.className) {
-        playerClassName = String(nodeProps.className);
-      } else if (nodeProps.class && Array.isArray(nodeProps.class)) {
-        playerClassName = nodeProps.class.join(" ");
-      } else if (nodeProps.class) {
-        playerClassName = String(nodeProps.class);
+        thinkClassName = String(nodeProps.className);
       }
 
-      const audioPlayerProps: AudioPlayerProps = {
-        src: src,
-        title: nodeProps.title ? String(nodeProps.title) : undefined,
-        artist: nodeProps.artist ? String(nodeProps.artist) : undefined,
-        albumArt: nodeProps.albumart ? String(nodeProps.albumart) : undefined,
-        autoPlay: nodeProps.autoplay === "true" || nodeProps.autoplay === true,
-        loop: nodeProps.loop === "true" || nodeProps.loop === true,
-        muted: nodeProps.muted === "true" || nodeProps.muted === true,
-        defaultVolume: nodeProps.defaultvolume
-          ? parseFloat(String(nodeProps.defaultvolume))
-          : undefined,
-        width: nodeProps.width ? String(nodeProps.width) : undefined,
-        showTrackInfo:
-          nodeProps.showtrackinfo !== "false" &&
-          nodeProps.showtrackinfo !== false,
-        className: playerClassName,
-      };
-
-      return <AudioPlayer {...audioPlayerProps} />;
+      return (
+        <ThinkTag className={thinkClassName} title={nodeProps.title as string}>
+          {children}
+        </ThinkTag>
+      );
     },
     table: ({ ...props }) => (
       <div className="my-8 w-full overflow-y-auto rounded-lg border border-border">

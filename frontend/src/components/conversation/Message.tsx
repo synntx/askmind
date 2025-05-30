@@ -62,8 +62,8 @@ export const Message: React.FC<MessageProps> = ({
         </div>
         {message.role === "user" ? (
           <div className="whitespace-pre-wrap py-2.5 overflow-y-hidden">
-            {/* <MarkdownContent content={message.content} /> */}
-            {message.content}
+            <MarkdownContent content={message.content} />
+            {/* {message.content} */}
           </div>
         ) : (
           <MarkdownContent content={message.content} />

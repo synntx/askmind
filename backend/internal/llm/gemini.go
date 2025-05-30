@@ -6,9 +6,11 @@ import (
 	"fmt"
 	"io"
 	"maps"
+	"strings"
 	"time"
 
 	"github.com/google/generative-ai-go/genai"
+	"github.com/synntx/askmind/internal/models"
 	"github.com/synntx/askmind/internal/prompts"
 	"github.com/synntx/askmind/internal/tools"
 	"go.uber.org/zap"
@@ -27,26 +29,26 @@ type Gemini struct {
 	toolRegistry *tools.ToolRegistry
 }
 
-type ContentChunk struct {
-	Content  string
-	ToolInfo *ToolInfo
-	Err      error
-}
+// type ContentChunk struct {
+// 	Content  string
+// 	ToolInfo *ToolInfo
+// 	Err      error
+// }
 
-type ToolInfo struct {
-	Name   string
-	Args   map[string]any
-	Result string
-	Status Status
-}
+// type ToolInfo struct {
+// 	Name   string
+// 	Args   map[string]any
+// 	Result string
+// 	Status Status
+// }
 
-type Status string
+// type Status string
 
-const (
-	StatusStart      Status = "START"
-	StatusProcessing Status = "PROCESSING"
-	StatusEnd        Status = "END"
-)
+// const (
+// 	StatusStart      Status = "START"
+// 	StatusProcessing Status = "PROCESSING"
+// 	StatusEnd        Status = "END"
+// )
 
 func NewGemini(client *genai.Client, logger *zap.Logger, modelName string, tools []*genai.Tool, toolRegistry *tools.ToolRegistry) *Gemini {
 	return &Gemini{
@@ -59,8 +61,17 @@ func NewGemini(client *genai.Client, logger *zap.Logger, modelName string, tools
 }
 
 // CreateGeminiClient creates a new genai client
+
 func NewGeminiClient(ctx context.Context, apiKey string) (*genai.Client, error) {
 	return genai.NewClient(ctx, option.WithAPIKey(apiKey))
+}
+
+func (g *Gemini) GetProviderName() string {
+	return "gemini"
+}
+
+func (g *Gemini) GetModelName() string {
+	return g.ModelName
 }
 
 func (g *Gemini) GenerateContent(ctx context.Context, input string) (string, error) {
@@ -90,15 +101,24 @@ func (g *Gemini) GenerateContent(ctx context.Context, input string) (string, err
 	}
 }
 
-func (g *Gemini) GenerateEmbeddings(ctx context.Context, input string) (*genai.EmbedContentResponse, error) {
+func (g *Gemini) GenerateEmbeddings(ctx context.Context, input string) ([]float32, error) {
 	em := g.Client.EmbeddingModel("text-embedding-004")
-	return em.EmbedContent(ctx, genai.Text(input))
+	resp, err := em.EmbedContent(ctx, genai.Text(input))
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate embeddings: %w", err)
+	}
+
+	if resp.Embedding == nil || len(resp.Embedding.Values) == 0 {
+		return nil, fmt.Errorf("no embeddings returned")
+	}
+
+	return resp.Embedding.Values, nil
 }
 
-func (g *Gemini) GenerateContentStream(ctx context.Context, history []*genai.Content, uesrMessage string) <-chan ContentChunk {
+func (g *Gemini) GenerateContentStream(ctx context.Context, history []models.ChatMessage, userMessage string) <-chan ContentChunk {
 	contentStream := make(chan ContentChunk, 10)
 
-	g.logger.Info("Starting GenerateContentStream", zap.String("initial_input", uesrMessage))
+	g.logger.Info("Starting GenerateContentStream", zap.String("initial_input", userMessage))
 
 	go func() {
 		defer func() {
@@ -110,7 +130,8 @@ func (g *Gemini) GenerateContentStream(ctx context.Context, history []*genai.Con
 		model.Tools = g.tools
 		// model.SystemInstruction = genai.NewUserContent(genai.Text(researchAssistantSystemPrompt))
 		// model.SystemInstruction = genai.NewUserContent(genai.Text(fmt.Sprintf(researchAssistantSystemPrompt, time.Now().UTC().UnixMilli())))
-		model.SystemInstruction = genai.NewUserContent(genai.Text(fmt.Sprintf(prompts.ASK_MIND_SYSTEM_PROMPT_WITH_TOOLS, time.Now().UTC().UnixMilli())))
+		// model.SystemInstruction = genai.NewUserContent(genai.Text(fmt.Sprintf(prompts.ASK_MIND_SYSTEM_PROMPT_WITH_TOOLS, time.Now().UTC().UnixMilli())))
+		model.SystemInstruction = genai.NewUserContent(genai.Text(fmt.Sprintf(prompts.THINK_TAG_INSTRUCTION, time.Now().UTC().UnixMilli())))
 
 		model.SafetySettings = []*genai.SafetySetting{
 			{
@@ -128,8 +149,18 @@ func (g *Gemini) GenerateContentStream(ctx context.Context, history []*genai.Con
 		}
 
 		cs := model.StartChat()
-		cs.History = history
-		partsToSendToGemini := []genai.Part{genai.Text(uesrMessage)}
+		g.logger.Debug("Converting history",
+			zap.Int("history_length", len(history)),
+			zap.Any("history", history),
+		)
+
+		cs.History = g.convertToGenaiContent(history)
+
+		g.logger.Debug("Converted genai history",
+			zap.Int("genai_history_length", len(cs.History)),
+			zap.Any("genai_history", cs.History),
+		)
+		partsToSendToGemini := []genai.Part{genai.Text(userMessage)}
 
 		for i := range MAX_TOOL_CALL_ITERATIONS {
 			g.logger.Info("Starting LLM turn iteration", zap.Int("iteration", i), zap.Any("parts_sent_to_gemini", partsToSendToGemini))
@@ -278,4 +309,84 @@ func (g *Gemini) GenerateContentStream(ctx context.Context, history []*genai.Con
 	}()
 
 	return contentStream
+}
+
+// llm/gemini.go - Replace the convertToGenaiContent method
+func (g *Gemini) convertToGenaiContent(history []models.ChatMessage) []*genai.Content {
+	var contents []*genai.Content
+
+	// First pass: convert and filter
+	for _, msg := range history {
+		// Skip empty messages
+		if strings.TrimSpace(msg.Content) == "" {
+			g.logger.Debug("Skipping empty message",
+				zap.String("role", string(msg.Role)),
+				zap.String("message_id", msg.MessageId.String()))
+			continue
+		}
+
+		var role string
+		switch msg.Role {
+		case models.RoleUser:
+			role = "user"
+		case models.RoleAssistant:
+			role = "model"
+		case models.RoleSystem:
+			// Gemini doesn't support system role in history
+			g.logger.Debug("Skipping system message in history")
+			continue
+		case models.RoleTool:
+			// Tool responses need special handling
+			g.logger.Debug("Skipping tool message in history")
+			continue
+		default:
+			g.logger.Warn("Unknown role in history", zap.String("role", string(msg.Role)))
+			continue
+		}
+
+		contents = append(contents, &genai.Content{
+			Role:  role,
+			Parts: []genai.Part{genai.Text(msg.Content)},
+		})
+	}
+
+	// Second pass: ensure alternating roles
+	if len(contents) == 0 {
+		return contents
+	}
+
+	cleaned := []*genai.Content{}
+	var lastRole string
+
+	for i, content := range contents {
+		// For the first message, ensure it's from user
+		if i == 0 && content.Role != "user" {
+			g.logger.Debug("First message is not from user, skipping")
+			continue
+		}
+
+		// Check for consecutive same roles
+		if content.Role == lastRole {
+			g.logger.Debug("Consecutive same role detected, skipping",
+				zap.String("role", content.Role),
+				zap.Int("index", i))
+			continue
+		}
+
+		cleaned = append(cleaned, content)
+		lastRole = content.Role
+	}
+
+	// Final validation: ensure it ends with model if we're about to add a user message
+	if len(cleaned) > 0 && cleaned[len(cleaned)-1].Role == "user" {
+		g.logger.Debug("History ends with user message, removing it since we're adding a new user message")
+		cleaned = cleaned[:len(cleaned)-1]
+	}
+
+	g.logger.Info("Cleaned history",
+		zap.Int("original_count", len(history)),
+		zap.Int("filtered_count", len(contents)),
+		zap.Int("final_count", len(cleaned)))
+
+	return cleaned
 }

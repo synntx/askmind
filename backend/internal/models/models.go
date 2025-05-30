@@ -88,6 +88,7 @@ const (
 	RoleAssistant Role = "assistant"
 	RoleSystem    Role = "system"
 	RoleError     Role = "error"
+	RoleTool           = "tool"
 )
 
 type ChatMessage struct {

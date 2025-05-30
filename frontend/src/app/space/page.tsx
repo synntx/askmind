@@ -9,7 +9,7 @@ import { useCreateSpace, useGetSpaces } from "@/hooks/useSpace";
 import { useState, useEffect } from "react";
 import { List, Grid } from "@/icons";
 import { AxiosError } from "axios";
-import { Plus, Settings } from "lucide-react";
+import { Plus } from "lucide-react";
 import { AppError } from "@/types/errors";
 import { motion, AnimatePresence } from "motion/react";
 import { SettingsModal } from "@/components/settings/SettingsModal";
@@ -70,30 +70,25 @@ export default function SpacesPage() {
 
   return (
     <div className="min-h-screen">
-      <Header />
+      <Header
+        onSettingsClick={openSettingsModal}
+        currentTheme={currentTheme}
+        // onThemeToggle={handleThemeToggle}
+      />
       <main className="max-w-4xl mx-auto px-4 py-8 mt-14 overflow-hidden">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-5">
-            <h2 className="text-3xl">My Spaces</h2>
+            <h2 className="text-3xl font-medium">Work Spaces</h2>
             {spaces && spaces.length > 0 && (
               <button
                 onClick={openCreateModal}
-                className="flex items-center gap-2 bg-transparent hover:bg-card text-card-foreground px-3 py-1.5 rounded-md transition-all duration-150 active:scale-[0.97]"
-                aria-label="Create new space"
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary/90 bg-primary/5 border border-transparent hover:border-primary/10 hover:bg-primary/10 active:scale-[0.96] rounded-lg transition-all outline-none"
               >
                 <Plus className="w-4 h-4" />
-                <span>Create Space</span>
+                New workspace
               </button>
             )}
           </div>
-          <button
-            onClick={openSettingsModal}
-            className="p-2 rounded-md hover:bg-muted/60 text-muted-foreground flex-shrink-0 transition-colors"
-            aria-label="Open Settings"
-            title="Settings"
-          >
-            <Settings size={18} />
-          </button>
           <div className="flex items-center p-0.5 rounded-lg bg-secondary/20">
             <button
               onClick={() => setViewMode("grid")}

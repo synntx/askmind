@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/generative-ai-go/genai"
 	"github.com/google/uuid"
 	"github.com/synntx/askmind/internal/llm"
 	"github.com/synntx/askmind/internal/models"
@@ -96,37 +95,37 @@ func (csh *CompletionStreamHandler) HandleCompletionStream(
 		return err
 	}
 
-	llmHistory := make([]*genai.Content, 0, len(convMessages)+1)
+	// llmHistory := make([]*genai.Content, 0, len(convMessages)+1)
 
-	for _, msg := range convMessages {
-		var role string
-		switch msg.Role {
-		case models.RoleUser:
-			role = "user"
-		case models.RoleAssistant:
-			role = "model"
-		default:
-			continue
-		}
+	// for _, msg := range convMessages {
+	// 	var role string
+	// 	switch msg.Role {
+	// 	case models.RoleUser:
+	// 		role = "user"
+	// 	case models.RoleAssistant:
+	// 		role = "model"
+	// 	default:
+	// 		continue
+	// 	}
 
-		content := &genai.Content{
-			Role: role,
-			Parts: []genai.Part{
-				genai.Text(msg.Content),
-			},
-		}
-		llmHistory = append(llmHistory, content)
-	}
+	// 	content := &genai.Content{
+	// 		Role: role,
+	// 		Parts: []genai.Part{
+	// 			genai.Text(msg.Content),
+	// 		},
+	// 	}
+	// 	llmHistory = append(llmHistory, content)
+	// }
 
-	currentUserContent := &genai.Content{
-		Role: "user",
-		Parts: []genai.Part{
-			genai.Text(userMessage),
-		},
-	}
-	llmHistory = append(llmHistory, currentUserContent)
+	// currentUserContent := &genai.Content{
+	// 	Role: "user",
+	// 	Parts: []genai.Part{
+	// 		genai.Text(userMessage),
+	// 	},
+	// }
+	// llmHistory = append(llmHistory, currentUserContent)
 
-	resp := csh.llm.GenerateContentStream(ctx, llmHistory, userMessage)
+	resp := csh.llm.GenerateContentStream(ctx, convMessages, userMessage)
 
 	var completeRespStr string
 	for chunk := range resp {
