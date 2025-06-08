@@ -129,9 +129,9 @@ func (g *Gemini) GenerateContentStream(ctx context.Context, history []models.Cha
 		model := g.Client.GenerativeModel(g.ModelName)
 		model.Tools = g.tools
 		// model.SystemInstruction = genai.NewUserContent(genai.Text(researchAssistantSystemPrompt))
-		// model.SystemInstruction = genai.NewUserContent(genai.Text(fmt.Sprintf(researchAssistantSystemPrompt, time.Now().UTC().UnixMilli())))
-		// model.SystemInstruction = genai.NewUserContent(genai.Text(fmt.Sprintf(prompts.ASK_MIND_SYSTEM_PROMPT_WITH_TOOLS, time.Now().UTC().UnixMilli())))
-		model.SystemInstruction = genai.NewUserContent(genai.Text(fmt.Sprintf(prompts.THINK_TAG_INSTRUCTION, time.Now().UTC().UnixMilli())))
+		// model.SystemInstruction = genai.NewUserContent(genai.Text(fmt.Sprintf(prompts.RESEARCH_ASSISTANT_SYSTEM_PROMPT, time.Now().UTC().UnixMilli())))
+		model.SystemInstruction = genai.NewUserContent(genai.Text(fmt.Sprintf(prompts.ASK_MIND_SYSTEM_PROMPT_WITH_TOOLS, time.Now().UTC().UnixMilli())))
+		// model.SystemInstruction = genai.NewUserContent(genai.Text(fmt.Sprintf(prompts.THINK_TAG_INSTRUCTION, time.Now().UTC().UnixMilli())))
 
 		model.SafetySettings = []*genai.SafetySetting{
 			{

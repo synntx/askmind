@@ -25,7 +25,12 @@ export default function Login() {
 
   return (
     <div className="w-full max-w-sm">
-      <h2 className="text-2xl font-medium mb-4 text-center">Login</h2>
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-semibold text-foreground mb-2">
+          Welcome back
+        </h2>
+        <p className="text-sm text-muted-foreground">Sign in to your account</p>
+      </div>
 
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
         <div>
@@ -33,12 +38,14 @@ export default function Login() {
             type="email"
             placeholder="Email"
             {...register("email")}
-            className="w-full border border-[#20242f] bg-[#1c1d27] rounded-md p-3
-              focus:outline-none focus:ring-1 focus:ring-[#8A92E3]
-              transition-all placeholder-[#767676] hover:border-[#3A3F4F]"
+            className="w-full px-4 py-3 rounded-lg border border-border bg-background
+              focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30
+              transition-all placeholder-muted-foreground"
           />
           {errors.email && (
-            <p className="text-xs text-red-400 mt-1">{errors.email.message}</p>
+            <p className="text-xs text-red-500 mt-1.5 ml-1">
+              {errors.email.message}
+            </p>
           )}
         </div>
 
@@ -47,12 +54,12 @@ export default function Login() {
             type="password"
             placeholder="Password"
             {...register("password")}
-            className="w-full border border-[#20242f] bg-[#1c1d27] rounded-md p-3
-              focus:outline-none focus:ring-1 focus:ring-[#8A92E3]
-              transition-all placeholder-[#767676] hover:border-[#3A3F4F]"
+            className="w-full px-4 py-3 rounded-lg border border-border bg-background
+              focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30
+              transition-all placeholder-muted-foreground"
           />
           {errors.password && (
-            <p className="text-xs text-red-400 mt-1">
+            <p className="text-xs text-red-500 mt-1.5 ml-1">
               {errors.password.message}
             </p>
           )}
@@ -61,18 +68,21 @@ export default function Login() {
         <button
           type="submit"
           disabled={isSubmitting || loginMutation.isPending}
-          className="w-full bg-[#8A92E3] hover:bg-[#7A82D3] text-black font-medium p-3
-            rounded-md transition-colors duration-200 mt-2 relative overflow-hidden
-            disabled:opacity-70 disabled:cursor-not-allowed"
+          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium
+            py-3 rounded-lg transition-colors duration-200
+            disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loginMutation.isPending ? "Logging in..." : "Login"}
+          {loginMutation.isPending ? "Signing in..." : "Sign in"}
         </button>
       </form>
 
-      <p className="mt-4 text-center text-sm text-[#CACACA]">
-        {"Don't have an account? "}
-        <Link href="/auth/register" className="text-[#8A92E3] hover:underline">
-          Create a new one
+      <p className="mt-6 text-center text-sm text-muted-foreground">
+        Don't have an account?{" "}
+        <Link
+          href="/auth/register"
+          className="text-primary hover:text-primary/80 transition-colors"
+        >
+          Sign up
         </Link>
       </p>
     </div>

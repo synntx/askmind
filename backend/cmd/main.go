@@ -87,7 +87,7 @@ func main() {
 		case llm.ProviderGroq:
 			model = "mixtral-8x7b-32768"
 		case llm.ProviderOllama:
-			model = "llama3.2" // or "mistral", "phi3", etc.
+			model = "llama3.2"
 		}
 	}
 

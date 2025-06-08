@@ -18,6 +18,7 @@ import { UserProfileCard } from "./UserProfileCard";
 import { TimelineDisplay, TimelineItemDisplay } from "./TimeLine";
 import { Callout } from "./CallOut";
 import ThinkTag from "./Think";
+import { cn } from "@/lib/utils";
 
 interface MarkdownContentProps {
   content: string;
@@ -138,6 +139,67 @@ const YouTubeEmbed: React.FC<YouTubeEmbedProps> = ({
       </div>
     );
   }
+};
+
+export const Divider: React.FC = () => {
+  return <hr className="my-8 border-border" />;
+};
+
+export const Spacer: React.FC<{ size?: "sm" | "md" | "lg" }> = ({
+  size = "md",
+}) => {
+  const sizes = {
+    sm: "my-2",
+    md: "my-4",
+    lg: "my-8",
+  };
+  return <div className={sizes[size]} />;
+};
+
+export const Grid: React.FC<{
+  cols?: string;
+  gap?: string;
+  children: React.ReactNode;
+}> = ({ cols = "2", gap = "4", children }) => {
+  return (
+    <div
+      className={cn("grid my-4", `grid-cols-${cols}`, `gap-${gap}`)}
+      style={{
+        gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+        gap: `${Number(gap) * 0.25}rem`,
+      }}
+    >
+      {children}
+    </div>
+  );
+};
+
+export const Flex: React.FC<{
+  direction?: "row" | "col";
+  align?: "start" | "center" | "end";
+  justify?: "start" | "center" | "end" | "between";
+  gap?: string;
+  children: React.ReactNode;
+}> = ({
+  direction = "row",
+  align = "start",
+  justify = "start",
+  gap = "4",
+  children,
+}) => {
+  return (
+    <div
+      className={cn(
+        "flex my-4",
+        direction === "col" ? "flex-col" : "flex-row",
+        `items-${align}`,
+        `justify-${justify}`,
+        `gap-${gap}`,
+      )}
+    >
+      {children}
+    </div>
+  );
 };
 
 const sanitizeSchema: Options = {

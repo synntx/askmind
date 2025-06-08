@@ -24,6 +24,7 @@ func NewSSEStreamer(w http.ResponseWriter, logger *zap.Logger) (*SSEStreamer, er
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
+	w.Header().Set("X-Accel-Buffering", "no")
 	w.WriteHeader(http.StatusOK)
 
 	rc := http.NewResponseController(w)

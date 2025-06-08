@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, Outfit, Onest } from "next/font/google";
 import "./globals.css";
-// import { ThemeProvider } from "@/components/common/theme-provider";
 import { Providers } from "./providers";
 import { ThemeProvider } from "@/components/common/theme-provider";
 
@@ -47,6 +46,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         {/* <script src="https://unpkg.com/react-scan/dist/auto.global.js" /> */}
+        <title>AskMind</title>
       </head>
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} ${outfit.variable} ${onest.variable} antialiased font-sans`}

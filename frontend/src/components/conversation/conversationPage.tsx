@@ -3,11 +3,11 @@ import { useParams, useSearchParams } from "next/navigation";
 import api from "@/lib/api";
 import { useGetConvMessages } from "@/hooks/useMessage";
 import { useQueryClient } from "@tanstack/react-query";
-import { useStreamingCompletion } from "@/hooks/useStreamingCompletion";
 import { useToast } from "../ui/toast";
 import { MessageList } from "./MessageList";
 import { MessageInput } from "./MessageInput";
 import { Message } from "@/types/message";
+import { useStreamingChat } from "@/hooks/useStreamingChat";
 
 const Conversation: React.FC = () => {
   const { conv_id }: { conv_id: string } = useParams();
@@ -17,7 +17,7 @@ const Conversation: React.FC = () => {
   const apiBaseURL = api.defaults.baseURL || "";
   const containerRef = useRef<HTMLDivElement>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [isPreparing, setIsPreparing] = useState<boolean>(false);
+  // const [isPreparing, setIsPreparing] = useState<boolean>(false);
   const toast = useToast();
 
   const {
@@ -34,15 +34,16 @@ const Conversation: React.FC = () => {
   };
 
   const {
-    streamingResponse: streamingMessage,
-    isPending,
+    streamingContent,
+    isStreaming,
     error,
-    getCompletion,
+    sendMessage,
+    // cancelStream,
     clearError,
-  } = useStreamingCompletion({
-    conv_id,
+  } = useStreamingChat({
+    conversationId: conv_id,
     apiBaseURL,
-    updateMessageCache,
+    onMessageUpdate: updateMessageCache,
   });
 
   useEffect(() => {
@@ -58,19 +59,19 @@ const Conversation: React.FC = () => {
     }
   }, [error, toast, clearError]);
 
-  useEffect(() => {
-    if (isPending && !streamingMessage) {
-      setIsPreparing(true);
-    } else if (streamingMessage) {
-      setIsPreparing(false);
-    }
-  }, [isPending, streamingMessage]);
+  // useEffect(() => {
+  //   if (isPending && !streamingMessage) {
+  //     setIsPreparing(true);
+  //   } else if (streamingMessage) {
+  //     setIsPreparing(false);
+  //   }
+  // }, [isPending, streamingMessage]);
 
   useEffect(() => {
     if (query) {
-      getCompletion(query);
+      sendMessage(query);
     }
-  }, [query, getCompletion]);
+  }, [query, sendMessage]);
 
   useLayoutEffect(() => {
     if (containerRef.current) {
@@ -79,8 +80,10 @@ const Conversation: React.FC = () => {
   }, [messages]);
 
   const getPlaceholderText = (): string => {
-    if (isPending) {
-      return isPreparing ? "Preparing response..." : "Generating response...";
+    if (isStreaming) {
+      return streamingContent
+        ? "Generating response..."
+        : "Preparing response...";
     }
     return "Ask anything...";
   };
@@ -93,7 +96,7 @@ const Conversation: React.FC = () => {
       >
         <MessageList
           messages={messages}
-          streamingMessage={streamingMessage}
+          streamingMessage={streamingContent}
           error={error}
           clearError={clearError}
           isLoading={isLoading}
@@ -105,9 +108,10 @@ const Conversation: React.FC = () => {
       <div className="border-t border-border/70 p-6 relative z-10">
         <div className="max-w-full sm:max-w-[90vw] md:max-w-[75vw] lg:max-w-[55vw] mx-auto space-y-4 px-4">
           <MessageInput
-            onSendMessage={getCompletion}
-            isPending={isPending}
+            onSendMessage={sendMessage}
+            isPending={isStreaming}
             placeholder={getPlaceholderText()}
+            // onCancel={isStreaming ? cancelStream : undefined}
           />
         </div>
       </div>

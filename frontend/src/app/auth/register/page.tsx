@@ -10,12 +10,10 @@ import api from "@/lib/api";
 import { useToast } from "@/components/ui/toast";
 import { AxiosError } from "axios";
 import { AppError } from "@/types/errors";
-import { useRef } from "react";
 
 export default function Register() {
   const router = useRouter();
-  const { addToast, clearToasts, removeToast } = useToast();
-  const toastIdRef = useRef<string | null>(null);
+  const { addToast } = useToast();
 
   const {
     register,
@@ -32,32 +30,14 @@ export default function Register() {
       return response.data;
     },
     onSuccess: () => {
-      addToast("Account created!", "success", {
-        variant: "magical",
-      });
+      addToast("Account created successfully!", "success");
       router.push("/auth/login");
     },
     onError: (error: AxiosError<AppError>) => {
-      toastIdRef.current = addToast(
+      addToast(
         error.response?.data?.error.message || "Registration failed",
         "error",
-        {
-          variant: "magical",
-          action: {
-            label: "Go to Login",
-            onClick: () => {
-              router.push("login");
-              if (toastIdRef.current) {
-                removeToast(toastIdRef.current);
-              }
-              toastIdRef.current = null;
-            },
-          },
-        },
       );
-    },
-    onSettled: () => {
-      clearToasts();
     },
   });
 
@@ -67,21 +47,28 @@ export default function Register() {
 
   return (
     <div className="w-full max-w-sm">
-      <h2 className="text-2xl font-medium mb-4 text-center">Join Us</h2>
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-semibold text-foreground mb-2">
+          Create an account
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Get started with your free account
+        </p>
+      </div>
 
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           <div className="flex-1">
             <input
               type="text"
               placeholder="First name"
               {...register("first_name")}
-              className="w-full border border-[#20242f] bg-[#1c1d27] rounded-md p-3
-                focus:outline-none focus:ring-1 focus:ring-[#8A92E3]
-                transition-all placeholder-[#767676] hover:border-[#3A3F4F]"
+              className="w-full px-4 py-3 rounded-lg border border-border bg-background
+                focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary
+                transition-all placeholder-muted-foreground"
             />
             {errors.first_name && (
-              <p className="text-xs text-red-400 mt-1">
+              <p className="text-xs text-red-500 mt-1.5 ml-1">
                 {errors.first_name.message}
               </p>
             )}
@@ -92,12 +79,12 @@ export default function Register() {
               type="text"
               placeholder="Last name"
               {...register("last_name")}
-              className="w-full border border-[#20242f] bg-[#1c1d27] rounded-md p-3
-                focus:outline-none focus:ring-1 focus:ring-[#8A92E3]
-                transition-all placeholder-[#767676] hover:border-[#3A3F4F]"
+              className="w-full px-4 py-3 rounded-lg border border-border bg-background
+                focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary
+                transition-all placeholder-muted-foreground"
             />
             {errors.last_name && (
-              <p className="text-xs text-red-400 mt-1">
+              <p className="text-xs text-red-500 mt-1.5 ml-1">
                 {errors.last_name.message}
               </p>
             )}
@@ -109,12 +96,14 @@ export default function Register() {
             type="email"
             placeholder="Email"
             {...register("email")}
-            className="w-full border border-[#20242f] bg-[#1c1d27] rounded-md p-3
-              focus:outline-none focus:ring-1 focus:ring-[#8A92E3]
-              transition-all placeholder-[#767676] hover:border-[#3A3F4F]"
+            className="w-full px-4 py-3 rounded-lg border border-border bg-background
+              focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary
+              transition-all placeholder-muted-foreground"
           />
           {errors.email && (
-            <p className="text-xs text-red-400 mt-1">{errors.email.message}</p>
+            <p className="text-xs text-red-500 mt-1.5 ml-1">
+              {errors.email.message}
+            </p>
           )}
         </div>
 
@@ -123,12 +112,12 @@ export default function Register() {
             type="password"
             placeholder="Password"
             {...register("password")}
-            className="w-full border border-[#20242f] bg-[#1c1d27] rounded-md p-3
-              focus:outline-none focus:ring-1 focus:ring-[#8A92E3]
-              transition-all placeholder-[#767676] hover:border-[#3A3F4F]"
+            className="w-full px-4 py-3 rounded-lg border border-border bg-background
+              focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary
+              transition-all placeholder-muted-foreground"
           />
           {errors.password && (
-            <p className="text-xs text-red-400 mt-1">
+            <p className="text-xs text-red-500 mt-1.5 ml-1">
               {errors.password.message}
             </p>
           )}
@@ -137,18 +126,21 @@ export default function Register() {
         <button
           type="submit"
           disabled={isSubmitting || registerMutation.isPending}
-          className="w-full bg-[#8A92E3] hover:bg-[#7A82D3] text-black font-medium p-3
-            rounded-md transition-colors duration-200 mt-2 relative overflow-hidden
-            disabled:opacity-70 disabled:cursor-not-allowed"
+          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium
+            py-3 rounded-lg transition-colors duration-200
+            disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {registerMutation.isPending ? "Creating..." : "Create Account"}
+          {registerMutation.isPending ? "Creating account..." : "Sign up"}
         </button>
       </form>
 
-      <p className="mt-4 text-center text-sm text-[#CACACA]">
+      <p className="mt-6 text-center text-sm text-muted-foreground">
         Already have an account?{" "}
-        <Link href="/auth/login" className="text-[#8A92E3] hover:underline">
-          Login
+        <Link
+          href="/auth/login"
+          className="text-primary hover:text-primary/80 transition-colors"
+        >
+          Sign in
         </Link>
       </p>
     </div>

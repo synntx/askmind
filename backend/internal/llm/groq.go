@@ -153,7 +153,7 @@ func (g *Groq) GenerateContentStream(ctx context.Context, history []models.ChatM
 		messages := g.convertToGroqMessages(history)
 
 		// Add system prompt
-		systemPrompt := fmt.Sprintf(prompts.THINK_TAG_INSTRUCTION, 0)
+		systemPrompt := fmt.Sprintf(prompts.ASK_MIND_SYSTEM_PROMPT_WITH_TOOLS, 0)
 		messages = append([]GroqMessage{
 			{
 				Role:    (models.RoleSystem),

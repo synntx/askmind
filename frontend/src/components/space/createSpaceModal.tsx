@@ -119,7 +119,7 @@ export default function CreateSpaceModal({
                   htmlFor="Title"
                   className="flex items-center gap-2 text-sm font-medium text-foreground"
                 >
-                  <Folder className="w-4 h-4 text-primary" />
+                  {/* <Folder className="w-4 h-4 text-primary" /> */}
                   Space Name
                 </label>
                 <div className="relative">
@@ -146,7 +146,7 @@ export default function CreateSpaceModal({
                   htmlFor="Description"
                   className="flex items-center gap-2 text-sm font-medium text-foreground"
                 >
-                  <Plus className="w-4 h-4 text-primary" />
+                  {/* <Plus className="w-4 h-4 text-primary" /> */}
                   Description
                 </label>
                 <div className="relative">
