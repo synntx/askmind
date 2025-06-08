@@ -2,7 +2,7 @@ import React from "react";
 import { Message, StreamingMessage, ErrorMessage } from "./Message";
 import { Sparkles } from "lucide-react";
 import { LoadingIcon } from "@/icons";
-import { Message as MessageType } from "@/types/message";
+import { Message as MessageType } from "@/types/streaming";
 
 interface MessageListProps {
   messages: MessageType[] | undefined;

@@ -1,24 +1,48 @@
+import { StreamError, ToolCall } from "@/types/streaming";
+
+/**
+ * Configuration for the StreamingService.
+ */
 export interface StreamingServiceConfig {
   apiBaseURL: string;
   getAuthToken: () => string | null;
 }
 
-export interface StreamError {
-  type:
-    | "auth_error"
-    | "http_error"
-    | "parsing_error"
-    | "connection_error"
-    | "user_cancelled";
-  message: string;
-  details?: Record<string, any>;
+/**
+ * Represents the raw structure of a parsed SSE event.
+ * @internal
+ */
+interface SSEEvent {
+  event: string;
+  data: string;
 }
 
-export interface ToolCall {
-  name: string;
-  result: any;
+/**
+ * Represents the internal state of the message being streamed.
+ * @internal
+ */
+interface StreamingMessageState {
+  messageId: string | null;
+  contentParts: string[];
+  toolCalls: ToolCall[];
 }
 
+/**
+ * Type guard to check if an error is a StreamError.
+ * @internal
+ */
+function isStreamError(error: unknown): error is StreamError {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "type" in error &&
+    "message" in error
+  );
+}
+
+/**
+ * Manages low-level communication for streaming chat completions via Server-Sent Events (SSE).
+ */
 export class StreamingService {
   private config: StreamingServiceConfig;
   private abortController: AbortController | null = null;
@@ -27,162 +51,70 @@ export class StreamingService {
     this.config = config;
   }
 
-  async streamCompletion(
+  /**
+   * Initiates a streaming completion request.
+   *
+   * @param conversationId - The ID of the conversation.
+   * @param userMessage - The message from the user.
+   * @param model - The model to use for the completion.
+   * @param onUpdate - Callback fired with the latest content and tool calls.
+   * @param onComplete - Callback fired when the stream successfully finishes.
+   * @param onError - Callback fired when any error occurs.
+   */
+  public async streamCompletion(
     conversationId: string,
     userMessage: string,
-    model: string = "idk",
+    model: string,
     onUpdate: (content: string, toolCalls: ToolCall[]) => void,
     onComplete: (
       messageId: string,
       content: string,
-      toolCalls: ToolCall[],
+      toolCalls: ToolCall[]
     ) => void,
-    onError: (error: StreamError) => void,
+    onError: (error: StreamError) => void
   ): Promise<void> {
-    // Cancel any existing request
     this.cancel();
     this.abortController = new AbortController();
 
-    // Message state
-    const messageParts: string[] = [""];
-    const toolCalls: ToolCall[] = [];
-    let messageId: string | null = null;
+    const state: StreamingMessageState = {
+      messageId: null,
+      contentParts: [""],
+      toolCalls: [],
+    };
 
     try {
-      const token = this.config.getAuthToken();
-      if (!token) {
-        throw { type: "auth_error", message: "Authentication token not found" };
-      }
+      const response = await this.initiateFetch(
+        conversationId,
+        userMessage,
+        model
+      );
+      await this.processStream(response, state, onUpdate, onError);
 
-      // Build URL
-      const url = new URL(`${this.config.apiBaseURL}/c/completion`);
-      url.searchParams.append("user_message", userMessage);
-      url.searchParams.append("model", model);
-      url.searchParams.append("conv_id", conversationId);
-
-      const response = await fetch(url.toString(), {
-        method: "POST",
-        headers: {
-          Accept: "text/event-stream",
-          Authorization: `Bearer ${token}`,
-        },
-        signal: this.abortController.signal,
-      });
-
-      if (!response.ok) {
-        const errorData = await response
-          .json()
-          .catch(() => ({ message: `HTTP error! status: ${response.status}` }));
+      if (!state.messageId) {
         throw {
-          type: "http_error",
-          message:
-            errorData.message || `HTTP error! status: ${response.status}`,
-          details: { status: response.status, ...errorData },
+          type: "parsing_error",
+          message: "Stream completed without providing a message ID.",
         };
       }
 
-      const reader = response.body?.getReader();
-      if (!reader)
-        throw { type: "connection_error", message: "Response body is null" };
-
-      const decoder = new TextDecoder();
-      let buffer = "";
-
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-
-        // Process complete events
-        let eventEnd;
-        while ((eventEnd = buffer.indexOf("\n\n")) >= 0) {
-          const eventData = buffer.substring(0, eventEnd);
-          buffer = buffer.substring(eventEnd + 2);
-
-          const { eventType, eventContent } = this.parseSSEEvent(eventData);
-
-          if (eventContent === "[DONE]") continue;
-
-          try {
-            if (eventType === "delta") {
-              const delta = JSON.parse(eventContent);
-
-              // Handle initial message
-              if (delta.o === "add" && delta.v?.message) {
-                messageId = delta.v.message.id;
-                if (delta.v.message.metadata?.tool_call) {
-                  toolCalls.push(...delta.v.message.metadata.tool_call);
-                }
-              }
-              // Handle content append
-              else if (
-                delta.o === "append" &&
-                delta.p?.includes("/content/parts/")
-              ) {
-                const partIndex = this.extractPartIndex(delta.p);
-                while (messageParts.length <= partIndex) messageParts.push("");
-                messageParts[partIndex] += delta.v;
-                onUpdate(messageParts.join(""), toolCalls);
-              }
-              // Handle tool call append
-              else if (
-                delta.o === "append" &&
-                delta.p === "/message/metadata/tool_call" &&
-                delta.v?.name
-              ) {
-                toolCalls.push(delta.v);
-                onUpdate(messageParts.join(""), toolCalls);
-              }
-              // Handle patch operations
-              else if (delta.o === "patch" && Array.isArray(delta.v)) {
-                for (const patch of delta.v) {
-                  if (patch.p === "/error" && patch.o === "replace") {
-                    throw {
-                      type: patch.v.type || "connection_error",
-                      message:
-                        patch.v.message ||
-                        "An error occurred during response generation",
-                      details: patch.v.details,
-                    };
-                  }
-                  if (
-                    patch.p?.includes("/content/parts/") &&
-                    patch.o === "append"
-                  ) {
-                    const partIndex = this.extractPartIndex(patch.p);
-                    while (messageParts.length <= partIndex)
-                      messageParts.push("");
-                    messageParts[partIndex] += patch.v;
-                  }
-                }
-                onUpdate(messageParts.join(""), toolCalls);
-              }
-            }
-          } catch (e) {
-            console.error("Error processing event:", e);
-          }
-        }
-      }
-
-      // Stream complete
-      onComplete(
-        messageId || `temp-${Date.now()}`,
-        messageParts.join(""),
-        toolCalls,
-      );
-      // NOTE: FIX THIS ANY
-      // eslint-disable-next-line
-    } catch (error: any) {
-      if (error.name === "AbortError") {
-        onError({ type: "user_cancelled", message: "Request cancelled" });
-      } else if (error.type) {
+      onComplete(state.messageId, state.contentParts.join(""), state.toolCalls);
+    } catch (error: unknown) {
+      if (error instanceof DOMException && error.name === "AbortError") {
+        onError({
+          type: "user_cancelled",
+          message: "Request cancelled by user.",
+        });
+      } else if (isStreamError(error)) {
         onError(error);
       } else {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "An unknown connection error occurred.";
         onError({
           type: "connection_error",
-          message: error.message || "Connection error",
-          details: { error: error.message },
+          message: errorMessage,
+          details: { originalError: error },
         });
       }
     } finally {
@@ -190,34 +122,234 @@ export class StreamingService {
     }
   }
 
-  cancel(): void {
+  /**
+   * Cancels the current streaming request, if one is active.
+   */
+  public cancel(): void {
     if (this.abortController) {
       this.abortController.abort();
       this.abortController = null;
     }
   }
 
-  private parseSSEEvent(eventData: string): {
-    eventType: string;
-    eventContent: string;
-  } {
-    const lines = eventData.split("\n");
-    let eventType = "";
-    let eventContent = "";
-
-    for (const line of lines) {
-      if (line.startsWith("event: ")) {
-        eventType = line.substring(7);
-      } else if (line.startsWith("data: ")) {
-        eventContent = line.substring(6);
-      }
+  /**
+   * Prepares and sends the initial fetch request.
+   * @internal
+   */
+  private async initiateFetch(
+    conversationId: string,
+    userMessage: string,
+    model: string
+  ): Promise<Response> {
+    const token = this.config.getAuthToken();
+    if (!token) {
+      throw { type: "auth_error", message: "Authentication token not found." };
     }
 
-    return { eventType, eventContent };
+    const url = new URL(`${this.config.apiBaseURL}/c/completion`);
+    url.searchParams.append("conv_id", conversationId);
+    url.searchParams.append("user_message", userMessage);
+    url.searchParams.append("model", model);
+
+    const response = await fetch(url.toString(), {
+      method: "POST",
+      headers: {
+        Accept: "text/event-stream",
+        Authorization: `Bearer ${token}`,
+      },
+      signal: this.abortController?.signal,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw {
+        type: "http_error",
+        message: `Server responded with status ${response.status}`,
+        details: { status: response.status, ...errorData },
+      };
+    }
+
+    return response;
   }
 
+  /**
+   * Reads and processes the SSE stream from the response body.
+   * @internal
+   */
+  private async processStream(
+    response: Response,
+    state: StreamingMessageState,
+    onUpdate: (content: string, toolCalls: ToolCall[]) => void,
+    onError: (error: StreamError) => void
+  ) {
+    if (!response.body) {
+      throw { type: "connection_error", message: "Response body is missing." };
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+
+      // Process all complete events in the buffer
+      const events = this.parseSSEBuffer(buffer);
+      if (events.processedLength > 0) {
+        buffer = buffer.slice(events.processedLength);
+      }
+
+      for (const event of events.sseEvents) {
+        try {
+          this.handleSSEEvent(event, state, onError);
+          // Notify consumer of the update after applying the delta
+          onUpdate(state.contentParts.join(""), [...state.toolCalls]);
+        } catch (e) {
+          console.error("Error processing SSE event:", e);
+          // Continue processing other events if possible
+        }
+      }
+    }
+  }
+
+  /**
+   * Parses a buffer of SSE data and extracts complete events.
+   * Returns parsed events and the length of the buffer that was processed.
+   * @internal
+   */
+  private parseSSEBuffer(buffer: string): {
+    sseEvents: SSEEvent[];
+    processedLength: number;
+  } {
+    const sseEvents: SSEEvent[] = [];
+    let processedLength = 0;
+
+    const eventSeparator = "\n\n";
+    let eventEndIndex;
+
+    while (
+      (eventEndIndex = buffer.indexOf(eventSeparator, processedLength)) !== -1
+    ) {
+      const eventStartIndex = processedLength;
+      processedLength = eventEndIndex + eventSeparator.length;
+      const eventData = buffer.substring(eventStartIndex, eventEndIndex);
+
+      const lines = eventData.split("\n");
+      const event: SSEEvent = { event: "message", data: "" }; // 'message' is the default event type
+      const dataLines: string[] = [];
+
+      for (const line of lines) {
+        if (line.startsWith("event:")) {
+          event.event = line.substring(6).trim();
+        } else if (line.startsWith("data:")) {
+          dataLines.push(line.substring(5).trim());
+        }
+      }
+      event.data = dataLines.join("\n"); // In case of multi-line data
+      sseEvents.push(event);
+    }
+
+    return { sseEvents, processedLength };
+  }
+
+  /**
+   * Handles a single parsed SSE event and updates the streaming state.
+   * @internal
+   */
+  private handleSSEEvent(
+    event: SSEEvent,
+    state: StreamingMessageState,
+    onError: (error: StreamError) => void
+  ) {
+    if (event.event === "error") {
+      try {
+        const errorDetails = JSON.parse(event.data);
+        onError({
+          type: errorDetails.type || "generation_error",
+          message: errorDetails.message || "An error occurred on the server.",
+          details: errorDetails.details,
+        });
+      } catch {
+        onError({
+          type: "parsing_error",
+          message: "Could not parse error event from server.",
+        });
+      }
+      return;
+    }
+
+    if (event.event === "delta") {
+      try {
+        const delta = JSON.parse(event.data);
+        this.applyDelta(state, delta);
+      } catch (e) {
+        console.error("Failed to parse delta JSON:", event.data, e);
+        // Optionally, inform the user via onError callback
+        onError({
+          type: "parsing_error",
+          message: "Received malformed data from the server.",
+        });
+      }
+    }
+    // Ignore other event types like 'delta_encoding' and 'completion' as they don't affect message state.
+  }
+
+  /**
+   * Applies a delta patch from the server to the message state.
+   * Based on the backend's patch structure.
+   * @internal
+   */
+  private applyDelta(state: StreamingMessageState, delta: any) {
+    const op = delta.o; // operation
+    const path = delta.p; // path
+    const value = delta.v; // value
+
+    switch (op) {
+      case "add":
+        // This is the initial message payload
+        if (value?.message?.id) {
+          state.messageId = value.message.id;
+        }
+        if (value?.message?.metadata?.tool_call) {
+          state.toolCalls.push(...value.message.metadata.tool_call);
+        }
+        break;
+
+      case "append":
+        if (path === "/message/metadata/tool_call" && value?.name) {
+          state.toolCalls.push(value);
+        } else if (path?.startsWith("/message/content/parts/")) {
+          const partIndex = this.extractPartIndex(path);
+          while (state.contentParts.length <= partIndex) {
+            state.contentParts.push("");
+          }
+          state.contentParts[partIndex] += value;
+        }
+        break;
+
+      case "patch":
+        // The backend sends a batch of patch operations
+        if (Array.isArray(value)) {
+          value.forEach((patchOp) => this.applyDelta(state, patchOp));
+        }
+        break;
+
+      // The frontend doesn't need to handle 'replace' for status/end_turn directly,
+      // as these are final state markers handled by the 'completion' event.
+    }
+  }
+
+  /**
+   * Extracts the part index from a JSON patch path string.
+   * e.g., "/message/content/parts/0" -> 0
+   * @internal
+   */
   private extractPartIndex(path: string): number {
+    // This regex is specific to the backend's path structure for content parts.
     const match = path.match(/\/parts\/(\d+)/);
-    return match ? parseInt(match[1]) : 0;
+    return match ? parseInt(match[1], 10) : 0;
   }
 }

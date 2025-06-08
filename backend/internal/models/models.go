@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type JSONB map[string]interface{}
+type JSONB map[string]any
 
 type User struct {
 	UserId     uuid.UUID `json:"user_id"`

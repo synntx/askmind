@@ -6,7 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "../ui/toast";
 import { MessageList } from "./MessageList";
 import { MessageInput } from "./MessageInput";
-import { Message } from "@/types/message";
+import { Message } from "@/types/streaming";
 import { useStreamingChat } from "@/hooks/useStreamingChat";
 
 const Conversation: React.FC = () => {
@@ -54,7 +54,7 @@ const Conversation: React.FC = () => {
           label: "Try again",
           onClick: clearError,
         },
-        description: error.details?.recovery_suggestions?.[0],
+        description: error.message,
       });
     }
   }, [error, toast, clearError]);

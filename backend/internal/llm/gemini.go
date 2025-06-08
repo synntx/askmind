@@ -19,6 +19,7 @@ import (
 	"google.golang.org/api/option"
 )
 
+// FIX: Get MAX_TOOL_CALL_ITERATIONS from config or get from user config (setttings)
 const MAX_TOOL_CALL_ITERATIONS = 15
 
 type Gemini struct {

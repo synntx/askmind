@@ -11,7 +11,7 @@ import {
   GetConversation,
   GetConversations,
 } from "@/types/conversation";
-import { GetMessages } from "@/types/message";
+import { GetMessages } from "@/types/streaming";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080",

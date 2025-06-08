@@ -1,7 +1,7 @@
 import React from "react";
 import { MarkdownContent } from "../common/MarkdownContent";
 import { CopyButton } from "./CopyButton";
-import { Message as MessageType } from "@/types/message";
+import { Message as MessageType } from "@/types/streaming";
 import { AITypewriter } from "./AITypewriter";
 
 interface MessageProps {

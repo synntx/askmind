@@ -1,10 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import {
-  StreamingService,
-  StreamError,
-  ToolCall,
-} from "@/services/streamingService";
-import { Message } from "@/types/message";
+import { StreamError, ToolCall } from "@/types/streaming";
+import { Message } from "@/types/streaming";
+import { StreamingService } from "@/services/streamingService";
 
 interface UseStreamingChatProps {
   conversationId: string;

@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
-	"github.com/synntx/askmind/internal/utils"
 	"go.uber.org/zap"
 )
 
@@ -16,19 +16,21 @@ type SSEStreamer struct {
 }
 
 func NewSSEStreamer(w http.ResponseWriter, logger *zap.Logger) (*SSEStreamer, error) {
-	flusher, ok := w.(http.Flusher)
-	if !ok {
-		return nil, fmt.Errorf("expected http.ResponseWriter to be an http.Flusher")
+	if _, ok := w.(http.Flusher); !ok {
+		return nil, fmt.Errorf("http.ResponseWriter does not implement http.Flusher")
 	}
 
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
 	w.Header().Set("X-Accel-Buffering", "no")
-	w.WriteHeader(http.StatusOK)
 
 	rc := http.NewResponseController(w)
-	flusher.Flush()
+
+	if err := rc.Flush(); err != nil {
+		logger.Error("Initial SSE flush failed", zap.Error(err))
+		return nil, err
+	}
 
 	return &SSEStreamer{
 		w:      w,
@@ -37,37 +39,36 @@ func NewSSEStreamer(w http.ResponseWriter, logger *zap.Logger) (*SSEStreamer, er
 	}, nil
 }
 
-func (s *SSEStreamer) SendEvent(event string, data string) error {
-	_, err := fmt.Fprintf(s.w, "event: %s\ndata: %s\n\n", event, data)
+func (s *SSEStreamer) Send(event string, payload any) error {
+	jsonData, err := json.Marshal(payload)
 	if err != nil {
-		s.logger.Error("error writing SSE event", zap.String("event", event), zap.Error(err))
+		s.logger.Error("error marshalling SSE payload", zap.String("event", event), zap.Error(err))
 		return err
 	}
+	return s.writeAndFlush(event, jsonData)
+}
+
+func (s *SSEStreamer) SendRaw(event string, rawData string) error {
+	return s.writeAndFlush(event, []byte(rawData))
+}
+
+func (s *SSEStreamer) writeAndFlush(event string, data []byte) error {
+	var buffer strings.Builder
+	if event != "" {
+		buffer.WriteString(fmt.Sprintf("event: %s\n", event))
+	}
+	buffer.WriteString(fmt.Sprintf("data: %s\n\n", data))
+
+	_, err := s.w.Write([]byte(buffer.String()))
+	if err != nil {
+		s.logger.Error("error writing SSE data", zap.String("event", event), zap.Error(err))
+		return err
+	}
+
 	if err := s.rc.Flush(); err != nil {
-		s.logger.Error("error flushing SSE data", zap.String("event", event), zap.Error(err))
+		s.logger.Warn("error flushing SSE data", zap.String("event", event), zap.Error(err))
 		return err
 	}
+
 	return nil
-}
-
-func (s *SSEStreamer) SendDeltaEvent(delta map[string]any) error {
-	deltaJSON, err := json.Marshal(delta)
-	if err != nil {
-		s.logger.Error("error marshalling delta event", zap.Error(err))
-		return err
-	}
-	return s.SendEvent("delta", string(deltaJSON))
-}
-
-func (s *SSEStreamer) SendCompletionEvent(data map[string]any) error {
-	completionJSON, err := json.Marshal(data)
-	if err != nil {
-		s.logger.Error("error marshalling completion event data", zap.Error(err))
-		return err
-	}
-	return s.SendEvent("", string(completionJSON)) // No event name for standard data events
-}
-
-func (s *SSEStreamer) SendErrorEvent(errorType string, errorMessage string, details map[string]any) error {
-	return utils.SendErrorEvent(s.w, s.rc, errorType, errorMessage, details)
 }
