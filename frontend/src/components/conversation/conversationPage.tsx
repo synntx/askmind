@@ -91,7 +91,7 @@ const Conversation: React.FC = () => {
   return (
     <div className="h-screen flex flex-col bg-background text-white/90">
       <div
-        className="flex-1 overflow-y-auto py-6 pb-28 custom-scrollbar"
+        className="flex-1 overflow-y-auto py-6 pb-8 custom-scrollbar"
         ref={containerRef}
       >
         <MessageList
