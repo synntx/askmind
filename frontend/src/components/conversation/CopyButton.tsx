@@ -35,7 +35,7 @@ export const CopyButton: React.FC<CopyButtonProps> = ({
 
   return (
     <button
-      className="text-muted-foreground hover:text-muted-foreground/60 transition-colors p-1 rounded-full"
+      className="text-muted-foreground hover:text-muted-foreground hover:bg-muted/80 p-1.5 rounded-md"
       onClick={copyToClipboard}
       title={isCopied ? "Copied!" : "Copy message"}
       type="button"

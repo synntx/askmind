@@ -51,7 +51,7 @@ export const Message: React.FC<MessageProps> = ({
         }`}
       >
         <div
-          className={`absolute ${message.role === "user" ? "bottom-1.5 -left-6" : "-bottom-5"} left-0 opacity-0 group-hover:opacity-100 transition-opacity`}
+          className={`absolute ${message.role === "user" ? "bottom-0 -left-8" : "-bottom-5"} left-0 opacity-0 group-hover:opacity-100 transition-opacity`}
         >
           <CopyButton
             text={message.content}
@@ -62,8 +62,8 @@ export const Message: React.FC<MessageProps> = ({
         </div>
         {message.role === "user" ? (
           <div className="whitespace-pre-wrap py-2.5 overflow-y-hidden">
-            <MarkdownContent content={message.content} />
-            {/* {message.content} */}
+            {/* <MarkdownContent content={message.content} /> */}
+            {message.content}
           </div>
         ) : (
           <MarkdownContent content={message.content} />

@@ -113,8 +113,9 @@ const ConvSidebar: React.FC<ConvSidebarProps> = ({
 
   return (
     <div
+      // rounded-r-2xl
       className={`
-        h-screen bg-sidebar flex flex-col rounded-r-2xl fixed
+        h-screen bg-sidebar flex flex-col fixed
         ${collapsed ? "w-0" : "w-80"} text-foreground
         overflow-hidden transition-[width] duration-300 relative border-r border-border/50
       `}
@@ -184,11 +185,11 @@ const ConvSidebar: React.FC<ConvSidebarProps> = ({
                 href={`/space/${space_id}/c/${chat.conversation_id}`}
                 className={`
                   flex items-center justify-between my-1 px-3 py-2
-                  rounded-lg cursor-pointer transition-colors duration-150
+                  rounded-lg cursor-pointer active:bg-muted/60
                   ${
                     selectedChat === chat.conversation_id
-                      ? "bg-muted/40"
-                      : "hover:bg-muted/30 bg-transparent"
+                      ? "bg-muted/50"
+                      : "hover:bg-muted/40 bg-transparent"
                   }
                 `}
                 onClick={() => setSelectedChat(chat.conversation_id)}

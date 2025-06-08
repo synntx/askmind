@@ -1,6 +1,6 @@
 import { messageApi } from "@/lib/api";
 import { AppError } from "@/types/errors";
-import { Message } from "@/types/message";
+import { Message } from "@/types/streaming";
 import { useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 
