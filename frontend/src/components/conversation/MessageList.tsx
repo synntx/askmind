@@ -1,7 +1,5 @@
 import React from "react";
 import { Message, StreamingMessage, ErrorMessage } from "./Message";
-import { Sparkles } from "lucide-react";
-import { LoadingIcon } from "@/icons";
 import { Message as MessageType } from "@/types/streaming";
 
 interface MessageListProps {
@@ -33,7 +31,7 @@ export const MessageList: React.FC<MessageListProps> = ({
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-full">
-        <LoadingIcon className="animate-spin h-6 w-6" />
+        {/* <LoadingIcon className="animate-spin h-6 w-6" /> */}
       </div>
     );
   }
@@ -49,7 +47,6 @@ export const MessageList: React.FC<MessageListProps> = ({
   if (!messages || messages.length === 0) {
     return (
       <div className="w-full h-full flex flex-col items-center justify-center py-6 px-4 text-center">
-        <Sparkles size={24} className="text-[#8A92E3] mb-2" />
         <h3 className="text-sm font-medium text-[#CACACA] mb-2">
           No messages yet
         </h3>

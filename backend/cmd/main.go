@@ -66,6 +66,12 @@ func main() {
 		log.Fatalf("Error creating Research tool: %v", err)
 	}
 
+	notionClient, err := tools.NewNotionClient()
+	if err != nil {
+		log.Fatalf("Error creating Notion client: %v", err)
+	}
+	notionTool := tools.NewNotionTool(notionClient)
+
 	image := tools.NewImageSearchTool()
 	page := tools.NewWebPageStructureAnalyzerTool()
 	image_extractor := tools.NewWebImageExtractorTool()
@@ -78,6 +84,8 @@ func main() {
 	toolRegistry.Register(page)
 	toolRegistry.Register(image_extractor)
 
+	toolRegistry.Register(notionTool)
+
 	// Get model from env or use defaults
 	model := os.Getenv("LLM_MODEL")
 	if model == "" {
@@ -85,7 +93,8 @@ func main() {
 		case llm.ProviderGemini:
 			model = "gemini-2.0-flash"
 		case llm.ProviderGroq:
-			model = "mixtral-8x7b-32768"
+			model = "mistral-saba-24b"
+			// model = "meta-llama/llama-4-scout-17b-16e-instruct"
 		case llm.ProviderOllama:
 			model = "llama3.2"
 		}

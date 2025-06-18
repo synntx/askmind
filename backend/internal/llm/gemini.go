@@ -245,7 +245,6 @@ func (g *Gemini) GenerateContentStream(ctx context.Context, history []models.Cha
 
 			var functionResponses []genai.Part
 			var toolInfo *ToolInfo
-			var functionResponsePayload map[string]any
 
 			for _, fc := range functionCalls {
 				g.logger.Info("Attempting to execute tool", zap.String("name", fc.Name), zap.Any("args", fc.Args), zap.Int("iteration", i))
@@ -260,8 +259,10 @@ func (g *Gemini) GenerateContentStream(ctx context.Context, history []models.Cha
 				tool, ok := g.toolRegistry.GetTool(fc.Name)
 				if !ok {
 					g.logger.Error("Tool not found in registry after receiving function call", zap.String("tool", fc.Name), zap.Int("iteration", i))
+					// If tool is not found, this is a non-recoverable error for this tool call sequence.
+					// Send an error chunk and terminate the interaction.
 					contentStream <- ContentChunk{Err: fmt.Errorf("tool_not_found: tool '%s' not found in registry", fc.Name)}
-					return
+					return // Exit on tool not found
 				}
 
 				args := make(map[string]any)
@@ -270,36 +271,51 @@ func (g *Gemini) GenerateContentStream(ctx context.Context, history []models.Cha
 				}
 
 				g.logger.Debug("Executing tool function", zap.String("name", fc.Name), zap.Any("args", args), zap.Int("iteration", i))
+
+				var toolResult string
 				result, err := tool.Execute(ctx, args)
 				if err != nil {
 					g.logger.Error("Error executing tool", zap.Error(err), zap.String("tool", fc.Name), zap.Any("args", args), zap.Int("iteration", i))
-					contentStream <- ContentChunk{Err: fmt.Errorf("tool_error: executing tool '%s' failed: %w", fc.Name, err)}
-					toolInfo = &ToolInfo{Name: fc.Name, Args: args, Result: err.Error(), Status: StatusEnd}
-					functionResponsePayload = map[string]any{"content": err.Error()}
+					// Format the error message to send back to the model and user stream
+					toolResult = fmt.Sprintf("Tool execution failed: %v", err)
+					// IMPORTANT: Do NOT return here. Continue to send the error result back to the model.
 				} else {
-					toolInfo = &ToolInfo{Name: fc.Name, Args: args, Result: result, Status: StatusEnd}
-					functionResponsePayload = map[string]any{"content": result}
+					toolResult = result
 				}
 
-				g.logger.Debug("Tool execution successful", zap.String("tool", fc.Name), zap.String("result_preview", result[:min(len(result), 100)]+"..."), zap.Int("iteration", i))
+				// Prepare tool info for the user stream (always send StatusEnd with result/error)
+				toolInfo = &ToolInfo{
+					Name:   fc.Name,
+					Args:   args,
+					Result: toolResult, // Contains success result or error message
+					Status: StatusEnd,
+				}
 
+				// Prepare function response payload for the model (always send result or error message)
+				functionResponsePayload := map[string]any{"content": toolResult}
+
+				g.logger.Debug("Tool execution complete (or failed)", zap.String("tool", fc.Name), zap.String("result_preview", toolResult[:min(len(toolResult), 100)]+"..."), zap.Int("iteration", i))
+
+				// Send tool result/error info to the user stream
 				select {
 				case contentStream <- ContentChunk{ToolInfo: toolInfo}:
-					g.logger.Debug("Sent tool result chunk to channel", zap.Int("iteration", i))
+					g.logger.Debug("Sent tool result/error chunk to channel", zap.Int("iteration", i))
 				case <-ctx.Done():
-					g.logger.Warn("Context cancelled while trying to send tool result chunk", zap.Error(ctx.Err()), zap.Int("iteration", i))
+					g.logger.Warn("Context cancelled while trying to send tool result/error chunk", zap.Error(ctx.Err()), zap.Int("iteration", i))
 					contentStream <- ContentChunk{Err: ctx.Err()}
-					return
+					return // Exit if context cancelled
 				}
 
+				// Add the function response (containing result or error message) to the batch for the next model call
 				functionResponses = append(functionResponses, genai.FunctionResponse{
 					Name:     fc.Name,
 					Response: functionResponsePayload,
 				})
 
-				g.logger.Debug("Added function response to batch", zap.String("tool", fc.Name), zap.Int("iteration", i))
-			}
+				g.logger.Debug("Added function response (with result or error) to batch", zap.String("tool", fc.Name), zap.Int("iteration", i))
+			} // End of loop over function calls
 
+			// Continue the outer loop for the next turn with the function responses
 			partsToSendToGemini = functionResponses
 			g.logger.Debug("Prepared batch of function responses for next turn", zap.Int("num_responses", len(functionResponses)), zap.Int("iteration", i))
 		}

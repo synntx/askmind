@@ -254,7 +254,7 @@ const ConvSidebar: React.FC<ConvSidebarProps> = ({
                         e.stopPropagation();
                         setIsEditing(chat.conversation_id);
                       }}
-                      className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-all duration-150"
+                      className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-all duration-150"
                       title="Edit title"
                       aria-label="Edit chat title"
                     >
@@ -262,7 +262,7 @@ const ConvSidebar: React.FC<ConvSidebarProps> = ({
                     </button>
                     <button
                       onClick={(e) => handleDeleteChat(chat.conversation_id, e)}
-                      className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-red-500 transition-all duration-150"
+                      className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-red-500 transition-all duration-150"
                       title="Delete chat"
                       aria-label="Delete chat"
                     >
