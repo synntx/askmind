@@ -69,9 +69,9 @@ export class StreamingService {
     onComplete: (
       messageId: string,
       content: string,
-      toolCalls: ToolCall[]
+      toolCalls: ToolCall[],
     ) => void,
-    onError: (error: StreamError) => void
+    onError: (error: StreamError) => void,
   ): Promise<void> {
     this.cancel();
     this.abortController = new AbortController();
@@ -86,7 +86,7 @@ export class StreamingService {
       const response = await this.initiateFetch(
         conversationId,
         userMessage,
-        model
+        model,
       );
       await this.processStream(response, state, onUpdate, onError);
 
@@ -139,7 +139,7 @@ export class StreamingService {
   private async initiateFetch(
     conversationId: string,
     userMessage: string,
-    model: string
+    model: string,
   ): Promise<Response> {
     const token = this.config.getAuthToken();
     if (!token) {
@@ -180,7 +180,7 @@ export class StreamingService {
     response: Response,
     state: StreamingMessageState,
     onUpdate: (content: string, toolCalls: ToolCall[]) => void,
-    onError: (error: StreamError) => void
+    onError: (error: StreamError) => void,
   ) {
     if (!response.body) {
       throw { type: "connection_error", message: "Response body is missing." };
@@ -209,7 +209,6 @@ export class StreamingService {
           onUpdate(state.contentParts.join(""), [...state.toolCalls]);
         } catch (e) {
           console.error("Error processing SSE event:", e);
-          // Continue processing other events if possible
         }
       }
     }
@@ -262,7 +261,7 @@ export class StreamingService {
   private handleSSEEvent(
     event: SSEEvent,
     state: StreamingMessageState,
-    onError: (error: StreamError) => void
+    onError: (error: StreamError) => void,
   ) {
     if (event.event === "error") {
       try {
@@ -302,6 +301,7 @@ export class StreamingService {
    * Based on the backend's patch structure.
    * @internal
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private applyDelta(state: StreamingMessageState, delta: any) {
     const op = delta.o; // operation
     const path = delta.p; // path
@@ -331,14 +331,21 @@ export class StreamingService {
         break;
 
       case "patch":
-        // The backend sends a batch of patch operations
         if (Array.isArray(value)) {
           value.forEach((patchOp) => this.applyDelta(state, patchOp));
         }
         break;
 
-      // The frontend doesn't need to handle 'replace' for status/end_turn directly,
-      // as these are final state markers handled by the 'completion' event.
+      case "replace":
+        if (path === "/message/content/parts") {
+          const partIndex = this.extractPartIndex(path);
+          if (partIndex < state.contentParts.length) {
+            state.contentParts[partIndex] = value;
+          }
+          state.contentParts[partIndex] += value;
+        } else if (path === "/message/metadata/tool_call" && value?.name) {
+          state.toolCalls.push(value);
+        }
     }
   }
 
@@ -348,7 +355,6 @@ export class StreamingService {
    * @internal
    */
   private extractPartIndex(path: string): number {
-    // This regex is specific to the backend's path structure for content parts.
     const match = path.match(/\/parts\/(\d+)/);
     return match ? parseInt(match[1], 10) : 0;
   }

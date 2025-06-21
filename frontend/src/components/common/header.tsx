@@ -1,14 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import {
-  Settings,
-  LogOut,
-  Moon,
-  Sun,
-  Palette,
-  ChevronDown,
-} from "lucide-react";
+import { Settings, LogOut, Palette, ChevronDown } from "lucide-react";
 
 interface HeaderProps {
   onSettingsClick?: () => void;
@@ -16,11 +9,7 @@ interface HeaderProps {
   onThemeToggle?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({
-  onSettingsClick,
-  currentTheme = "",
-  onThemeToggle,
-}) => {
+const Header: React.FC<HeaderProps> = ({ onSettingsClick }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -55,34 +44,6 @@ const Header: React.FC<HeaderProps> = ({
   }, [isDropdownOpen]);
 
   const menuItems = [
-    // {
-    //   icon: User,
-    //   label: "Profile",
-    //   description: "View and edit profile",
-    //   onClick: () => {
-    //     console.log("Profile clicked");
-    //     setIsDropdownOpen(false);
-    //   },
-    // },
-    // {
-    //   icon: Bell,
-    //   label: "Notifications",
-    //   description: "Manage notifications",
-    //   onClick: () => {
-    //     console.log("Notifications clicked");
-    //     setIsDropdownOpen(false);
-    //   },
-    //   badge: "3",
-    // },
-    {
-      icon: currentTheme.includes("dark") ? Sun : Moon,
-      label: currentTheme.includes("dark") ? "Light Mode" : "Dark Mode",
-      description: "Toggle theme",
-      onClick: () => {
-        onThemeToggle?.();
-        setIsDropdownOpen(false);
-      },
-    },
     {
       icon: Palette,
       label: "Themes",
@@ -101,15 +62,6 @@ const Header: React.FC<HeaderProps> = ({
         setIsDropdownOpen(false);
       },
     },
-    // {
-    //   icon: HelpCircle,
-    //   label: "Help & Support",
-    //   description: "Get assistance",
-    //   onClick: () => {
-    //     console.log("Help clicked");
-    //     setIsDropdownOpen(false);
-    //   },
-    // },
     {
       icon: LogOut,
       label: "Sign Out",
@@ -128,7 +80,7 @@ const Header: React.FC<HeaderProps> = ({
         <div className="flex items-center gap-2">
           <div className="flex mb-3 animate-reveal">
             <h2 className="text-3xl font-medium tracking-tight">Ask</h2>
-            <h2 className="text-3xl font-medium tracking-tight text-[#8A92E3]">
+            <h2 className="text-3xl font-medium tracking-tight text-primary">
               Mind
             </h2>
           </div>
@@ -207,18 +159,13 @@ const Header: React.FC<HeaderProps> = ({
                     <button
                       key={item.label}
                       onClick={item.onClick}
-                      className={`group w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all duration-200 ${
-                        isDanger
-                          ? "hover:bg-destructive/10 text-foreground"
-                          : "hover:bg-muted/50 text-foreground hover:translate-x-0.5 active:scale-[0.96]"
+                      className={`group w-full flex items-center gap-3 p-3 rounded-xl text-left ${
+                        isDanger ? "hover:bg-muted" : "hover:bg-muted/50"
                       }`}
                       style={{ animationDelay: `${index * 30}ms` }}
                     >
-                      <div className="p-2 rounded-lg bg-muted/50 group-hover:bg-primary/10">
-                        <Icon
-                          size={16}
-                          className="text-muted-foreground group-hover:text-primary"
-                        />
+                      <div className="p-2 rounded-lg bg-muted/50 group-hover:bg-primary/5">
+                        <Icon size={16} className="text-muted-foreground" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">

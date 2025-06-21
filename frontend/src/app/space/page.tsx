@@ -93,11 +93,11 @@ export default function SpacesPage() {
             <button
               onClick={() => setViewMode("grid")}
               className={`
-                p-1.5 rounded-md transition-all duration-100 ease-in-out
-                focus:outline-none focus:ring-2 focus:ring-[#8A92E3]/50
+                p-1.5 rounded-md ease-in-out
+                focus:outline-none focus:ring-0
                 ${
                   viewMode === "grid"
-                    ? "bg-secondary/50 shadow-sm"
+                    ? "bg-secondary/70 shadow-sm"
                     : "hover:bg-secondary/30 active:bg-secondary/40"
                 }
               `}
@@ -111,11 +111,11 @@ export default function SpacesPage() {
             <button
               onClick={() => setViewMode("list")}
               className={`
-                p-1.5 rounded-md ml-1 transition-all duration-100 ease-in-out
-                focus:outline-none focus:ring-2 focus:ring-[#8A92E3]/50
+                p-1.5 rounded-md ml-1 ease-in-out
+                focus:outline-none focus:ring-0
                 ${
                   viewMode === "list"
-                    ? "bg-secondary/50 shadow-sm"
+                    ? "bg-secondary/70 shadow-sm"
                     : "hover:bg-secondary/30 active:bg-secondary/40"
                 }
               `}

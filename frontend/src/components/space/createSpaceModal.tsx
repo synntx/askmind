@@ -134,6 +134,7 @@ export default function CreateSpaceModal({
                     required
                     disabled={isSubmitting}
                     maxLength={50}
+                    autoFocus
                   />
                   <div className="absolute right-3 top-3 text-xs text-muted-foreground">
                     {formData.Title.length}/50

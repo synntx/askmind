@@ -56,114 +56,169 @@ const SpaceListItem = ({ space }: SpaceListItemProps) => {
     e.preventDefault();
     e.stopPropagation();
     setIsEditing(false);
+    // Reset formData to original space data if cancel
+    setFormData({
+      Title: space.title,
+      Description: space.description,
+    });
   };
 
   const saveChanges = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    updateSpace(formData, {
-      onSuccess: () => {
-        setIsEditing(false);
-      },
-    });
+    if (isFormValid) {
+      updateSpace(formData, {
+        onSuccess: () => {
+          setIsEditing(false);
+        },
+      });
+    }
   };
+
+  const isFormValid =
+    formData.Title.trim().length > 0 && formData.Description.trim().length > 0;
 
   return (
     <>
       <div
         key={space.space_id}
-        className={`p-4 py-6 ${isEditing ? "bg-secondary/20" : "hover:bg-secondary/20"} border-b transition cursor-pointer group flex items-center justify-between`}
+        className={`p-4 py-6 ${isEditing ? "bg-secondary/20" : "hover:bg-secondary/20"} border-b transition cursor-pointer group flex ${isEditing ? "flex-col items-start" : "items-center justify-between"}`}
         onClick={handleItemClick}
       >
         {isEditing ? (
-          <>
-            <div className="flex items-center flex-1 gap-4">
-              <input
-                ref={titleInputRef}
-                type="text"
-                name="Title"
-                value={formData.Title}
-                onChange={handleChange}
-                className="w-60 border border-[#20242f] bg-[#1c1d27] rounded-md p-3
-                  focus:outline-none focus:ring-1 focus:ring-[#8A92E3]
-                  transition-all placeholder-[#767676] hover:border-[#3A3F4F]"
-                placeholder="Space name"
-                onClick={(e) => e.stopPropagation()}
-                required
-              />
-              <div className="flex items-center flex-row gap-12 flex-1">
+          <div className="flex flex-col w-full gap-4">
+            <div className="space-y-2">
+              <label
+                htmlFor="edit-space-list-title"
+                className="flex items-center gap-2 text-sm font-medium text-foreground"
+              >
+                Space Name
+              </label>
+              <div className="relative">
                 <input
+                  ref={titleInputRef}
                   type="text"
+                  id="edit-space-list-title"
+                  name="Title"
+                  value={formData.Title}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 bg-muted/30 border border-border/50 rounded-xl text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all duration-200"
+                  placeholder="e.g., My Project Workspace"
+                  required
+                  disabled={isPending}
+                  maxLength={50}
+                />
+                <div className="absolute right-3 top-3 text-xs text-muted-foreground">
+                  {formData.Title.length}/50
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label
+                htmlFor="edit-space-list-description"
+                className="flex items-center gap-2 text-sm font-medium text-foreground"
+              >
+                Description
+              </label>
+              <div className="relative">
+                <textarea
+                  id="edit-space-list-description"
                   name="Description"
                   value={formData.Description}
                   onChange={handleChange}
-                  className="w-40 hidden md:block border border-[#20242f] bg-[#1c1d27] rounded-md p-3
-                    focus:outline-none focus:ring-1 focus:ring-[#8A92E3]
-                    transition-all placeholder-[#767676] hover:border-[#3A3F4F]"
-                  placeholder="Description"
-                  onClick={(e) => e.stopPropagation()}
+                  rows={2}
+                  className="w-full px-4 py-3 bg-muted/30 outline-none border border-border/50 rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all duration-200 resize-none"
+                  placeholder="Describe what this space will be used for..."
+                  required
+                  disabled={isPending}
+                  maxLength={200}
                 />
-                <div className="hidden md:flex items-center text-sm text-gray-400">
-                  <span>created {getTimeAgo(space.created_at)}</span>
-                  <Ellipse className="h-1.5 w-1.5 mx-2" />
-                  <span>{space.source_limit} sources</span>
+                <div className="absolute right-3 bottom-3 text-xs text-muted-foreground">
+                  {formData.Description.length}/200
                 </div>
               </div>
             </div>
-            <div
-              className="flex items-center gap-2"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {isPending ? (
-                <span className="text-sm text-gray-400">Saving...</span>
-              ) : (
-                <>
-                  <button
-                    onClick={cancelEditing}
-                    className="p-1.5 hover:bg-secondary rounded-md active:scale-[0.95] transition-all duration-150 ease-in-out text-gray-400 hover:text-white"
-                  >
-                    <X className="h-5 w-5" />
-                  </button>
-                  <button
-                    onClick={saveChanges}
-                    className="p-1.5 hover:bg-secondary rounded-md active:scale-[0.95] transition-all duration-150 ease-in-out text-[#8A92E3]"
-                  >
-                    <CheckIcon className="h-5 w-5" />
-                  </button>
-                </>
+
+            {!isFormValid &&
+              (formData.Title.length > 0 ||
+                formData.Description.length > 0) && (
+                <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl w-full">
+                  <p className="text-sm text-amber-600 dark:text-amber-400">
+                    Please fill in both the space name and description to
+                    continue.
+                  </p>
+                </div>
               )}
+
+            <div className="flex items-center justify-between text-sm text-muted-foreground w-full pt-2">
+              <div className="flex items-center gap-4">
+                <span>created {getTimeAgo(space.created_at)}</span>
+                <Ellipse className="h-2 w-2 text-muted-foreground" />
+                <span>{space.source_limit} sources</span>
+              </div>
+              <div
+                className="flex items-center gap-2"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {isPending ? (
+                  <span className="text-sm text-muted-foreground flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin"></div>
+                    Saving...
+                  </span>
+                ) : (
+                  <>
+                    <button
+                      onClick={cancelEditing}
+                      disabled={isPending}
+                      className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed group"
+                    >
+                      <X className="w-5 h-5 group-hover:rotate-90 transition-transform duration-200" />
+                    </button>
+                    <button
+                      onClick={saveChanges}
+                      disabled={!isFormValid || isPending}
+                      className="p-2 rounded-xl text-primary hover:bg-primary/20 hover:text-primary transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed group"
+                    >
+                      <CheckIcon className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" />
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
-          </>
+          </div>
         ) : (
           <>
-            <div className="flex items-center">
-              <h3 className="w-60">{space.title}</h3>
-              <div className="flex items-center flex-row gap-12">
-                <p className="w-40 hidden md:block truncate text-gray-400 text-sm">
+            <div className="flex items-center flex-1">
+              <h3 className="min-w-[150px] max-w-[240px] truncate text-foreground">
+                {space.title}
+              </h3>
+              <div className="flex items-center flex-row gap-12 ml-4">
+                <p className="w-40 hidden md:block truncate text-muted-foreground text-sm">
                   {space.description}
                 </p>
-                <div className="hidden md:flex items-center text-sm text-gray-400">
+                <div className="hidden md:flex items-center text-sm text-muted-foreground gap-2">
                   <span>created {getTimeAgo(space.created_at)}</span>
-                  <Ellipse className="h-1.5 w-1.5 mx-2" />
+                  <Ellipse className="h-2 w-2 text-muted-foreground" />
                   <span>{space.source_limit} sources</span>
                 </div>
               </div>
             </div>
             <div
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition"
               onClick={(e) => e.stopPropagation()}
             >
               <button
                 onClick={() => setIsDeleteModalOpen(true)}
-                className="p-1 hover:bg-secondary rounded-md active:scale-[0.95] transition-all duration-150 ease-in-out"
+                className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200 group"
               >
-                <TrashLight className="h-5 w-5" />
+                <TrashLight className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" />
               </button>
               <button
                 onClick={startEditing}
-                className="p-1 hover:bg-secondary rounded-md active:scale-[0.95] transition-all duration-150 ease-in-out"
+                className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200 group"
               >
-                <EditLight className="h-5 w-5" />
+                <EditLight className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" />
               </button>
             </div>
           </>

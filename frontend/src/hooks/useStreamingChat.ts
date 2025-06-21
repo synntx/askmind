@@ -59,7 +59,7 @@ export const useStreamingChat = ({
         await serviceRef.current.streamCompletion(
           conversationId,
           userMessage,
-          "idk",
+          "idk", // TODO: model update
           // onUpdate
           (content: string, toolCalls: ToolCall[]) => {
             setStreamingContent(content);
@@ -74,7 +74,7 @@ export const useStreamingChat = ({
               content,
               tool_calls: toolCalls.length > 0 ? toolCalls : undefined,
               tokens_used: 0,
-              model: "idk",
+              model: "idk", // TODO: model update
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString(),
             };
