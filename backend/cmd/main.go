@@ -1,4 +1,3 @@
-// main.go
 package main
 
 import (
@@ -126,7 +125,6 @@ func main() {
 		ToolRegistry: toolRegistry,
 		BaseURL:      baseURL,
 	}, logger)
-
 	if err != nil {
 		logger.Fatal("Failed to create LLM provider",
 			zap.Error(err),

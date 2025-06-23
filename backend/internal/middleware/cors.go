@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"net/http"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -33,12 +34,15 @@ func CORSWithConfig(config *CORSConfig, logger *zap.Logger) Middleware {
 
 			allowedOrigin := "*"
 			if len(config.AllowedOrigins) > 0 && config.AllowedOrigins[0] != "*" {
-				for _, allowed := range config.AllowedOrigins {
-					if allowed == origin {
-						allowedOrigin = origin
-						break
-					}
+				if slices.Contains(config.AllowedOrigins, origin) {
+					allowedOrigin = origin
 				}
+				// for _, allowed := range config.AllowedOrigins {
+				// 	if allowed == origin {
+				// 		allowedOrigin = origin
+				// 		break
+				// 	}
+				// }
 			}
 
 			w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)

@@ -51,7 +51,7 @@ export const Message: React.FC<MessageProps> = ({
         }`}
       >
         <div
-          className={`absolute ${message.role === "user" ? "bottom-0 -left-8" : "-bottom-5"} left-0 opacity-0 group-hover:opacity-100 transition-opacity`}
+          className={`absolute ${message.role === "user" ? "-bottom-4 -right-4" : "-bottom-5 left-0"} opacity-0 group-hover:opacity-100 transition-opacity`}
         >
           <CopyButton
             text={message.content}

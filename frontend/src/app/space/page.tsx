@@ -15,7 +15,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { SettingsModal } from "@/components/settings/SettingsModal";
 
 export default function SpacesPage() {
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("list");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const [isSettingsModalOpen, setIsSettingsModalOpen] =
