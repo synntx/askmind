@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"maps"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/google/generative-ai-go/genai"
@@ -244,79 +244,81 @@ func (g *Gemini) GenerateContentStream(ctx context.Context, history []models.Cha
 			}
 
 			var functionResponses []genai.Part
-			var toolInfo *ToolInfo
+			// var toolInfo *ToolInfo
 
-			for _, fc := range functionCalls {
-				g.logger.Info("Attempting to execute tool", zap.String("name", fc.Name), zap.Any("args", fc.Args), zap.Int("iteration", i))
+			// for _, fc := range functionCalls {
+			// 	g.logger.Info("Attempting to execute tool", zap.String("name", fc.Name), zap.Any("args", fc.Args), zap.Int("iteration", i))
 
-				contentStream <- ContentChunk{ToolInfo: &ToolInfo{
-					Name:   fc.Name,
-					Args:   fc.Args,
-					Result: "",
-					Status: StatusProcessing,
-				}}
+			// 	contentStream <- ContentChunk{ToolInfo: &ToolInfo{
+			// 		Name:   fc.Name,
+			// 		Args:   fc.Args,
+			// 		Result: "",
+			// 		Status: StatusProcessing,
+			// 	}}
 
-				tool, ok := g.toolRegistry.GetTool(fc.Name)
-				if !ok {
-					g.logger.Error("Tool not found in registry after receiving function call", zap.String("tool", fc.Name), zap.Int("iteration", i))
-					// If tool is not found, this is a non-recoverable error for this tool call sequence.
-					// Send an error chunk and terminate the interaction.
-					contentStream <- ContentChunk{Err: fmt.Errorf("tool_not_found: tool '%s' not found in registry", fc.Name)}
-					return // Exit on tool not found
-				}
+			// 	tool, ok := g.toolRegistry.GetTool(fc.Name)
+			// 	if !ok {
+			// 		g.logger.Error("Tool not found in registry after receiving function call", zap.String("tool", fc.Name), zap.Int("iteration", i))
+			// 		// If tool is not found, this is a non-recoverable error for this tool call sequence.
+			// 		// Send an error chunk and terminate the interaction.
+			// 		contentStream <- ContentChunk{Err: fmt.Errorf("tool_not_found: tool '%s' not found in registry", fc.Name)}
+			// 		return // Exit on tool not found
+			// 	}
 
-				args := make(map[string]any)
-				if fc.Args != nil {
-					maps.Copy(args, fc.Args)
-				}
+			// 	args := make(map[string]any)
+			// 	if fc.Args != nil {
+			// 		maps.Copy(args, fc.Args)
+			// 	}
 
-				g.logger.Debug("Executing tool function", zap.String("name", fc.Name), zap.Any("args", args), zap.Int("iteration", i))
+			// 	g.logger.Debug("Executing tool function", zap.String("name", fc.Name), zap.Any("args", args), zap.Int("iteration", i))
 
-				var toolResult string
-				result, err := tool.Execute(ctx, args)
-				if err != nil {
-					g.logger.Error("Error executing tool", zap.Error(err), zap.String("tool", fc.Name), zap.Any("args", args), zap.Int("iteration", i))
-					// Format the error message to send back to the model and user stream
-					toolResult = fmt.Sprintf("Tool execution failed: %v", err)
-					// IMPORTANT: Do NOT return here. Continue to send the error result back to the model.
-				} else {
-					toolResult = result
-				}
+			// 	var toolResult string
+			// 	result, err := tool.Execute(ctx, args)
+			// 	if err != nil {
+			// 		g.logger.Error("Error executing tool", zap.Error(err), zap.String("tool", fc.Name), zap.Any("args", args), zap.Int("iteration", i))
+			// 		// Format the error message to send back to the model and user stream
+			// 		toolResult = fmt.Sprintf("Tool execution failed: %v", err)
+			// 		// IMPORTANT: Do NOT return here. Continue to send the error result back to the model.
+			// 	} else {
+			// 		toolResult = result
+			// 	}
 
-				// Prepare tool info for the user stream (always send StatusEnd with result/error)
-				toolInfo = &ToolInfo{
-					Name:   fc.Name,
-					Args:   args,
-					Result: toolResult, // Contains success result or error message
-					Status: StatusEnd,
-				}
+			// 	// Prepare tool info for the user stream (always send StatusEnd with result/error)
+			// 	toolInfo = &ToolInfo{
+			// 		Name:   fc.Name,
+			// 		Args:   args,
+			// 		Result: toolResult,
+			// 		Status: StatusEnd,
+			// 	}
 
-				// Prepare function response payload for the model (always send result or error message)
-				functionResponsePayload := map[string]any{"content": toolResult}
+			// 	// Prepare function response payload for the model (always send result or error message)
+			// 	functionResponsePayload := map[string]any{"content": toolResult}
 
-				g.logger.Debug("Tool execution complete (or failed)", zap.String("tool", fc.Name), zap.String("result_preview", toolResult[:min(len(toolResult), 100)]+"..."), zap.Int("iteration", i))
+			// 	g.logger.Debug("Tool execution complete (or failed)", zap.String("tool", fc.Name), zap.String("result_preview", toolResult[:min(len(toolResult), 100)]+"..."), zap.Int("iteration", i))
 
-				// Send tool result/error info to the user stream
-				select {
-				case contentStream <- ContentChunk{ToolInfo: toolInfo}:
-					g.logger.Debug("Sent tool result/error chunk to channel", zap.Int("iteration", i))
-				case <-ctx.Done():
-					g.logger.Warn("Context cancelled while trying to send tool result/error chunk", zap.Error(ctx.Err()), zap.Int("iteration", i))
-					contentStream <- ContentChunk{Err: ctx.Err()}
-					return // Exit if context cancelled
-				}
+			// 	// Send tool result/error info to the user stream
+			// 	select {
+			// 	case contentStream <- ContentChunk{ToolInfo: toolInfo}:
+			// 		g.logger.Debug("Sent tool result/error chunk to channel", zap.Int("iteration", i))
+			// 	case <-ctx.Done():
+			// 		g.logger.Warn("Context cancelled while trying to send tool result/error chunk", zap.Error(ctx.Err()), zap.Int("iteration", i))
+			// 		contentStream <- ContentChunk{Err: ctx.Err()}
+			// 		return // Exit if context cancelled
+			// 	}
 
-				// Add the function response (containing result or error message) to the batch for the next model call
-				functionResponses = append(functionResponses, genai.FunctionResponse{
-					Name:     fc.Name,
-					Response: functionResponsePayload,
-				})
+			// 	// Add the function response (containing result or error message) to the batch for the next model call
+			// 	functionResponses = append(functionResponses, genai.FunctionResponse{
+			// 		Name:     fc.Name,
+			// 		Response: functionResponsePayload,
+			// 	})
 
-				g.logger.Debug("Added function response (with result or error) to batch", zap.String("tool", fc.Name), zap.Int("iteration", i))
-			} // End of loop over function calls
+			// 	g.logger.Debug("Added function response (with result or error) to batch", zap.String("tool", fc.Name), zap.Int("iteration", i))
+			// } // End of loop over function calls
+
+			partsToSendToGemini = g.executeToolsInParallel(ctx, contentStream, functionCalls, 10)
 
 			// Continue the outer loop for the next turn with the function responses
-			partsToSendToGemini = functionResponses
+			// partsToSendToGemini = functionResponses
 			g.logger.Debug("Prepared batch of function responses for next turn", zap.Int("num_responses", len(functionResponses)), zap.Int("iteration", i))
 		}
 
@@ -328,7 +330,6 @@ func (g *Gemini) GenerateContentStream(ctx context.Context, history []models.Cha
 	return contentStream
 }
 
-// llm/gemini.go - Replace the convertToGenaiContent method
 func (g *Gemini) convertToGenaiContent(history []models.ChatMessage) []*genai.Content {
 	var contents []*genai.Content
 
@@ -406,4 +407,99 @@ func (g *Gemini) convertToGenaiContent(history []models.ChatMessage) []*genai.Co
 		zap.Int("final_count", len(cleaned)))
 
 	return cleaned
+}
+
+func (g *Gemini) executeToolsInParallel(ctx context.Context, contentStream chan ContentChunk, functionCalls []genai.FunctionCall, iterations int) []genai.Part {
+	var wg sync.WaitGroup
+	resultChan := make(chan struct {
+		response genai.Part
+		index    int
+		err      error
+	}, len(functionCalls))
+
+	for i, call := range functionCalls {
+		wg.Add(1)
+		go func(fc genai.FunctionCall, idx int) {
+			defer wg.Done()
+
+			select {
+			case contentStream <- ContentChunk{ToolInfo: &ToolInfo{
+				Name:   fc.Name,
+				Args:   fc.Args,
+				Result: "",
+				Status: StatusProcessing,
+			}}:
+			case <-ctx.Done():
+				return
+			}
+
+			toolCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
+			defer cancel()
+
+			tool, ok := g.toolRegistry.GetTool(fc.Name)
+			if !ok {
+				select {
+				case contentStream <- ContentChunk{ToolInfo: &ToolInfo{
+					Name:   fc.Name,
+					Args:   fc.Args,
+					Result: fmt.Sprintf("Tool '%s' not found", fc.Name),
+					Status: StatusEnd,
+				}}:
+				case <-ctx.Done():
+				}
+				resultChan <- struct {
+					response genai.Part
+					index    int
+					err      error
+				}{
+					index: idx,
+					err:   fmt.Errorf("tool not found: %s", fc.Name),
+				}
+				return
+			}
+
+			result, err := tool.Execute(toolCtx, fc.Args)
+
+			select {
+			case contentStream <- ContentChunk{ToolInfo: &ToolInfo{
+				Name:   fc.Name,
+				Args:   fc.Args,
+				Result: result,
+				Status: StatusEnd,
+			}}:
+			case <-ctx.Done():
+				return
+			}
+
+			resultChan <- struct {
+				response genai.Part
+				index    int
+				err      error
+			}{
+				response: genai.FunctionResponse{
+					Name:     fc.Name,
+					Response: map[string]any{"content": result},
+				},
+				index: idx,
+				err:   err,
+			}
+		}(call, i)
+	}
+
+	go func() {
+		wg.Wait()
+		close(resultChan)
+	}()
+
+	responses := make([]genai.Part, len(functionCalls))
+	errors := make([]error, 0)
+	for result := range resultChan {
+		if result.err != nil {
+			errors = append(errors, result.err)
+			continue
+		}
+		responses[result.index] = result.response
+	}
+
+	return responses
 }

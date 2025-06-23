@@ -199,7 +199,7 @@ const SpaceListItem = ({ space }: SpaceListItemProps) => {
                 </p>
                 <div className="hidden md:flex items-center text-sm text-muted-foreground gap-2">
                   <span>created {getTimeAgo(space.created_at)}</span>
-                  <Ellipse className="h-2 w-2 text-muted-foreground" />
+                  <Ellipse className="h-1.5 w-1.5 text-muted-foreground" />
                   <span>{space.source_limit} sources</span>
                 </div>
               </div>
@@ -210,7 +210,7 @@ const SpaceListItem = ({ space }: SpaceListItemProps) => {
             >
               <button
                 onClick={() => setIsDeleteModalOpen(true)}
-                className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200 group"
+                className="p-2 rounded-xl text-muted-foreground hover:text-red-500 hover:bg-muted/50 transition-all duration-200 group"
               >
                 <TrashLight className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" />
               </button>

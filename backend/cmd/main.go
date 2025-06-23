@@ -71,7 +71,7 @@ func main() {
 	}
 	notionTool := tools.NewNotionTool(notionClient)
 
-	image := tools.NewImageSearchTool()
+	// image := tools.NewImageSearchTool()
 	page := tools.NewWebPageStructureAnalyzerTool()
 	image_extractor := tools.NewWebImageExtractorTool()
 
@@ -79,7 +79,7 @@ func main() {
 	toolRegistry.Register(reddit)
 	toolRegistry.Register(youtube)
 	toolRegistry.Register(research)
-	toolRegistry.Register(image)
+	// toolRegistry.Register(image)
 	toolRegistry.Register(page)
 	toolRegistry.Register(image_extractor)
 

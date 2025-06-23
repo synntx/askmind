@@ -119,6 +119,7 @@ func (csh *CompletionStreamHandler) processLLMStream(ctx context.Context, stream
 					Value: map[string]any{
 						"name":   chunk.ToolInfo.Name,
 						"result": chunk.ToolInfo.Result,
+						"status": chunk.ToolInfo.Status,
 					},
 				}
 				if err := streamer.Send(EventDelta, toolDelta); err != nil {

@@ -17,6 +17,7 @@ export const useStreamingChat = ({
   const [streamingContent, setStreamingContent] = useState<string>("");
   const [isStreaming, setIsStreaming] = useState<boolean>(false);
   const [error, setError] = useState<StreamError | null>(null);
+  const [streamedToolCalls, setStreamedToolCalls] = useState<ToolCall[]>([]);
 
   const serviceRef = useRef<StreamingService | null>(null);
   const currentToolCallsRef = useRef<ToolCall[]>([]);
@@ -40,9 +41,9 @@ export const useStreamingChat = ({
       setIsStreaming(true);
       setError(null);
       setStreamingContent("");
+      setStreamedToolCalls([]);
       currentToolCallsRef.current = [];
 
-      // Add user message immediately
       const userMsg: Partial<Message> = {
         message_id: `temp-user-${Date.now()}`,
         conversation_id: conversationId,
@@ -60,12 +61,13 @@ export const useStreamingChat = ({
           conversationId,
           userMessage,
           "idk", // TODO: model update
-          // onUpdate
+          // onUpdate: called with streaming content and any tool calls
           (content: string, toolCalls: ToolCall[]) => {
             setStreamingContent(content);
+            setStreamedToolCalls(toolCalls);
             currentToolCallsRef.current = toolCalls;
           },
-          // onComplete
+          // onComplete: called when streaming finishes
           (messageId: string, content: string, toolCalls: ToolCall[]) => {
             const assistantMsg: Partial<Message> = {
               message_id: messageId,
@@ -80,14 +82,14 @@ export const useStreamingChat = ({
             };
             onMessageUpdate(assistantMsg);
             setStreamingContent("");
+            setStreamedToolCalls([]);
             setIsStreaming(false);
           },
-          // onError
+          // onError: called when streaming errors
           (error: StreamError) => {
             setError(error);
             setIsStreaming(false);
 
-            // Save partial response if any
             if (streamingContent) {
               const partialMsg: Partial<Message> = {
                 message_id: `error-${Date.now()}`,
@@ -106,15 +108,18 @@ export const useStreamingChat = ({
               onMessageUpdate(partialMsg);
             }
             setStreamingContent("");
+            setStreamedToolCalls([]);
           },
         );
       } catch (err) {
+        // Catch any errors from calling streamCompletion itself (e.g., network issues)
         setError({
           type: "connection_error",
           message: "Failed to send message",
           details: { error: err },
         });
         setIsStreaming(false);
+        setStreamedToolCalls([]);
       }
     },
     [conversationId, isStreaming, onMessageUpdate, streamingContent],
@@ -124,6 +129,7 @@ export const useStreamingChat = ({
     serviceRef.current?.cancel();
     setIsStreaming(false);
     setStreamingContent("");
+    setStreamedToolCalls([]);
   }, []);
 
   const clearError = useCallback(() => {
@@ -134,6 +140,7 @@ export const useStreamingChat = ({
     streamingContent,
     isStreaming,
     error,
+    streamedToolCalls,
     sendMessage,
     cancelStream,
     clearError,

@@ -286,7 +286,6 @@ Comprehensive Research Methodology:
    • Track quantitative data, statistics, and measurable outcomes
 
    Phase 3 - Multimedia & Alternative Perspectives:
-   • Use 'image_searcher' for visual data, infographics, diagrams, examples
    • Use 'search_youtube_videos' for expert talks, tutorials, documentaries
    • Use 'reddit_content_retriever' for practitioner insights, edge cases, recent developments
 
