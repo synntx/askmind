@@ -34,7 +34,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const toggleCollapsedClick = () => {
     startTransition(() => {
-      setCollapsedByClick(prev => {
+      setCollapsedByClick((prev) => {
         if (prev) setIsHovering(false);
         return !prev;
       });
@@ -84,8 +84,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           transition-all duration-300 ease-in-out overflow-hidden flex-shrink-0
           ${isSidebarOpen ? "translate-x-0 w-80" : isMobile ? "-translate-x-full w-80" : "translate-x-0 w-[60px]"}
         `}
-        onMouseEnter={!isMobile && collapsedByClick ? () => setIsHovering(true) : undefined}
-        onMouseLeave={!isMobile && collapsedByClick ? () => setIsHovering(false) : undefined}
+        onMouseEnter={
+          !isMobile && collapsedByClick ? () => setIsHovering(true) : undefined
+        }
+        onMouseLeave={
+          !isMobile && collapsedByClick ? () => setIsHovering(false) : undefined
+        }
         role="region"
         aria-label="Conversation sidebar"
       >
@@ -103,4 +107,3 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 };
 
 export default Layout;
-

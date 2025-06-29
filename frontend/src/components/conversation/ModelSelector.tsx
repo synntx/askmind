@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { ChevronDown, Search, Sparkles, Zap, Server } from "lucide-react";
+import { GeminiIcon, GroqIcon, OllamaIcon } from "@/icons";
 
 interface Model {
   id: string;
@@ -128,9 +129,9 @@ const models: Model[] = [
 ];
 
 const providerIcons = {
-  gemini: Sparkles,
-  groq: Zap,
-  ollama: Server,
+  gemini: GeminiIcon,
+  groq: GroqIcon,
+  ollama: OllamaIcon,
 };
 
 const speedColors = {
@@ -226,11 +227,11 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
   const recentModels = [currentModel].filter(Boolean);
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative p-0" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
         disabled={isStreaming}
-        className="group flex items-center gap-2 px-3 py-1.5 text-sm text-foreground/90 hover:text-foreground hover:bg-accent/30 rounded-md transition-all disabled:opacity-50"
+        className="group flex items-center gap-2 px-3 py-2.5 text-sm text-foreground/90 hover:text-foreground hover:bg-muted/40 rounded-xl transition-all disabled:opacity-50"
         title="Press / to search models"
       >
         <CurrentIcon className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 transition-opacity" />
@@ -241,9 +242,9 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-1 w-80 bg-popover/95 backdrop-blur-sm border border-border/50 rounded-lg shadow-lg z-50 overflow-hidden">
+        <div className="absolute top-full left-0 mt-1 w-80 bg-popover/95 backdrop-blur-sm border border-border/50 rounded-xl shadow-lg z-50 overflow-hidden">
           {/* Search */}
-          <div className="p-2 border-b border-border/30">
+          <div className="">
             <div className="relative">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
               <input
@@ -252,7 +253,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search models..."
-                className="w-full pl-8 pr-3 py-1.5 text-sm bg-background/50 border border-border/50 rounded-md focus:outline-none focus:ring-1 focus:ring-primary/50"
+                className="w-full p-2 py-3 pl-8 pr-3 text-sm bg-background/50 border-none focus:outline-none"
               />
             </div>
           </div>
@@ -278,7 +279,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
                         setIsOpen(false);
                         setSearch("");
                       }}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-accent/20 transition-colors"
+                      className="w-full flex items-center gap-2 px-3 py-2  text-sm hover:bg-accent/20 transition-colors"
                     >
                       <Icon className="w-3.5 h-3.5 opacity-60" />
                       <span className="flex-1 text-left">{model.name}</span>
@@ -290,7 +291,6 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
                     </button>
                   );
                 })}
-                <div className="h-px bg-border/30 mx-2 my-1" />
               </>
             )}
 
@@ -300,9 +300,9 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
                 const Icon =
                   providerIcons[provider as keyof typeof providerIcons];
                 return (
-                  <div key={provider}>
+                  <div key={provider} className=" mb-1 cursor-hidden">
                     {(index > 0 || (!search && recentModels.length > 0)) && (
-                      <div className="h-px bg-border/30 mx-2 my-1" />
+                      <div className="h-px bg-border/30 mx-2 my-1.5" />
                     )}
                     <div className="px-3 py-1 text-xs text-muted-foreground uppercase flex items-center gap-1.5">
                       <Icon className="w-3 h-3" />
@@ -316,11 +316,11 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
                           setIsOpen(false);
                           setSearch("");
                         }}
-                        className={`w-full flex items-center gap-2 px-3 py-2 text-sm transition-colors ${
+                        className={`w-full flex items-center gap-2 px-3 py-2 text-sm ${
                           model.id === selectedModel &&
                           model.provider === selectedProvider
                             ? "bg-accent/40 text-foreground"
-                            : "text-foreground/80 hover:bg-accent/20 hover:text-foreground"
+                            : "text-foreground/80 hover:bg-muted/40 hover:text-foreground"
                         }`}
                       >
                         <span className="flex-1 text-left">{model.name}</span>
@@ -330,7 +330,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
                               {model.size}
                             </span>
                           )}
-                          {model.speed && (
+                          {/* {model.speed && (
                             <span
                               className={`text-xs ${speedColors[model.speed]}`}
                             >
@@ -340,7 +340,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
                                   ? "⚖️"
                                   : "💪"}
                             </span>
-                          )}
+                          )} */}
                         </div>
                       </button>
                     ))}
@@ -356,14 +356,14 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
             )}
           </div>
 
-          {/* Footer tip */}
-          <div className="px-3 py-2 border-t border-border/30 text-xs text-muted-foreground">
+          {/* Tip */}
+          {/* <div className="px-3 py-2 border-t border-border/30 text-xs text-muted-foreground">
             Tip: Press{" "}
             <kbd className="px-1 py-0.5 bg-background/50 rounded text-xs">
               Esc
             </kbd>{" "}
             to close
-          </div>
+          </div> */}
         </div>
       )}
     </div>

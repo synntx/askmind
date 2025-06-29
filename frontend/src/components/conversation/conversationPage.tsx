@@ -99,7 +99,7 @@ const Conversation: React.FC = () => {
 
   return (
     <div className="h-screen flex flex-col bg-background">
-      <div className="px-6 py-4 flex justify-start items-center">
+      <div className="px-6 py-2.5 pb-4 flex justify-start items-center">
         <ModelSelector
           selectedModel={selectedModel}
           selectedProvider={selectedProvider}
