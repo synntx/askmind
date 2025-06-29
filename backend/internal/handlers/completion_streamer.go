@@ -31,6 +31,7 @@ func (csh *CompletionStreamHandler) HandleCompletionStream(
 	convID uuid.UUID,
 	userMessage string,
 	model string,
+	provider string,
 	streamer *SSEStreamer,
 ) error {
 	// NOTE: 1. Create User Message (already done in handler in the original code, keep it there for now or move here)

@@ -11,6 +11,7 @@ type CompletionRequestParams struct {
 	ConvID      uuid.UUID
 	UserMessage string
 	Model       string
+	Provider    string
 }
 
 func ExtractCompletionRequestParams(r *http.Request) (*CompletionRequestParams, error) {
@@ -44,6 +45,16 @@ func ExtractCompletionRequestParams(r *http.Request) (*CompletionRequestParams, 
 		})
 	}
 
+	provider := r.FormValue("provider")
+	if provider == "" {
+		return nil, ErrValidation.Wrap(
+			fmt.Errorf("missing required parameter provider"),
+		).WithDetails(ValidationError{
+			Field:   "provider",
+			Message: "provider is required",
+		})
+	}
+
 	convID, err := uuid.Parse(convIDStr)
 	if err != nil {
 		return nil, ErrValidation.Wrap(
@@ -58,5 +69,6 @@ func ExtractCompletionRequestParams(r *http.Request) (*CompletionRequestParams, 
 		ConvID:      convID,
 		UserMessage: userMessage,
 		Model:       model,
+		Provider:    provider,
 	}, nil
 }

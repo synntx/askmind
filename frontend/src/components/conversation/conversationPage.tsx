@@ -6,6 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "../ui/toast";
 import { MessageList } from "./MessageList";
 import { MessageInput } from "./MessageInput";
+import { ModelSelector } from "./ModelSelector";
 import { Message } from "@/types/streaming";
 import { useStreamingChat } from "@/hooks/useStreamingChat";
 
@@ -17,8 +18,11 @@ const Conversation: React.FC = () => {
   const apiBaseURL = api.defaults.baseURL || "";
   const containerRef = useRef<HTMLDivElement>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  // const [isPreparing, setIsPreparing] = useState<boolean>(false);
   const toast = useToast();
+
+  const [selectedModel, setSelectedModel] =
+    useState<string>("gemini-2.5-flash");
+  const [selectedProvider, setSelectedProvider] = useState<string>("gemini");
 
   const {
     data: messages,
@@ -69,9 +73,9 @@ const Conversation: React.FC = () => {
 
   useEffect(() => {
     if (query) {
-      sendMessage(query);
+      sendMessage(query, selectedModel, selectedProvider);
     }
-  }, [query, sendMessage]);
+  }, [query, sendMessage, selectedModel, selectedProvider]);
 
   useLayoutEffect(() => {
     if (containerRef.current) {
@@ -88,8 +92,22 @@ const Conversation: React.FC = () => {
     return "Ask anything...";
   };
 
+  const handleModelSelect = (modelId: string, providerId: string) => {
+    setSelectedModel(modelId);
+    setSelectedProvider(providerId);
+  };
+
   return (
-    <div className="h-screen flex flex-col bg-background text-white/90">
+    <div className="h-screen flex flex-col bg-background">
+      <div className="px-6 py-4 flex justify-start items-center">
+        <ModelSelector
+          selectedModel={selectedModel}
+          selectedProvider={selectedProvider}
+          onModelSelect={handleModelSelect}
+          isStreaming={isStreaming}
+        />
+      </div>
+
       <div
         className="flex-1 overflow-y-auto py-6 pb-8 custom-scrollbar"
         ref={containerRef}
@@ -108,7 +126,9 @@ const Conversation: React.FC = () => {
       <div className="border-t border-border/70 p-6 relative z-10">
         <div className="max-w-full sm:max-w-[90vw] md:max-w-[75vw] lg:max-w-[55vw] mx-auto space-y-4 px-4">
           <MessageInput
-            onSendMessage={sendMessage}
+            onSendMessage={(message) =>
+              sendMessage(message, selectedModel, selectedProvider)
+            }
             isPending={isStreaming}
             placeholder={getPlaceholderText()}
             // onCancel={isStreaming ? cancelStream : undefined}

@@ -13,18 +13,18 @@ import (
 )
 
 type Router struct {
-	dbURL  string
-	pepper string
-	logger *zap.Logger
-	LLM    llm.LLM
+	dbURL      string
+	pepper     string
+	logger     *zap.Logger
+	llmFactory llm.LLMFactory
 }
 
-func NewRouter(dbURL, pepper string, logger *zap.Logger, llm llm.LLM) *Router {
+func NewRouter(dbURL, pepper string, logger *zap.Logger, llmFactory llm.LLMFactory) *Router {
 	return &Router{
-		dbURL:  dbURL,
-		pepper: pepper,
-		logger: logger,
-		LLM:    llm,
+		dbURL:      dbURL,
+		pepper:     pepper,
+		logger:     logger,
+		llmFactory: llmFactory,
 	}
 }
 
@@ -56,7 +56,7 @@ func (r *Router) CreateRoutes(ctx context.Context) *http.ServeMux {
 	userHandlers := handlers.NewUserHandlers(userService, r.logger)
 	spaceHandlers := handlers.NewSpaceHandler(spaceService, r.logger)
 	convHandlers := handlers.NewConversationService(convService, r.logger)
-	msgHandlers := handlers.NewMessageHandler(msgService, r.logger, r.LLM)
+	msgHandlers := handlers.NewMessageHandler(msgService, r.logger, r.llmFactory)
 
 	mux := http.NewServeMux()
 

@@ -19,7 +19,7 @@ var (
 type AuthService interface {
 	Register(ctx context.Context, user *models.User) error
 	Login(ctx context.Context, email, password string) (*models.User, error)
-	UpdatePassword(ctx context.Context, userId, oldPassword, newPassword string) error
+	UpdatePassword(ctx context.Context, userID, oldPassword, newPassword string) error
 }
 
 type authService struct {
@@ -71,8 +71,8 @@ func (a *authService) Login(ctx context.Context, email, password string) (*model
 	return user, nil
 }
 
-func (a *authService) UpdatePassword(ctx context.Context, userId, oldPassword, newPassword string) error {
-	user, err := a.db.GetUser(ctx, userId)
+func (a *authService) UpdatePassword(ctx context.Context, userID, oldPassword, newPassword string) error {
+	user, err := a.db.GetUser(ctx, userID)
 	if err != nil {
 		return ErrInvalidCredentials
 	}
@@ -93,5 +93,5 @@ func (a *authService) UpdatePassword(ctx context.Context, userId, oldPassword, n
 		return fmt.Errorf("password hashing failed: %w", err)
 	}
 
-	return a.db.UpdatePassword(ctx, userId, string(hashedPassword))
+	return a.db.UpdatePassword(ctx, userID, string(hashedPassword))
 }

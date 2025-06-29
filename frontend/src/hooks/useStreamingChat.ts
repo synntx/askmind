@@ -35,7 +35,7 @@ export const useStreamingChat = ({
   }, [apiBaseURL]);
 
   const sendMessage = useCallback(
-    async (userMessage: string) => {
+    async (userMessage: string, model: string, provider: string) => {
       if (!serviceRef.current || isStreaming) return;
 
       setIsStreaming(true);
@@ -50,7 +50,7 @@ export const useStreamingChat = ({
         role: "user",
         content: userMessage,
         tokens_used: 0,
-        model: "idk",
+        model: model,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
@@ -60,7 +60,8 @@ export const useStreamingChat = ({
         await serviceRef.current.streamCompletion(
           conversationId,
           userMessage,
-          "idk", // TODO: model update
+          model,
+          provider,
           // onUpdate: called with streaming content and any tool calls
           (content: string, toolCalls: ToolCall[]) => {
             setStreamingContent(content);
@@ -76,7 +77,7 @@ export const useStreamingChat = ({
               content,
               tool_calls: toolCalls.length > 0 ? toolCalls : undefined,
               tokens_used: 0,
-              model: "idk", // TODO: model update
+              model: model,
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString(),
             };
@@ -101,7 +102,7 @@ export const useStreamingChat = ({
                     ? currentToolCallsRef.current
                     : undefined,
                 tokens_used: 0,
-                model: "idk",
+                model: model,
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString(),
               };

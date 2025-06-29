@@ -15,19 +15,16 @@ import (
 )
 
 type MessageHandler struct {
-	ms                      service.MessageService
-	llm                     llm.LLM
-	logger                  *zap.Logger
-	completionStreamHandler *CompletionStreamHandler
+	ms         service.MessageService
+	llmFactory llm.LLMFactory
+	logger     *zap.Logger
 }
 
-func NewMessageHandler(ms service.MessageService, logger *zap.Logger, llm llm.LLM) *MessageHandler {
-	completionStreamHandler := NewCompletionStreamHandler(ms, logger, llm)
+func NewMessageHandler(ms service.MessageService, logger *zap.Logger, llmFactory llm.LLMFactory) *MessageHandler {
 	return &MessageHandler{
-		ms:                      ms,
-		llm:                     llm,
-		logger:                  logger,
-		completionStreamHandler: completionStreamHandler,
+		ms:         ms,
+		llmFactory: llmFactory,
+		logger:     logger,
 	}
 }
 
@@ -145,6 +142,19 @@ func (h *MessageHandler) CompletionHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	llmInstance, err := h.llmFactory.CreateLLM(ctx, llm.ProviderType(params.Provider), params.Model)
+	if err != nil {
+		h.logger.Error("Failed to create LLM instance", zap.Error(err),
+			zap.String("provider", params.Provider),
+			zap.String("model", params.Model))
+		// FIX:
+		// utils.HandleError(w, h.logger, utils.ErrInternal.Wrap(err).WithDetails(map[string]any{
+		// 	"provider": params.Provider,
+		// 	"model":    params.Model,
+		// }))
+		return
+	}
+
 	userMsg := &models.CreateMessageRequest{
 		ConversationId: params.ConvID,
 		Role:           models.RoleUser,
@@ -163,7 +173,8 @@ func (h *MessageHandler) CompletionHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	err = h.completionStreamHandler.HandleCompletionStream(ctx, params.ConvID, params.UserMessage, params.Model, streamer)
+	completionStreamHandler := NewCompletionStreamHandler(h.ms, h.logger, llmInstance)
+	err = completionStreamHandler.HandleCompletionStream(ctx, params.ConvID, params.UserMessage, params.Model, params.Provider, streamer)
 	if err != nil && err != context.Canceled && err != context.DeadlineExceeded {
 		// note: If HandleCompletionStream returns an error (that's not context cancellation/timeout), it means something went wrong internally in streaming logic,
 		// but error event to client should already be sent within HandleCompletionStream.

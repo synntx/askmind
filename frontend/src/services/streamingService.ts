@@ -65,6 +65,7 @@ export class StreamingService {
     conversationId: string,
     userMessage: string,
     model: string,
+    provider: string,
     onUpdate: (content: string, toolCalls: ToolCall[]) => void,
     onComplete: (
       messageId: string,
@@ -87,6 +88,7 @@ export class StreamingService {
         conversationId,
         userMessage,
         model,
+        provider,
       );
       await this.processStream(response, state, onUpdate, onError);
 
@@ -140,23 +142,29 @@ export class StreamingService {
     conversationId: string,
     userMessage: string,
     model: string,
+    provider: string,
   ): Promise<Response> {
     const token = this.config.getAuthToken();
     if (!token) {
       throw { type: "auth_error", message: "Authentication token not found." };
     }
 
-    const url = new URL(`${this.config.apiBaseURL}/c/completion`);
-    url.searchParams.append("conv_id", conversationId);
-    url.searchParams.append("user_message", userMessage);
-    url.searchParams.append("model", model);
+    const url = `${this.config.apiBaseURL}/c/completion`;
 
-    const response = await fetch(url.toString(), {
+    const formData = new URLSearchParams();
+    formData.append("conv_id", conversationId);
+    formData.append("user_message", userMessage);
+    formData.append("model", model);
+    formData.append("provider", provider);
+
+    const response = await fetch(url, {
       method: "POST",
       headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
         Accept: "text/event-stream",
         Authorization: `Bearer ${token}`,
       },
+      body: formData.toString(),
       signal: this.abortController?.signal,
     });
 

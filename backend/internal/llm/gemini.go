@@ -315,7 +315,7 @@ func (g *Gemini) GenerateContentStream(ctx context.Context, history []models.Cha
 			// 	g.logger.Debug("Added function response (with result or error) to batch", zap.String("tool", fc.Name), zap.Int("iteration", i))
 			// } // End of loop over function calls
 
-			partsToSendToGemini = g.executeToolsInParallel(ctx, contentStream, functionCalls, 10)
+			partsToSendToGemini = g.executeToolsInParallel(ctx, contentStream, functionCalls)
 
 			// Continue the outer loop for the next turn with the function responses
 			// partsToSendToGemini = functionResponses
@@ -324,7 +324,6 @@ func (g *Gemini) GenerateContentStream(ctx context.Context, history []models.Cha
 
 		g.logger.Error("Max tool call iterations reached", zap.Int("limit", MAX_TOOL_CALL_ITERATIONS))
 		contentStream <- ContentChunk{Err: fmt.Errorf("max_tool_iterations_reached: exceeded %d iterations", MAX_TOOL_CALL_ITERATIONS)}
-
 	}()
 
 	return contentStream
@@ -409,7 +408,7 @@ func (g *Gemini) convertToGenaiContent(history []models.ChatMessage) []*genai.Co
 	return cleaned
 }
 
-func (g *Gemini) executeToolsInParallel(ctx context.Context, contentStream chan ContentChunk, functionCalls []genai.FunctionCall, iterations int) []genai.Part {
+func (g *Gemini) executeToolsInParallel(ctx context.Context, contentStream chan ContentChunk, functionCalls []genai.FunctionCall) []genai.Part {
 	var wg sync.WaitGroup
 	resultChan := make(chan struct {
 		response genai.Part
