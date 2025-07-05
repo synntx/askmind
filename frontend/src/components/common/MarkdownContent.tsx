@@ -496,12 +496,8 @@ export const MarkdownContent: React.FC<MarkdownContentProps> = ({
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     "tool-call": (props: any) => {
-      console.log("tool-call: props", props);
       const { node, children } = props;
-      console.log("tool-call: node", node);
-      console.log("tool-call: children", children);
       const nodeProps = node?.properties || {};
-      console.log("tool-call: nodeProps", nodeProps);
 
       let toolCallClassName: string | undefined = undefined;
       if (nodeProps.className && Array.isArray(nodeProps.className)) {
@@ -509,11 +505,8 @@ export const MarkdownContent: React.FC<MarkdownContentProps> = ({
       } else if (nodeProps.className) {
         toolCallClassName = String(nodeProps.className);
       }
-      console.log("tool-call: toolCallClassName", toolCallClassName);
       const toolName = nodeProps.toolname as string;
       const toolDescription = nodeProps.tooldescription as string;
-      console.log("tool-call: toolName", toolName);
-      console.log("tool-call: toolDescription", toolDescription);
 
       return (
         <ToolCall
