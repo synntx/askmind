@@ -35,23 +35,21 @@ export const Message: React.FC<MessageProps> = ({
 
   return (
     <div
-      className={`flex ${
-        message.role === "user"
-          ? "justify-end px-4"
-          : message.role === "assistant"
-            ? "justify-start px-4"
-            : "justify-start py-2"
-      } group`}
+      className={`flex ${message.role === "user"
+        ? "justify-end px-4"
+        : message.role === "assistant"
+          ? "justify-start px-4"
+          : "justify-start py-2"
+        } group`}
     >
       <div
-        className={`rounded-2xl font-onest text-[16px] max-w-full relative ${
-          message.role === "user"
-            ? "bg-card text-foreground/80 px-4"
-            : "text-foreground/80"
-        }`}
+        className={`rounded-2xl font-onest text-[16px] max-w-full relative ${message.role === "user"
+          ? "bg-card text-foreground/80 px-4"
+          : "text-foreground/80"
+          }`}
       >
         <div
-          className={`absolute ${message.role === "user" ? "-bottom-4 -right-4" : "-bottom-5 left-0"} opacity-0 group-hover:opacity-100 transition-opacity`}
+          className={`absolute ${message.role === "user" ? "-bottom-6 -right-4" : "-bottom-5 left-0"} opacity-0 group-hover:opacity-100 transition-opacity`}
         >
           <CopyButton
             text={message.content}
@@ -68,6 +66,29 @@ export const Message: React.FC<MessageProps> = ({
         ) : (
           <MarkdownContent content={message.content} />
         )}
+        {message.role === "assistant" && message.tool_calls && message.tool_calls.length > 0 && (
+          <div className="mt-3">
+            {message.tool_calls.map((toolCall, index) => {
+              if (toolCall.name === 'web_search_extract' && Array.isArray(toolCall.result)) {
+                return (
+                  <div key={index} className="bg-gray-800/20 rounded-lg p-4 border border-gray-700/20">
+                    <div className="flex items-center gap-2 mb-3">
+                      <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                      <span className="text-xs text-gray-400 uppercase tracking-wide">Search Results</span>
+                    </div>
+                    <WebSearchResults results={toolCall.result} />
+                  </div>
+                );
+              }
+
+              // Handle other tool types if needed
+              return null;
+            })}
+          </div>
+        )}
+
       </div>
     </div>
   );
@@ -150,3 +171,51 @@ export const StreamingMessage: React.FC<StreamingMessageProps> = ({
     </div>
   </div>
 );
+
+// Create a new component for web search results
+const WebSearchResults: React.FC<{ results: any[] }> = ({ results }) => {
+  const validResults = results.filter(r => !r.error && r.title && r.content);
+  const errors = results.filter(r => r.error);
+
+  if (validResults.length === 0 && errors.length > 0) {
+    return (
+      <div className="text-sm text-gray-400 italic">
+        Unable to fetch search results
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {validResults.slice(0, 3).map((result, idx) => (
+        <article key={idx} className="group">
+          <a
+            href={result.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block hover:no-underline"
+          >
+            <h4 className="text-sm font-medium text-blue-400 group-hover:text-blue-300 transition-colors line-clamp-1">
+              {result.title}
+            </h4>
+            <p className="text-sm text-gray-300 mt-1 line-clamp-2">
+              {result.content}
+            </p>
+            <div className="flex items-center gap-2 mt-2">
+              <img
+                src={`https://www.google.com/s2/favicons?domain=${new URL(result.url).hostname}&sz=16`}
+                alt=""
+                className="w-4 h-4"
+              />
+              <span className="text-xs text-gray-500">
+                {new URL(result.url).hostname.replace('www.', '')}
+              </span>
+            </div>
+          </a>
+        </article>
+      ))}
+    </div>
+  );
+};
+
+// Update your tool call rendering to be much cleaner

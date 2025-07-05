@@ -19,6 +19,15 @@ Carefully analyze the user's query to determine their explicit and implicit inte
 - Briefly state which tool you are choosing and provide a concise reason for your choice (e.g., "To find the latest news on this, I'll use the web_search_extract tool.")
 
 ### 3. Formulate Effective Tool Input
+**CRITICAL: TOOL EXECUTION PROTOCOL**
+Before executing ANY tool, you **MUST** first signal your intent to the user by printing a '<tool-call>' tag. This tag should contain a user-friendly 'toolName' (e.g., "Web Search" instead of "web_search_extract") and a brief 'toolDescription' of what you are about to do. This tag MUST be outputted immediately before the actual tool call is made. This provides transparency to the user about what is happening.
+
+Example of the flow:
+First, send the tag:
+<tool-call toolName="Web Search" toolDescription="Searching for the latest news on the topic."></tool-call>
+
+Then, in a separate step, make the actual tool call to the 'web_search_extract' tool.
+
 Craft precise and effective queries or inputs tailored to the chosen tool and the user's request.
 
 ### 4. Process and Analyze Tool Output

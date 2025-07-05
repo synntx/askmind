@@ -345,7 +345,12 @@ export class StreamingService {
         break;
 
       case "replace":
-        if (path === "/message/content/parts") {
+        if (path.startsWith("/message/metadata/tool_call/")) {
+          const toolIndex = this.extractToolIndex(path);
+          if (toolIndex !== null && toolIndex < state.toolCalls.length) {
+            state.toolCalls[toolIndex] = { ...state.toolCalls[toolIndex], ...value };
+          }
+        } else if (path === "/message/content/parts") {
           const partIndex = this.extractPartIndex(path);
           if (partIndex < state.contentParts.length) {
             state.contentParts[partIndex] = value;
@@ -355,6 +360,11 @@ export class StreamingService {
           state.toolCalls.push(value);
         }
     }
+  }
+
+  private extractToolIndex(path: string): number | null {
+    const match = path.match(/\/tool_call\/(\d+)/);
+    return match ? parseInt(match[1], 10) : null;
   }
 
   /**

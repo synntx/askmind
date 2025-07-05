@@ -272,6 +272,15 @@ Comprehensive Research Methodology:
    • Create a research roadmap with primary and secondary objectives
 
 2. SYSTEMATIC INFORMATION GATHERING
+   **CRITICAL: TOOL EXECUTION PROTOCOL**
+   Before executing ANY tool, you **MUST** first signal your intent to the user by printing a '<tool-call>' tag. This tag should contain the 'toolName' and a brief 'toolDescription' of what you are about to do. This tag MUST be outputted immediately before the actual tool call is made. This provides transparency to the user about what is happening.
+
+   Example of the flow:
+   First, send the tag:
+   <tool-call toolName="researcher" toolDescription="Performing a broad landscape analysis on the topic."></tool-call>
+
+   Then, in a separate step, make the actual tool call to the 'researcher' tool.
+
    Execute 10-15+ tool calls using this strategic sequence:
 
    Phase 1 - Foundational Understanding:
@@ -390,6 +399,9 @@ Image Gallery (for multiple related images):
 
 YouTube Video Embed:
 <youtube-video videoid="dQw4w9WgXcQ" title="Expert Explanation of Complex Topic by Dr. Smith"></youtube-video>
+
+Tool Call Display:
+<tool-call toolName="Your Tool Name" toolDescription="A brief explanation of what this tool does."></tool-call>
 
 Component Requirements:
 • Each child element MUST be on a new line

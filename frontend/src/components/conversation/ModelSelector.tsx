@@ -231,7 +231,10 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
       <button
         onClick={() => setIsOpen(!isOpen)}
         disabled={isStreaming}
-        className="group flex items-center gap-2 px-3 py-2.5 text-sm text-foreground/90 hover:text-foreground hover:bg-muted/40 rounded-xl transition-all disabled:opacity-50"
+        className={`${isOpen && "bg-muted/40"}
+        group flex items-center gap-2 px-3 py-2.5 text-sm
+      text-foreground/90 hover:text-foreground hover:bg-muted/40 
+        rounded-xl transition-all disabled:opacity-50`}
         title="Press / to search models"
       >
         <CurrentIcon className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 transition-opacity" />
@@ -241,96 +244,96 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
         />
       </button>
 
-      {isOpen && (
-        <div className="absolute top-full left-0 mt-1 w-80 bg-popover/95 backdrop-blur-sm border border-border/50 rounded-xl shadow-lg z-50 overflow-hidden">
-          {/* Search */}
-          <div className="">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-              <input
-                ref={searchRef}
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search models..."
-                className="w-full p-2 py-3 pl-8 pr-3 text-sm bg-background/50 border-none focus:outline-none"
-              />
+      {
+        isOpen && (
+          <div className="absolute top-full left-0 mt-1 w-80 bg-popover/95 backdrop-blur-sm border border-border/50 rounded-xl shadow-lg z-50 overflow-hidden">
+            {/* Search */}
+            <div className="">
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                <input
+                  ref={searchRef}
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search models..."
+                  className="w-full p-2 py-3 pl-8 pr-3 text-sm bg-background/50 border-none focus:outline-none"
+                />
+              </div>
             </div>
-          </div>
 
-          <div className="max-h-80 overflow-y-auto">
-            {/* Recent section */}
-            {!search && recentModels.length > 0 && (
-              <>
-                <div className="px-3 pt-2 pb-1 text-xs text-muted-foreground">
-                  Recent
-                </div>
-                {recentModels.map((model) => {
-                  if (!model) return null;
-                  const Icon =
-                    providerIcons[
+            <div className="max-h-80 overflow-y-auto">
+              {/* Recent section */}
+              {!search && recentModels.length > 0 && (
+                <>
+                  <div className="px-3 pt-2 pb-1 text-xs text-muted-foreground">
+                    Recent
+                  </div>
+                  {recentModels.map((model) => {
+                    if (!model) return null;
+                    const Icon =
+                      providerIcons[
                       model.provider as keyof typeof providerIcons
-                    ] || Sparkles;
-                  return (
-                    <button
-                      key={`${model.provider}-${model.id}`}
-                      onClick={() => {
-                        onModelSelect(model.id, model.provider);
-                        setIsOpen(false);
-                        setSearch("");
-                      }}
-                      className="w-full flex items-center gap-2 px-3 py-2  text-sm hover:bg-accent/20 transition-colors"
-                    >
-                      <Icon className="w-3.5 h-3.5 opacity-60" />
-                      <span className="flex-1 text-left">{model.name}</span>
-                      {model.size && (
-                        <span className="text-xs text-muted-foreground">
-                          {model.size}
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
-              </>
-            )}
-
-            {/* Grouped models */}
-            {Object.entries(groupedModels).map(
-              ([provider, providerModels], index) => {
-                const Icon =
-                  providerIcons[provider as keyof typeof providerIcons];
-                return (
-                  <div key={provider} className=" mb-1 cursor-hidden">
-                    {(index > 0 || (!search && recentModels.length > 0)) && (
-                      <div className="h-px bg-border/30 mx-2 my-1.5" />
-                    )}
-                    <div className="px-3 py-1 text-xs text-muted-foreground uppercase flex items-center gap-1.5">
-                      <Icon className="w-3 h-3" />
-                      {provider}
-                    </div>
-                    {providerModels.map((model) => (
+                      ] || Sparkles;
+                    return (
                       <button
-                        key={model.id}
+                        key={`${model.provider}-${model.id}`}
                         onClick={() => {
                           onModelSelect(model.id, model.provider);
                           setIsOpen(false);
                           setSearch("");
                         }}
-                        className={`w-full flex items-center gap-2 px-3 py-2 text-sm ${
-                          model.id === selectedModel &&
-                          model.provider === selectedProvider
+                        className="w-full flex items-center gap-2 px-3 py-2  text-sm hover:bg-accent/20 transition-colors"
+                      >
+                        <Icon className="w-3.5 h-3.5 opacity-60" />
+                        <span className="flex-1 text-left">{model.name}</span>
+                        {model.size && (
+                          <span className="text-xs text-muted-foreground">
+                            {model.size}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </>
+              )}
+
+              {/* Grouped models */}
+              {Object.entries(groupedModels).map(
+                ([provider, providerModels], index) => {
+                  const Icon =
+                    providerIcons[provider as keyof typeof providerIcons];
+                  return (
+                    <div key={provider} className=" mb-1 cursor-hidden">
+                      {(index > 0 || (!search && recentModels.length > 0)) && (
+                        <div className="h-px bg-border/30 mx-2 my-1.5" />
+                      )}
+                      <div className="px-3 py-1 text-xs text-muted-foreground uppercase flex items-center gap-1.5">
+                        <Icon className="w-3 h-3" />
+                        {provider}
+                      </div>
+                      {providerModels.map((model) => (
+                        <button
+                          key={model.id}
+                          onClick={() => {
+                            onModelSelect(model.id, model.provider);
+                            setIsOpen(false);
+                            setSearch("");
+                          }}
+                          className={`w-full flex items-center gap-2 px-3 py-2 text-sm ${model.id === selectedModel &&
+                            model.provider === selectedProvider
                             ? "bg-accent/40 text-foreground"
                             : "text-foreground/80 hover:bg-muted/40 hover:text-foreground"
-                        }`}
-                      >
-                        <span className="flex-1 text-left">{model.name}</span>
-                        <div className="flex items-center gap-2">
-                          {model.size && (
-                            <span className="text-xs text-muted-foreground">
-                              {model.size}
-                            </span>
-                          )}
-                          {/* {model.speed && (
+                            }`}
+                        >
+                          <span className="flex-1 text-left">{model.name}</span>
+                          <div className="flex items-center gap-2">
+                            {model.size && (
+                              <span className="text-xs text-muted-foreground">
+                                {model.size}
+                              </span>
+                            )}
+                            {/* {model.speed && (
                             <span
                               className={`text-xs ${speedColors[model.speed]}`}
                             >
@@ -341,31 +344,32 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
                                   : "💪"}
                             </span>
                           )} */}
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                );
-              },
-            )}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  );
+                },
+              )}
 
-            {filteredModels.length === 0 && (
-              <div className="px-3 py-8 text-center text-sm text-muted-foreground">
-                No models found
-              </div>
-            )}
-          </div>
+              {filteredModels.length === 0 && (
+                <div className="px-3 py-8 text-center text-sm text-muted-foreground">
+                  No models found
+                </div>
+              )}
+            </div>
 
-          {/* Tip */}
-          {/* <div className="px-3 py-2 border-t border-border/30 text-xs text-muted-foreground">
+            {/* Tip */}
+            {/* <div className="px-3 py-2 border-t border-border/30 text-xs text-muted-foreground">
             Tip: Press{" "}
             <kbd className="px-1 py-0.5 bg-background/50 rounded text-xs">
               Esc
             </kbd>{" "}
             to close
           </div> */}
-        </div>
-      )}
-    </div>
+          </div>
+        )
+      }
+    </div >
   );
 };
