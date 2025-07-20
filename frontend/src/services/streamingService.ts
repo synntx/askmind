@@ -66,6 +66,7 @@ export class StreamingService {
     userMessage: string,
     model: string,
     provider: string,
+    systemPrompt: string,
     onUpdate: (content: string, toolCalls: ToolCall[]) => void,
     onComplete: (
       messageId: string,
@@ -89,6 +90,7 @@ export class StreamingService {
         userMessage,
         model,
         provider,
+        systemPrompt,
       );
       await this.processStream(response, state, onUpdate, onError);
 
@@ -143,6 +145,7 @@ export class StreamingService {
     userMessage: string,
     model: string,
     provider: string,
+    systemPrompt: string,
   ): Promise<Response> {
     const token = this.config.getAuthToken();
     if (!token) {
@@ -156,6 +159,7 @@ export class StreamingService {
     formData.append("user_message", userMessage);
     formData.append("model", model);
     formData.append("provider", provider);
+    formData.append("system_prompt", systemPrompt);
 
     const response = await fetch(url, {
       method: "POST",

@@ -12,7 +12,6 @@ import (
 
 	"github.com/google/generative-ai-go/genai"
 	"github.com/synntx/askmind/internal/models"
-	"github.com/synntx/askmind/internal/prompts"
 	"github.com/synntx/askmind/internal/tools"
 	"go.uber.org/zap"
 )
@@ -24,6 +23,8 @@ type Ollama struct {
 	httpClient   *http.Client
 	tools        []OllamaTool
 	toolRegistry *tools.ToolRegistry
+
+	SystemPrompt string
 }
 
 // Ollama API types
@@ -110,6 +111,7 @@ func NewOllama(baseURL string, logger *zap.Logger, modelName string, toolRegistr
 		modelName:    modelName,
 		httpClient:   &http.Client{Timeout: 5 * time.Minute}, // Longer timeout for local models
 		toolRegistry: toolRegistry,
+		SystemPrompt: "",
 	}
 
 	if toolRegistry != nil {
@@ -126,6 +128,8 @@ func (o *Ollama) GetProviderName() string {
 func (o *Ollama) GetModelName() string {
 	return o.modelName
 }
+
+func (o *Ollama) SetSystemPrompt(p string) { o.SystemPrompt = p }
 
 func (o *Ollama) GenerateContent(ctx context.Context, input string) (string, error) {
 	messages := []OllamaMessage{
@@ -216,7 +220,7 @@ func (o *Ollama) GenerateContentStream(ctx context.Context, history []models.Cha
 		messages := o.convertToOllamaMessages(history)
 
 		// Add system prompt
-		systemPrompt := fmt.Sprintf(prompts.THINK_TAG_INSTRUCTION, time.Now().UTC().UnixMilli())
+		systemPrompt := o.SystemPrompt
 		messages = append([]OllamaMessage{
 			{
 				Role:    string(models.RoleSystem),

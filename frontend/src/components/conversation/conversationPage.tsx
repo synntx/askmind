@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect, useLayoutEffect } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import api from "@/lib/api";
-import { useGetConvMessages } from "@/hooks/useMessage";
+import { useGetConvMessages, useListPrompts } from "@/hooks/useMessage";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "../ui/toast";
 import { MessageList } from "./MessageList";
@@ -9,6 +9,7 @@ import { MessageInput } from "./MessageInput";
 import { ModelSelector } from "./ModelSelector";
 import { Message } from "@/types/streaming";
 import { useStreamingChat } from "@/hooks/useStreamingChat";
+import { Dropdown } from "../ui/dropdown";
 
 const Conversation: React.FC = () => {
   const { conv_id }: { conv_id: string } = useParams();
@@ -19,10 +20,12 @@ const Conversation: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const toast = useToast();
+  const { data: prompts } = useListPrompts();
 
   const [selectedModel, setSelectedModel] =
     useState<string>("gemini-2.5-flash");
   const [selectedProvider, setSelectedProvider] = useState<string>("gemini");
+  const [systemPrompt, setSystemPrompt] = useState<string>("general");
 
   const {
     data: messages,
@@ -73,9 +76,9 @@ const Conversation: React.FC = () => {
 
   useEffect(() => {
     if (query) {
-      sendMessage(query, selectedModel, selectedProvider);
+      sendMessage(query, selectedModel, selectedProvider, systemPrompt);
     }
-  }, [query, sendMessage, selectedModel, selectedProvider]);
+  }, [query, sendMessage, selectedModel, selectedProvider, systemPrompt]);
 
   useLayoutEffect(() => {
     if (containerRef.current) {
@@ -99,13 +102,27 @@ const Conversation: React.FC = () => {
 
   return (
     <div className="h-screen flex flex-col bg-background">
-      <div className="px-6 py-2.5 pb-4 flex justify-start items-center">
+      <div className="px-6 py-2.5 pb-4 flex justify-start items-center gap-2">
         <ModelSelector
           selectedModel={selectedModel}
           selectedProvider={selectedProvider}
           onModelSelect={handleModelSelect}
           isStreaming={isStreaming}
         />
+        {prompts && (
+          <Dropdown
+            options={prompts.map((p) => ({
+              label: p.charAt(0).toUpperCase() + p.slice(1),
+              value: p,
+            }))}
+            value={systemPrompt}
+            onSelect={(value) => setSystemPrompt(value as string)}
+            placeholder="Select a system prompt"
+            className="w-48"
+            disabled={isStreaming}
+            searchable
+          />
+        )}
       </div>
 
       <div
@@ -127,7 +144,12 @@ const Conversation: React.FC = () => {
         <div className="max-w-full sm:max-w-[90vw] md:max-w-[75vw] lg:max-w-[55vw] mx-auto space-y-4 px-4">
           <MessageInput
             onSendMessage={(message) =>
-              sendMessage(message, selectedModel, selectedProvider)
+              sendMessage(
+                message,
+                selectedModel,
+                selectedProvider,
+                systemPrompt,
+              )
             }
             isPending={isStreaming}
             placeholder={getPlaceholderText()}

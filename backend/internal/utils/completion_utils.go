@@ -8,10 +8,11 @@ import (
 )
 
 type CompletionRequestParams struct {
-	ConvID      uuid.UUID
-	UserMessage string
-	Model       string
-	Provider    string
+	ConvID       uuid.UUID
+	UserMessage  string
+	Model        string
+	Provider     string
+	SystemPrompt string
 }
 
 func ExtractCompletionRequestParams(r *http.Request) (*CompletionRequestParams, error) {
@@ -65,10 +66,16 @@ func ExtractCompletionRequestParams(r *http.Request) (*CompletionRequestParams, 
 		})
 	}
 
+	systemPrompt := r.FormValue("system_prompt")
+	if systemPrompt == "" {
+		systemPrompt = "general"
+	}
+
 	return &CompletionRequestParams{
-		ConvID:      convID,
-		UserMessage: userMessage,
-		Model:       model,
-		Provider:    provider,
+		ConvID:       convID,
+		UserMessage:  userMessage,
+		Model:        model,
+		Provider:     provider,
+		SystemPrompt: systemPrompt,
 	}, nil
 }

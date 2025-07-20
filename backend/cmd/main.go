@@ -50,11 +50,11 @@ func main() {
 		log.Fatalf("Error creating Research tool: %v", err)
 	}
 
-	notionClient, err := tools.NewNotionClient()
-	if err != nil {
-		log.Fatalf("Error creating Notion client: %v", err)
-	}
-	notionTool := tools.NewNotionTool(notionClient)
+	// notionClient, err := tools.NewNotionClient()
+	// if err != nil {
+	// 	log.Fatalf("Error creating Notion client: %v", err)
+	// }
+	// notionTool := tools.NewNotionTool(notionClient)
 
 	// image := tools.NewImageSearchTool()
 	page := tools.NewWebPageStructureAnalyzerTool()
@@ -68,7 +68,7 @@ func main() {
 	toolRegistry.Register(page)
 	toolRegistry.Register(image_extractor)
 
-	toolRegistry.Register(notionTool)
+	// toolRegistry.Register(notionTool)
 
 	apiKeys := map[llm.ProviderType]string{
 		llm.ProviderGemini: os.Getenv("GEMINI_API_KEY"),

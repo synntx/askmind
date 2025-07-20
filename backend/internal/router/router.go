@@ -188,6 +188,12 @@ func (r *Router) CreateRoutes(ctx context.Context) *http.ServeMux {
 		http.MethodGet,
 		r.logger))
 
+	mux.Handle("/msg/list-prompts", protectedRoute(
+		http.HandlerFunc(msgHandlers.ListPromptsHandler),
+		http.MethodGet,
+		r.logger,
+	))
+
 	corsConfig := mw.NewCORSConfig()
 	corsConfig.AllowedOrigins = []string{"http://localhost:3000", "http://172.22.181.121:3000"}
 

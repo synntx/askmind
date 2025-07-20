@@ -12,7 +12,6 @@ import (
 
 	"github.com/google/generative-ai-go/genai"
 	"github.com/synntx/askmind/internal/models"
-	"github.com/synntx/askmind/internal/prompts"
 	"github.com/synntx/askmind/internal/tools"
 	"go.uber.org/zap"
 )
@@ -28,6 +27,7 @@ type Groq struct {
 	httpClient   *http.Client
 	tools        []GroqTool
 	toolRegistry *tools.ToolRegistry
+	SystemPrompt string
 }
 
 // Groq API types
@@ -94,6 +94,8 @@ func NewGroq(apiKey string, logger *zap.Logger, modelName string, toolRegistry *
 		modelName:    modelName,
 		httpClient:   &http.Client{},
 		toolRegistry: toolRegistry,
+
+		SystemPrompt: "",
 	}
 
 	if toolRegistry != nil {
@@ -110,6 +112,8 @@ func (g *Groq) GetProviderName() string {
 func (g *Groq) GetModelName() string {
 	return g.modelName
 }
+
+func (g *Groq) SetSystemPrompt(p string) { g.SystemPrompt = p }
 
 func (g *Groq) GenerateContent(ctx context.Context, input string) (string, error) {
 	messages := []GroqMessage{
@@ -152,12 +156,11 @@ func (g *Groq) GenerateContentStream(ctx context.Context, history []models.ChatM
 		// Convert history to Groq format
 		messages := g.convertToGroqMessages(history)
 
-		// Add system prompt
-		systemPrompt := fmt.Sprintf(prompts.ASK_MIND_SYSTEM_PROMPT_WITH_TOOLS, 0)
+		sysPrompt := g.SystemPrompt
 		messages = append([]GroqMessage{
 			{
 				Role:    (models.RoleSystem),
-				Content: systemPrompt,
+				Content: sysPrompt,
 			},
 		}, messages...)
 

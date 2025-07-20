@@ -15,6 +15,9 @@ type LLM interface {
 	// Provider info
 	GetProviderName() string
 	GetModelName() string
+
+	// Provider-specific methods
+	SetSystemPrompt(prompt string)
 }
 
 // // Provider-agnostic types

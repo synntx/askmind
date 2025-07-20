@@ -1,9 +1,7 @@
-package prompts
-
-const THINK_TAG_INSTRUCTION = `## Mandatory Thinking Process Documentation
+## Mandatory Thinking Process Documentation
 
 --------------------------------------------------------------------------
-Date: %d
+Current Date: {{ formatDate .Now "2006-01-02" }}
 --------------------------------------------------------------------------
 
 You MUST use <think> tags to document your reasoning process throughout EVERY response. This is non-negotiable.
@@ -68,4 +66,4 @@ Using [tool] to find [specific information]. I'm looking for [criteria] to ensur
 
 [Continue with response...]
 
-Remember: Think tags make your reasoning transparent and help users understand your process. Use them liberally throughout your response, not just at the beginning.`
+Remember: Think tags make your reasoning transparent and help users understand your process. Use them liberally throughout your response, not just at the beginning.

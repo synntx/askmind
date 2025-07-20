@@ -11,3 +11,11 @@ export const useGetConvMessages = (conversationId: string) => {
     retry: 0,
   });
 };
+
+export const useListPrompts = () => {
+  return useQuery<string[], AxiosError<AppError>>({
+    queryKey: ["prompts"],
+    queryFn: () => messageApi.listPrompts(),
+    retry: 0,
+  });
+};

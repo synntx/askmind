@@ -11,7 +11,6 @@ import (
 
 	"github.com/google/generative-ai-go/genai"
 	"github.com/synntx/askmind/internal/models"
-	"github.com/synntx/askmind/internal/prompts"
 	"github.com/synntx/askmind/internal/tools"
 	"go.uber.org/zap"
 	"google.golang.org/api/googleapi"
@@ -28,6 +27,8 @@ type Gemini struct {
 	ModelName    string
 	tools        []*genai.Tool
 	toolRegistry *tools.ToolRegistry
+
+	SystemPrompt string
 }
 
 // type ContentChunk struct {
@@ -58,6 +59,7 @@ func NewGemini(client *genai.Client, logger *zap.Logger, modelName string, tools
 		ModelName:    modelName,
 		tools:        tools,
 		toolRegistry: toolRegistry,
+		SystemPrompt: "",
 	}
 }
 
@@ -74,6 +76,8 @@ func (g *Gemini) GetProviderName() string {
 func (g *Gemini) GetModelName() string {
 	return g.ModelName
 }
+
+func (g *Gemini) SetSystemPrompt(p string) { g.SystemPrompt = p }
 
 func (g *Gemini) GenerateContent(ctx context.Context, input string) (string, error) {
 	model := g.Client.GenerativeModel(g.ModelName)
@@ -129,8 +133,12 @@ func (g *Gemini) GenerateContentStream(ctx context.Context, history []models.Cha
 
 		model := g.Client.GenerativeModel(g.ModelName)
 		model.Tools = g.tools
+
+		prompt := g.SystemPrompt
+		model.SystemInstruction = genai.NewUserContent(genai.Text(fmt.Sprintf(prompt, time.Now().UTC().UnixMilli())))
+
 		// model.SystemInstruction = genai.NewUserContent(genai.Text(researchAssistantSystemPrompt))
-		model.SystemInstruction = genai.NewUserContent(genai.Text(fmt.Sprintf(prompts.RESEARCH_ASSISTANT_SYSTEM_PROMPT, time.Now().UTC().UnixMilli())))
+		// model.SystemInstruction = genai.NewUserContent(genai.Text(fmt.Sprintf(prompts.RESEARCH_ASSISTANT_SYSTEM_PROMPT, time.Now().UTC().UnixMilli())))
 		// model.SystemInstruction = genai.NewUserContent(genai.Text(fmt.Sprintf(prompts.ASK_MIND_SYSTEM_PROMPT_WITH_TOOLS, time.Now().UTC().UnixMilli())))
 		// model.SystemInstruction = genai.NewUserContent(genai.Text(fmt.Sprintf(prompts.THINK_TAG_INSTRUCTION, time.Now().UTC().UnixMilli())))
 

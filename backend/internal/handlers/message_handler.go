@@ -9,6 +9,7 @@ import (
 
 	"github.com/synntx/askmind/internal/llm"
 	"github.com/synntx/askmind/internal/models"
+	"github.com/synntx/askmind/internal/prompts"
 	"github.com/synntx/askmind/internal/service"
 	"github.com/synntx/askmind/internal/utils"
 	"go.uber.org/zap"
@@ -132,11 +133,27 @@ func (h *MessageHandler) GetConvUserMessageHandler(w http.ResponseWriter, r *htt
 	utils.SendResponse(w, http.StatusOK, msgs)
 }
 
+func (h *MessageHandler) ListPromptsHandler(w http.ResponseWriter, r *http.Request) {
+	// _ = json.NewEncoder(w).Encode(prompts.List())
+	utils.SendResponse(w, http.StatusOK, prompts.List())
+}
+
 func (h *MessageHandler) CompletionHandler(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Minute)
 	defer cancel()
 
 	params, err := utils.ExtractCompletionRequestParams(r)
+	if err != nil {
+		utils.HandleError(w, h.logger, err)
+		return
+	}
+
+	promptName := params.SystemPrompt
+	if promptName == "" {
+		promptName = "general"
+	}
+
+	sysPrompt, err := prompts.Render(promptName, prompts.Data{Now: time.Now()})
 	if err != nil {
 		utils.HandleError(w, h.logger, err)
 		return
@@ -154,6 +171,9 @@ func (h *MessageHandler) CompletionHandler(w http.ResponseWriter, r *http.Reques
 		// }))
 		return
 	}
+
+	// set system prompt
+	llmInstance.SetSystemPrompt(sysPrompt)
 
 	userMsg := &models.CreateMessageRequest{
 		ConversationId: params.ConvID,

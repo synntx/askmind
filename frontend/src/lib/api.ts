@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import { Space, SpaceListResponse } from "@/types/space";
 import {
   CreateConversation,
@@ -100,6 +100,10 @@ export const messageApi = {
       `/msg/get/all-msgs?conv_id=${conv_id}`,
     );
     console.log(res.data);
+    return res.data.data;
+  },
+  listPrompts: async () => {
+    const res = await api.get<AxiosResponse<string[]>>("/msg/list-prompts");
     return res.data.data;
   },
 };

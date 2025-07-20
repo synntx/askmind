@@ -35,7 +35,7 @@ export const useStreamingChat = ({
   }, [apiBaseURL]);
 
   const sendMessage = useCallback(
-    async (userMessage: string, model: string, provider: string) => {
+    async (userMessage: string, model: string, provider: string, systemPrompt: string) => {
       if (!serviceRef.current || isStreaming) return;
 
       setIsStreaming(true);
@@ -62,6 +62,7 @@ export const useStreamingChat = ({
           userMessage,
           model,
           provider,
+          systemPrompt,
           // onUpdate: called with streaming content and any tool calls
           (content: string, toolCalls: ToolCall[]) => {
             setStreamingContent(content);
