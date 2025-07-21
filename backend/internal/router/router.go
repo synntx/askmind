@@ -3,6 +3,8 @@ package router
 import (
 	"context"
 	"net/http"
+	"os"
+	"strings"
 
 	"github.com/synntx/askmind/internal/db/postgres"
 	"github.com/synntx/askmind/internal/handlers"
@@ -193,9 +195,28 @@ func (r *Router) CreateRoutes(ctx context.Context) *http.ServeMux {
 		http.MethodGet,
 		r.logger,
 	))
-
 	corsConfig := mw.NewCORSConfig()
-	corsConfig.AllowedOrigins = []string{"http://localhost:3000", "http://172.22.181.121:3000"}
+	defaultOrigins := []string{"http://localhost:3000", "http://172.22.181.121:3000"}
+	allowedOriginsEnv := os.Getenv("CORS_ALLOWED_ORIGINS")
+
+	origins := defaultOrigins // Initialize with default origins
+
+	if allowedOriginsEnv != "" {
+		var parsedFromEnv []string
+		parts := strings.Split(allowedOriginsEnv, ",")
+		for _, p := range parts {
+			trimmedP := strings.TrimSpace(p)
+			if trimmedP != "" {
+				parsedFromEnv = append(parsedFromEnv, trimmedP)
+			}
+		}
+		// If valid origins were parsed from the environment variable, use them.
+		// Otherwise, 'origins' will retain the default values.
+		if len(parsedFromEnv) > 0 {
+			origins = parsedFromEnv
+		}
+	}
+	corsConfig.AllowedOrigins = origins
 
 	mux.Handle("/c/completion", middlewareChain(
 		http.HandlerFunc(msgHandlers.CompletionHandler),
