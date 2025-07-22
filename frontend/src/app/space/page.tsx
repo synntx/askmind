@@ -72,8 +72,7 @@ export default function SpacesPage() {
     <div className="min-h-screen">
       <Header
         onSettingsClick={openSettingsModal}
-        currentTheme={currentTheme}
-      // onThemeToggle={handleThemeToggle}
+        // onThemeToggle={handleThemeToggle}
       />
       <main className="max-w-4xl mx-auto px-4 py-8 mt-14 overflow-hidden">
         <div className="flex items-center justify-between mb-8">
@@ -95,9 +94,10 @@ export default function SpacesPage() {
               className={`
                 p-1.5 rounded-md ease-in-out
                 focus:outline-none focus:ring-0
-                ${viewMode === "grid"
-                  ? "bg-secondary/70 shadow-sm"
-                  : "hover:bg-secondary/30 active:bg-secondary/40"
+                ${
+                  viewMode === "grid"
+                    ? "bg-secondary/70 shadow-sm"
+                    : "hover:bg-secondary/30 active:bg-secondary/40"
                 }
               `}
               aria-label="Grid View"
@@ -112,9 +112,10 @@ export default function SpacesPage() {
               className={`
                 p-1.5 rounded-md ml-1 ease-in-out
                 focus:outline-none focus:ring-0
-                ${viewMode === "list"
-                  ? "bg-secondary/70 shadow-sm"
-                  : "hover:bg-secondary/30 active:bg-secondary/40"
+                ${
+                  viewMode === "list"
+                    ? "bg-secondary/70 shadow-sm"
+                    : "hover:bg-secondary/30 active:bg-secondary/40"
                 }
               `}
               aria-label="List View"
@@ -144,7 +145,7 @@ export default function SpacesPage() {
             </p>
             <button
               onClick={openCreateModal}
-              className="flex items-center gap-2 bg-[hsl(234,10%,14%)] hover:bg-[hsl(234,10%,18%)] px-4 py-2 rounded-lg transition-all duration-150 text-white active:scale-[0.97]"
+              className="flex items-center gap-2 bg-muted/30 hover:bg-muted/60 border border-border/50 px-4 py-2 rounded-lg transition-all duration-150 text-foreground/90 active:scale-[0.97]"
             >
               <Plus className="w-5 h-5" />
               Create Space

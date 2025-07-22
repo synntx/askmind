@@ -1,12 +1,10 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { Settings, LogOut, Palette, ChevronDown } from "lucide-react";
+import { Settings, LogOut, ChevronDown } from "lucide-react";
 
 interface HeaderProps {
   onSettingsClick?: () => void;
-  currentTheme?: string;
-  onThemeToggle?: () => void;
 }
 
 const Header: React.FC<HeaderProps> = ({ onSettingsClick }) => {
@@ -44,15 +42,15 @@ const Header: React.FC<HeaderProps> = ({ onSettingsClick }) => {
   }, [isDropdownOpen]);
 
   const menuItems = [
-    {
-      icon: Palette,
-      label: "Themes",
-      description: "Customize appearance",
-      onClick: () => {
-        onSettingsClick?.();
-        setIsDropdownOpen(false);
-      },
-    },
+    // {
+    //   icon: Palette,
+    //   label: "Themes",
+    //   description: "Customize appearance",
+    //   onClick: () => {
+    //     onSettingsClick?.();
+    //     setIsDropdownOpen(false);
+    //   },
+    // },
     {
       icon: Settings,
       label: "Settings",
@@ -121,7 +119,7 @@ const Header: React.FC<HeaderProps> = ({ onSettingsClick }) => {
               ref={dropdownRef}
               className="absolute right-0 top-full mt-2 w-72 bg-card/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-border/50 overflow-hidden z-50 animate-in slide-in-from-top-2 duration-200"
             >
-              <div className="p-4 bg-gradient-to-r from-muted/20 to-transparent">
+              {/* <div className="p-4 bg-gradient-to-r from-muted/20 to-transparent">
                 <div className="flex items-center gap-4 p-3 rounded-xl hover:bg-muted/30 transition-colors">
                   <div className="relative">
                     <div className="w-12 h-12 rounded-full">
@@ -148,6 +146,7 @@ const Header: React.FC<HeaderProps> = ({ onSettingsClick }) => {
                   </div>
                 </div>
               </div>
+              */}
 
               <div className="p-2">
                 {menuItems.map((item, index) => {

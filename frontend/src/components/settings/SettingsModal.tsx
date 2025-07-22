@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { X, Check, Palette, Shield, User, ChevronRight } from "lucide-react";
+import { X, Check, Palette, User, ChevronRight } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
+import UserSettings from "./UserSettings";
 
 interface ThemeOption {
   name: string;
@@ -136,7 +137,7 @@ interface SettingsModalProps {
   onThemeChange: (themeClass: string) => void;
 }
 
-type SettingsTab = "profile" | "account" | "themes";
+type SettingsTab = "profile" | "themes";
 
 const tabConfig = {
   profile: {
@@ -144,7 +145,6 @@ const tabConfig = {
     label: "Profile",
     description: "Personal information",
   },
-  account: { icon: Shield, label: "Account", description: "Security settings" },
   themes: {
     icon: Palette,
     label: "Themes",
@@ -388,66 +388,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     <div className="grid gap-4">
                       {activeTab === "profile" && (
                         <>
-                          <div className="p-6 rounded-xl border border-border/50 bg-gradient-to-r from-card to-muted/20 hover:shadow-md transition-all duration-200">
-                            <h4 className="font-medium text-foreground mb-2">
-                              Personal Information
-                            </h4>
-                            <p className="text-sm text-muted-foreground mb-4">
-                              Update your name, email, and profile picture
-                            </p>
-                            <div className="flex items-center space-x-3">
-                              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
-                                <User size={20} className="text-primary" />
-                              </div>
-                              <div>
-                                <div className="font-medium text-foreground">
-                                  John Doe
-                                </div>
-                                <div className="text-sm text-muted-foreground">
-                                  john.doe@example.com
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="p-6 rounded-xl border border-border/50 bg-gradient-to-r from-card to-muted/20 hover:shadow-md transition-all duration-200">
-                            <h4 className="font-medium text-foreground mb-2">
-                              Preferences
-                            </h4>
-                            <p className="text-sm text-muted-foreground">
-                              Customize your experience and interface settings
-                            </p>
-                          </div>
-                        </>
-                      )}
-
-                      {activeTab === "account" && (
-                        <>
-                          <div className="p-6 rounded-xl border border-border/50 bg-gradient-to-r from-card to-muted/20 hover:shadow-md transition-all duration-200">
-                            <h4 className="font-medium text-foreground mb-2">
-                              Security
-                            </h4>
-                            <p className="text-sm text-muted-foreground mb-4">
-                              Manage passwords and two-factor authentication
-                            </p>
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm text-foreground">
-                                Two-factor authentication
-                              </span>
-                              <div className="w-10 h-6 bg-primary rounded-full flex items-center justify-end px-1">
-                                <div className="w-4 h-4 bg-white rounded-full shadow-sm"></div>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="p-6 rounded-xl border border-border/50 bg-gradient-to-r from-card to-muted/20 hover:shadow-md transition-all duration-200">
-                            <h4 className="font-medium text-foreground mb-2">
-                              Connected Accounts
-                            </h4>
-                            <p className="text-sm text-muted-foreground">
-                              Manage linked social media and service accounts
-                            </p>
-                          </div>
+                          <UserSettings />
                         </>
                       )}
                     </div>

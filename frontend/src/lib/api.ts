@@ -12,6 +12,7 @@ import {
   GetConversations,
 } from "@/types/conversation";
 import { GetMessages } from "@/types/streaming";
+import { GetUser } from "@/types/user";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080",
@@ -27,6 +28,13 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+export const userApi = {
+  me: async () => {
+    const res = await api.get<GetUser>("/me/get")
+    return res.data.data;
+  }
+}
 
 export const spaceApi = {
   list: async () => {

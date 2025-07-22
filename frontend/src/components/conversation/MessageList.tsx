@@ -1,6 +1,7 @@
 import React from "react";
 import { Message, StreamingMessage, ErrorMessage } from "./Message";
 import { Message as MessageType } from "@/types/streaming";
+import { LoadingIcon } from "@/icons";
 
 interface MessageListProps {
   messages: MessageType[] | undefined;
@@ -31,7 +32,7 @@ export const MessageList: React.FC<MessageListProps> = ({
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-full">
-        {/* <LoadingIcon className="animate-spin h-6 w-6" /> */}
+        <LoadingIcon className="animate-spin h-6 w-6" />
       </div>
     );
   }
