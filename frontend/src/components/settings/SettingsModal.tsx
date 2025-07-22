@@ -130,12 +130,12 @@ const availableThemes: ThemeOption[] = [
   },
 ];
 
-interface SettingsModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  currentTheme: string;
-  onThemeChange: (themeClass: string) => void;
-}
+// interface SettingsModalProps {
+//   isOpen: boolean;
+//   onClose: () => void;
+//   currentTheme: string;
+//   onThemeChange: (themeClass: string) => void;
+// }
 
 type SettingsTab = "profile" | "themes";
 
@@ -151,14 +151,18 @@ const tabConfig = {
     description: "Customize appearance",
   },
 };
+import { useTheme } from "@/components/common/theme-provider";
 
-export const SettingsModal: React.FC<SettingsModalProps> = ({
+export const SettingsModal = ({
   isOpen,
   onClose,
-  currentTheme,
-  onThemeChange,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
 }) => {
   const [activeTab, setActiveTab] = useState<SettingsTab>("themes");
+
+  const { theme: currentTheme, setTheme: onThemeChange } = useTheme();
 
   // Handles Escape key press and body scroll lock
   useEffect(() => {

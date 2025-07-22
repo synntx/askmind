@@ -6,7 +6,7 @@ import CreateSpaceModal from "@/components/space/createSpaceModal";
 import SpaceCard from "@/components/space/spaceCard";
 import SpaceListItem from "@/components/space/spaceListItem";
 import { useCreateSpace, useGetSpaces } from "@/hooks/useSpace";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { List, Grid } from "@/icons";
 import { AxiosError } from "axios";
 import { Plus } from "lucide-react";
@@ -20,7 +20,6 @@ export default function SpacesPage() {
 
   const [isSettingsModalOpen, setIsSettingsModalOpen] =
     useState<boolean>(false);
-  const [currentTheme, setCurrentTheme] = useState<string>("");
 
   const { data: spaces, error, isPending, isError } = useGetSpaces();
   const { mutate: CreateSpace } = useCreateSpace();
@@ -30,43 +29,6 @@ export default function SpacesPage() {
 
   const openSettingsModal = () => setIsSettingsModalOpen(true);
   const closeSettingsModal = () => setIsSettingsModalOpen(false);
-
-  const applyTheme = (themeClass: string) => {
-    const html = document.documentElement;
-    html.classList.remove(
-      "dark",
-      "theme-a",
-      "theme-a-dark",
-      "theme-b",
-      "theme-b-dark",
-      "theme-c",
-      "theme-c-dark",
-      "theme-d",
-      "theme-d-dark",
-    );
-    if (themeClass) {
-      html.classList.add(themeClass);
-    }
-  };
-
-  const handleThemeChange = (themeClass: string) => {
-    setCurrentTheme(themeClass);
-    applyTheme(themeClass);
-    localStorage.setItem("app-theme", themeClass);
-  };
-
-  // Effect to read theme from localStorage on mount
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("app-theme");
-    if (savedTheme) {
-      setCurrentTheme(savedTheme);
-      applyTheme(savedTheme);
-    } else {
-      // Optional: Apply a default theme if none is saved
-      // applyTheme(""); // Or a specific default class
-      // setCurrentTheme(""); // Or the default class
-    }
-  }, []);
 
   return (
     <div className="min-h-screen">
@@ -193,8 +155,6 @@ export default function SpacesPage() {
         <SettingsModal
           isOpen={isSettingsModalOpen}
           onClose={closeSettingsModal}
-          currentTheme={currentTheme}
-          onThemeChange={handleThemeChange}
         />
       )}
     </div>

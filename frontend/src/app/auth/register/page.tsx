@@ -64,7 +64,7 @@ export default function Register() {
               placeholder="First name"
               {...register("first_name")}
               className="w-full px-4 py-3 rounded-lg border border-border bg-background
-                focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary
+                outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30
                 transition-all placeholder-muted-foreground"
             />
             {errors.first_name && (
@@ -80,7 +80,7 @@ export default function Register() {
               placeholder="Last name"
               {...register("last_name")}
               className="w-full px-4 py-3 rounded-lg border border-border bg-background
-                focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary
+                outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30
                 transition-all placeholder-muted-foreground"
             />
             {errors.last_name && (
@@ -97,7 +97,7 @@ export default function Register() {
             placeholder="Email"
             {...register("email")}
             className="w-full px-4 py-3 rounded-lg border border-border bg-background
-              focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary
+              outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30
               transition-all placeholder-muted-foreground"
           />
           {errors.email && (
@@ -113,7 +113,7 @@ export default function Register() {
             placeholder="Password"
             {...register("password")}
             className="w-full px-4 py-3 rounded-lg border border-border bg-background
-              focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary
+              outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30
               transition-all placeholder-muted-foreground"
           />
           {errors.password && (

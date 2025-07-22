@@ -9,6 +9,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import * as React from "react";
 import { ReactQueryStreamedHydration } from "@tanstack/react-query-next-experimental";
 import { ToastProvider } from "@/components/ui/toast";
+import { ThemeProvider } from "@/components/common/theme-provider";
 
 function makeQueryClient() {
   return new QueryClient({
@@ -38,7 +39,9 @@ export function Providers(props: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <ReactQueryStreamedHydration>
-        <ToastProvider>{props.children}</ToastProvider>
+        <ThemeProvider>
+          <ToastProvider>{props.children}</ToastProvider>
+        </ThemeProvider>
       </ReactQueryStreamedHydration>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>

@@ -88,7 +88,7 @@ const Header: React.FC<HeaderProps> = ({ onSettingsClick }) => {
           <button
             ref={buttonRef}
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="group flex items-center gap-3 p-2 rounded-xl hover:bg-muted/50 transition-all duration-200 focus:outline-none outline-0"
+            className="group flex items-center gap-3 p-2 rounded-xl hover:bg-muted/50 active:bg-muted/80 transition-all duration-200 outline-none outline-0"
             aria-expanded={isDropdownOpen}
             aria-haspopup="true"
           >
@@ -109,8 +109,9 @@ const Header: React.FC<HeaderProps> = ({ onSettingsClick }) => {
             </div>
             <ChevronDown
               size={16}
-              className={`text-muted-foreground transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""
-                }`}
+              className={`text-muted-foreground transition-transform duration-200 ${
+                isDropdownOpen ? "rotate-180" : ""
+              }`}
             />
           </button>
 
@@ -157,8 +158,9 @@ const Header: React.FC<HeaderProps> = ({ onSettingsClick }) => {
                     <button
                       key={item.label}
                       onClick={item.onClick}
-                      className={`group w-full flex items-center gap-3 p-3 rounded-xl text-left ${isDanger ? "hover:bg-muted" : "hover:bg-muted/50"
-                        }`}
+                      className={`group w-full flex items-center gap-3 p-3 rounded-xl text-left ${
+                        isDanger ? "hover:bg-muted" : "hover:bg-muted/50"
+                      }`}
                       style={{ animationDelay: `${index * 30}ms` }}
                     >
                       <div className="p-2 rounded-lg bg-muted/50 group-hover:bg-primary/5">

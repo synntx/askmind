@@ -21,7 +21,7 @@ const SpaceError: React.FC<SpaceErrorProps> = ({ err }) => {
         </p>
         <button
           onClick={() => window.location.reload()}
-          className="flex items-center gap-2 bg-[#1A1A1A] hover:bg-[#1A1A1A]/50 border border-[#282828] transition-all duration-150 px-4 py-1.5 rounded-lg active:scale-[0.95] ease-in-out mx-auto"
+          className="flex items-center gap-2 bg-muted hover:bg-muted/50 border border-border transition-all duration-150 px-4 py-1.5 rounded-lg active:scale-[0.95] ease-in-out mx-auto"
         >
           <RefreshCcw className="size-4" />
           Try Again

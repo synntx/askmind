@@ -39,7 +39,7 @@ export default function Login() {
             placeholder="Email"
             {...register("email")}
             className="w-full px-4 py-3 rounded-lg border border-border bg-background
-              focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30
+              outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30
               transition-all placeholder-muted-foreground"
           />
           {errors.email && (
@@ -55,7 +55,7 @@ export default function Login() {
             placeholder="Password"
             {...register("password")}
             className="w-full px-4 py-3 rounded-lg border border-border bg-background
-              focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30
+              outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30
               transition-all placeholder-muted-foreground"
           />
           {errors.password && (

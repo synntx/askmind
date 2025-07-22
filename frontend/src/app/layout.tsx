@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, Outfit, Onest } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
-import { ThemeProvider } from "@/components/common/theme-provider";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -45,22 +44,34 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                function getTheme() {
+                  try {
+                    return window.localStorage.getItem('app-theme') || '';
+                  } catch (e) {
+                    return '';
+                  }
+                }
+                var theme = getTheme();
+                var html = document.documentElement;
+                html.classList.remove('dark', 'theme-a', 'theme-a-dark', 'theme-b', 'theme-b-dark', 'theme-c', 'theme-c-dark', 'theme-d', 'theme-d-dark');
+                if (theme) {
+                  html.classList.add(theme);
+                }
+              })();
+            `,
+          }}
+        />
         {/* <script src="https://unpkg.com/react-scan/dist/auto.global.js" /> */}
         <title>AskMind</title>
       </head>
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} ${outfit.variable} ${onest.variable} antialiased font-sans`}
       >
-        <Providers>
-          <ThemeProvider
-            defaultTheme="dark"
-            attribute="class"
-            enableSystem
-            disableTransitionOnChange
-          >
-            {children}
-          </ThemeProvider>
-        </Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
