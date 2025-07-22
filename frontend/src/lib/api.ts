@@ -29,12 +29,22 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      window.location.href = "/auth/login";
+    }
+    return Promise.reject(error);
+  },
+);
+
 export const userApi = {
   me: async () => {
-    const res = await api.get<GetUser>("/me/get")
+    const res = await api.get<GetUser>("/me/get");
     return res.data.data;
-  }
-}
+  },
+};
 
 export const spaceApi = {
   list: async () => {

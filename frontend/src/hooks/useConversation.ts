@@ -10,7 +10,7 @@ export const LIST_SPACE_CONVERSATIONS = "list_space_conversations";
 
 export const useGetConversations = (spaceId: string) => {
   return useQuery<Conversation[], AxiosError<AppError>>({
-    queryKey: [LIST_SPACE_CONVERSATIONS],
+    queryKey: [LIST_SPACE_CONVERSATIONS, spaceId],
     queryFn: () => convApi.listSpaceConversations(spaceId),
     retry: 0,
   });

@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-//go:embed askmind_with_tools.tmpl general.tmpl research.tmpl think.tmpl
+//go:embed general.tmpl research.tmpl think.tmpl tools.tmpl
 var fs embed.FS
 
 // Template cache

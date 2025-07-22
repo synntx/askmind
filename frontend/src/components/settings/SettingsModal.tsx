@@ -160,7 +160,7 @@ export const SettingsModal = ({
   isOpen: boolean;
   onClose: () => void;
 }) => {
-  const [activeTab, setActiveTab] = useState<SettingsTab>("themes");
+  const [activeTab, setActiveTab] = useState<SettingsTab>("profile");
 
   const { theme: currentTheme, setTheme: onThemeChange } = useTheme();
 
@@ -250,11 +250,10 @@ export const SettingsModal = ({
                       <li key={key}>
                         <button
                           onClick={() => setActiveTab(key as SettingsTab)}
-                          className={`group w-full flex items-center justify-between p-3 border border-transparent rounded-xl text-sm ${
-                            isActive
+                          className={`group w-full flex items-center justify-between p-3 border border-transparent rounded-xl text-sm ${isActive
                               ? "bg-primary/5 text-primary border border-primary/20"
                               : "text-foreground hover:bg-muted/50"
-                          }`}
+                            }`}
                         >
                           <div className="flex items-center space-x-3">
                             <Icon
@@ -274,11 +273,10 @@ export const SettingsModal = ({
                           </div>
                           <ChevronRight
                             size={14}
-                            className={`transition-transform duration-200 ${
-                              isActive
+                            className={`transition-transform duration-200 ${isActive
                                 ? "text-primary rotate-90"
                                 : "text-muted-foreground group-hover:translate-x-0.5"
-                            }`}
+                              }`}
                           />
                         </button>
                       </li>
@@ -315,11 +313,10 @@ export const SettingsModal = ({
                         <button
                           key={theme.class}
                           onClick={() => onThemeChange(theme.class)}
-                          className={`group relative flex flex-col p-5 rounded-2xl border transition-all duration-300 text-left active:scale-[0.98] ${
-                            currentTheme === theme.class
+                          className={`group relative flex flex-col p-5 rounded-2xl border transition-all duration-300 text-left active:scale-[0.98] ${currentTheme === theme.class
                               ? "border-primary/50  bg-gradient-to-br from-primary/10 to-primary/5 ring-2 ring-primary/20"
                               : "border-border/50 hover:border-primary/30 hover:bg-muted/30"
-                          }`}
+                            }`}
                           style={{
                             animationDelay: `${index * 50}ms`,
                           }}

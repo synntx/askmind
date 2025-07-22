@@ -32,7 +32,7 @@ export const MessageList: React.FC<MessageListProps> = ({
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-full">
-        <LoadingIcon className="animate-spin h-6 w-6" />
+        <LoadingIcon className="animate-spin h-6 w-6 text-muted-foreground" />
       </div>
     );
   }
@@ -48,10 +48,10 @@ export const MessageList: React.FC<MessageListProps> = ({
   if (!messages || messages.length === 0) {
     return (
       <div className="w-full h-full flex flex-col items-center justify-center py-6 px-4 text-center">
-        <h3 className="text-sm font-medium text-[#CACACA] mb-2">
+        <h3 className="text-sm font-medium text-foreground/90 mb-2">
           No messages yet
         </h3>
-        <p className="text-[#CACACA]/50 text-xs">
+        <p className="text-muted-foreground text-xs">
           Start asking questions to get started
         </p>
       </div>
