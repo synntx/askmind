@@ -34,7 +34,7 @@ export default function SpacesPage() {
     <div className="min-h-screen">
       <Header
         onSettingsClick={openSettingsModal}
-        // onThemeToggle={handleThemeToggle}
+      // onThemeToggle={handleThemeToggle}
       />
       <main className="max-w-4xl mx-auto px-4 py-8 mt-14 overflow-hidden">
         <div className="flex items-center justify-between mb-8">
@@ -56,10 +56,9 @@ export default function SpacesPage() {
               className={`
                 p-1.5 rounded-md ease-in-out
                 focus:outline-none focus:ring-0
-                ${
-                  viewMode === "grid"
-                    ? "bg-secondary/70 shadow-sm"
-                    : "hover:bg-secondary/30 active:bg-secondary/40"
+                ${viewMode === "grid"
+                  ? "bg-secondary/70 shadow-sm"
+                  : "hover:bg-secondary/30 active:bg-secondary/40"
                 }
               `}
               aria-label="Grid View"
@@ -74,10 +73,9 @@ export default function SpacesPage() {
               className={`
                 p-1.5 rounded-md ml-1 ease-in-out
                 focus:outline-none focus:ring-0
-                ${
-                  viewMode === "list"
-                    ? "bg-secondary/70 shadow-sm"
-                    : "hover:bg-secondary/30 active:bg-secondary/40"
+                ${viewMode === "list"
+                  ? "bg-secondary/70 shadow-sm"
+                  : "hover:bg-secondary/30 active:bg-secondary/40"
                 }
               `}
               aria-label="List View"
