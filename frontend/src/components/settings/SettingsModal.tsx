@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { X, Check, Palette, User, ChevronRight } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import UserSettings from "./UserSettings";
+import { useTheme } from "@/components/common/theme-provider";
 
 interface ThemeOption {
   name: string;
@@ -195,7 +196,6 @@ const tabConfig = {
     description: "Customize appearance",
   },
 };
-import { useTheme } from "@/components/common/theme-provider";
 
 export const SettingsModal = ({
   isOpen,
