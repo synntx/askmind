@@ -63,6 +63,7 @@ export class StreamingService {
    */
   public async streamCompletion(
     conversationId: string,
+    spaceId: string,
     userMessage: string,
     model: string,
     provider: string,
@@ -87,6 +88,7 @@ export class StreamingService {
     try {
       const response = await this.initiateFetch(
         conversationId,
+        spaceId,
         userMessage,
         model,
         provider,
@@ -142,6 +144,7 @@ export class StreamingService {
    */
   private async initiateFetch(
     conversationId: string,
+    spaceId: string,
     userMessage: string,
     model: string,
     provider: string,
@@ -156,6 +159,7 @@ export class StreamingService {
 
     const formData = new URLSearchParams();
     formData.append("conv_id", conversationId);
+    formData.append("space_id", spaceId);
     formData.append("user_message", userMessage);
     formData.append("model", model);
     formData.append("provider", provider);
@@ -352,7 +356,10 @@ export class StreamingService {
         if (path.startsWith("/message/metadata/tool_call/")) {
           const toolIndex = this.extractToolIndex(path);
           if (toolIndex !== null && toolIndex < state.toolCalls.length) {
-            state.toolCalls[toolIndex] = { ...state.toolCalls[toolIndex], ...value };
+            state.toolCalls[toolIndex] = {
+              ...state.toolCalls[toolIndex],
+              ...value,
+            };
           }
         } else if (path === "/message/content/parts") {
           const partIndex = this.extractPartIndex(path);

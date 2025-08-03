@@ -9,10 +9,12 @@ import (
 
 type CompletionRequestParams struct {
 	ConvID       uuid.UUID
+	SpaceID      uuid.UUID
 	UserMessage  string
 	Model        string
 	Provider     string
 	SystemPrompt string
+	IsNewConv    bool
 }
 
 func ExtractCompletionRequestParams(r *http.Request) (*CompletionRequestParams, error) {
@@ -23,6 +25,16 @@ func ExtractCompletionRequestParams(r *http.Request) (*CompletionRequestParams, 
 		).WithDetails(ValidationError{
 			Field:   "conv_id",
 			Message: "conv_id is required",
+		})
+	}
+
+	spaceIDStr := r.FormValue("space_id")
+	if spaceIDStr == "" {
+		return nil, ErrValidation.Wrap(
+			fmt.Errorf("missing required parameter space_id"),
+		).WithDetails(ValidationError{
+			Field:   "space_id",
+			Message: "space_id is required",
 		})
 	}
 
@@ -56,13 +68,32 @@ func ExtractCompletionRequestParams(r *http.Request) (*CompletionRequestParams, 
 		})
 	}
 
-	convID, err := uuid.Parse(convIDStr)
+	var convID uuid.UUID
+	var isNewConv bool
+
+	if convIDStr == "new" {
+		isNewConv = true
+	} else {
+		parsedConvID, err := uuid.Parse(convIDStr)
+		if err != nil {
+			return nil, ErrValidation.Wrap(
+				fmt.Errorf("failed to parse conv_id"),
+			).WithDetails(ValidationError{
+				Field:   "conv_id",
+				Message: "invalid conv_id",
+			})
+		}
+		convID = parsedConvID
+		isNewConv = false
+	}
+
+	spaceID, err := uuid.Parse(spaceIDStr)
 	if err != nil {
 		return nil, ErrValidation.Wrap(
-			fmt.Errorf("failed to parse conv_id"),
+			fmt.Errorf("failed to parse space_id"),
 		).WithDetails(ValidationError{
-			Field:   "conv_id",
-			Message: "invalid conv_id",
+			Field:   "space_id",
+			Message: "invalid space_id",
 		})
 	}
 
@@ -73,9 +104,11 @@ func ExtractCompletionRequestParams(r *http.Request) (*CompletionRequestParams, 
 
 	return &CompletionRequestParams{
 		ConvID:       convID,
+		SpaceID:      spaceID,
 		UserMessage:  userMessage,
 		Model:        model,
 		Provider:     provider,
 		SystemPrompt: systemPrompt,
+		IsNewConv:    isNewConv,
 	}, nil
 }

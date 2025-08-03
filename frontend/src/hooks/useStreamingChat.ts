@@ -5,12 +5,14 @@ import { StreamingService } from "@/services/streamingService";
 
 interface UseStreamingChatProps {
   conversationId: string;
+  spaceId: string;
   apiBaseURL: string;
   onMessageUpdate: (message: Partial<Message>) => void;
 }
 
 export const useStreamingChat = ({
   conversationId,
+  spaceId,
   apiBaseURL,
   onMessageUpdate,
 }: UseStreamingChatProps) => {
@@ -35,7 +37,12 @@ export const useStreamingChat = ({
   }, [apiBaseURL]);
 
   const sendMessage = useCallback(
-    async (userMessage: string, model: string, provider: string, systemPrompt: string) => {
+    async (
+      userMessage: string,
+      model: string,
+      provider: string,
+      systemPrompt: string,
+    ) => {
       if (!serviceRef.current || isStreaming) return;
 
       setIsStreaming(true);
@@ -59,6 +66,7 @@ export const useStreamingChat = ({
       try {
         await serviceRef.current.streamCompletion(
           conversationId,
+          spaceId,
           userMessage,
           model,
           provider,

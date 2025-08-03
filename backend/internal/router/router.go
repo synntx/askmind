@@ -58,7 +58,7 @@ func (r *Router) CreateRoutes(ctx context.Context) *http.ServeMux {
 	userHandlers := handlers.NewUserHandlers(userService, r.logger)
 	spaceHandlers := handlers.NewSpaceHandler(spaceService, r.logger)
 	convHandlers := handlers.NewConversationService(convService, r.logger)
-	msgHandlers := handlers.NewMessageHandler(msgService, r.logger, r.llmFactory)
+	msgHandlers := handlers.NewMessageHandler(msgService, convService, r.logger, r.llmFactory)
 
 	mux := http.NewServeMux()
 

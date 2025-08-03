@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/synntx/askmind/internal/llm"
 	"github.com/synntx/askmind/internal/models"
 	"github.com/synntx/askmind/internal/prompts"
@@ -17,13 +18,15 @@ import (
 
 type MessageHandler struct {
 	ms         service.MessageService
+	cs         service.ConversationService
 	llmFactory llm.LLMFactory
 	logger     *zap.Logger
 }
 
-func NewMessageHandler(ms service.MessageService, logger *zap.Logger, llmFactory llm.LLMFactory) *MessageHandler {
+func NewMessageHandler(ms service.MessageService, cs service.ConversationService, logger *zap.Logger, llmFactory llm.LLMFactory) *MessageHandler {
 	return &MessageHandler{
 		ms:         ms,
+		cs:         cs,
 		llmFactory: llmFactory,
 		logger:     logger,
 	}
@@ -148,6 +151,50 @@ func (h *MessageHandler) CompletionHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	claims, ok := r.Context().Value(utils.ClaimsKey).(*utils.Claims)
+	if !ok || claims == nil {
+		utils.HandleError(w, h.logger, utils.ErrUnauthorized.Wrap(
+			fmt.Errorf("missing Claims in context"),
+		))
+		return
+	}
+
+	userId, err := uuid.Parse(claims.UserId)
+	if err != nil {
+		utils.HandleError(w, h.logger, utils.ErrUnauthorized.Wrap(err))
+		return
+	}
+
+	var conversation *models.Conversation
+	if params.IsNewConv {
+		conv := models.Conversation{
+			SpaceId: params.SpaceID,
+			UserId:  userId,
+			Title: func() string {
+				const maxTitleLength = 100
+				message := params.UserMessage
+				if len(message) > maxTitleLength {
+					return message[:maxTitleLength]
+				}
+				return message
+			}(),
+			Status: models.ConversationStatusActive,
+		}
+
+		conversation, err = h.cs.CreateConversation(ctx, &conv)
+		if err != nil {
+			utils.HandleError(w, h.logger, err)
+			return
+		}
+	}
+
+	var conversationIdToUse uuid.UUID
+	if params.IsNewConv {
+		conversationIdToUse = conversation.ConversationId
+	} else {
+		conversationIdToUse = params.ConvID
+	}
+
 	promptName := params.SystemPrompt
 	if promptName == "" {
 		promptName = "general"
@@ -176,7 +223,7 @@ func (h *MessageHandler) CompletionHandler(w http.ResponseWriter, r *http.Reques
 	llmInstance.SetSystemPrompt(sysPrompt)
 
 	userMsg := &models.CreateMessageRequest{
-		ConversationId: params.ConvID,
+		ConversationId: conversationIdToUse,
 		Role:           models.RoleUser,
 		Content:        params.UserMessage,
 		Model:          params.Model,
@@ -194,10 +241,10 @@ func (h *MessageHandler) CompletionHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	completionStreamHandler := NewCompletionStreamHandler(h.ms, h.logger, llmInstance)
-	err = completionStreamHandler.HandleCompletionStream(ctx, params.ConvID, params.UserMessage, params.Model, params.Provider, streamer)
+	err = completionStreamHandler.HandleCompletionStream(ctx, conversationIdToUse, params.UserMessage, params.Model, params.Provider, streamer)
 	if err != nil && err != context.Canceled && err != context.DeadlineExceeded {
 		// note: If HandleCompletionStream returns an error (that's not context cancellation/timeout), it means something went wrong internally in streaming logic,
 		// but error event to client should already be sent within HandleCompletionStream.
-		h.logger.Error("error handling completion stream", zap.Error(err), zap.String("conv_id", params.ConvID.String()))
+		h.logger.Error("error handling completion stream", zap.Error(err), zap.String("conv_id", conversationIdToUse.String()))
 	}
 }

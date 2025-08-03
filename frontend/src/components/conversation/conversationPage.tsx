@@ -12,7 +12,8 @@ import { useStreamingChat } from "@/hooks/useStreamingChat";
 import { Dropdown } from "../ui/dropdown";
 
 const Conversation: React.FC = () => {
-  const { conv_id }: { conv_id: string } = useParams();
+  const { conv_id, space_id }: { conv_id: string; space_id: string } =
+    useParams();
   const searchParams = useSearchParams();
   const query = searchParams.get("q");
   const queryClient = useQueryClient();
@@ -49,6 +50,7 @@ const Conversation: React.FC = () => {
     clearError,
   } = useStreamingChat({
     conversationId: conv_id,
+    spaceId: space_id,
     apiBaseURL,
     onMessageUpdate: updateMessageCache,
   });
