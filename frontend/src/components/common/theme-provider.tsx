@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 
 type ThemeContextType = {
   theme: string;
@@ -37,7 +43,9 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
       "theme-c",
       "theme-c-dark",
       "theme-d",
-      "theme-d-dark"
+      "theme-d-dark",
+      "theme-pink",
+      "theme-pink-dark",
     );
     if (themeClass) {
       html.classList.add(themeClass);
