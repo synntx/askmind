@@ -879,6 +879,145 @@
         --hljs-strong: bold;
         --hljs-link: hsl(290 60% 75%);
     }
+    /* === THEME VERCEL (Light) === */
+    .theme-vercel {
+        --background: 0 0% 100%;
+        --sidebar: 0 0% 96%;
+        --foreground: 0 0% 7%;
+        --card: 0 0% 98%;
+        --card-foreground: var(--foreground);
+
+        --popover: var(--background);
+        --popover-foreground: var(--foreground);
+
+        --primary: 212 100% 48%; /* Vercel blue (#0070F3)           */
+        --primary-80: 212 100% 80%;
+        --primary-foreground: 0 0% 100%;
+
+        --secondary: 0 0% 94%;
+        --secondary-foreground: 0 0% 20%;
+
+        --muted: 0 0% 90%;
+        --muted-foreground: 0 0% 45%;
+
+        --accent: 212 100% 90%; /* very pale blue                   */
+        --accent-foreground: 212 100% 25%;
+
+        --destructive: 0 80% 60%;
+        --destructive-foreground: 0 0% 98%;
+
+        --border: 0 0% 90%;
+        --input: 0 0% 90%;
+        --ring: var(--primary);
+        --radius: 0.5rem;
+
+        --chart-1: var(--primary);
+        --chart-2: 140 80% 55%;
+        --chart-3: 48 100% 55%;
+        --chart-4: 290 80% 60%;
+        --chart-5: 0 80% 60%;
+
+        /* Highlight.js */
+        --hljs-bg: hsl(var(--card));
+        --hljs-text: hsl(0 0% 10%);
+        --hljs-comment: hsl(var(--muted-foreground));
+        --hljs-keyword: hsl(var(--primary));
+        --hljs-string: hsl(145 55% 40%);
+        --hljs-number: hsl(300 55% 50%);
+        --hljs-built_in: hsl(var(--primary), -15%, -15%);
+        --hljs-literal: hsl(300 55% 50%);
+        --hljs-function: hsl(var(--accent-foreground));
+        --hljs-class: hsl(var(--accent-foreground));
+        --hljs-params: hsl(var(--foreground));
+        --hljs-title: hsl(var(--accent-foreground));
+        --hljs-attr: hsl(var(--secondary-foreground));
+        --hljs-tag: hsl(260 55% 50%);
+        --hljs-meta: hsl(var(--muted-foreground));
+        --hljs-regexp: hsl(145 55% 40%);
+        --hljs-variable: hsl(var(--primary), -15%, -10%);
+        --hljs-symbol: hsl(300 55% 50%);
+        --hljs-section: hsl(var(--primary));
+        --hljs-attribute: hsl(var(--primary), -15%, -10%);
+        --hljs-selector-tag: hsl(var(--primary));
+        --hljs-selector-id: hsl(260 55% 50%);
+        --hljs-selector-class: hsl(260 55% 50%);
+        --hljs-selector-attr: hsl(145 55% 40%);
+        --hljs-selector-pseudo: hsl(145 55% 40%);
+        --hljs-addition: hsl(140 60% 90%);
+        --hljs-deletion: hsl(0 70% 92%);
+        --hljs-emphasis: italic;
+        --hljs-strong: bold;
+        --hljs-link: hsl(260 55% 50%);
+    }
+
+    /* === THEME VERCEL (Dark) === */
+    .theme-vercel-dark {
+        --background: 0 0% 0%; /* true black                       */
+        --sidebar: 0 0% 7%;
+        --foreground: 0 0% 95%;
+        --card: 0 0% 10%;
+        --card-foreground: var(--foreground);
+
+        --popover: 0 0% 5%;
+        --popover-foreground: var(--foreground);
+
+        --primary: 212 100% 60%; /* slightly brighter for contrast   */
+        --primary-foreground: 0 0% 100%;
+
+        --secondary: 0 0% 12%;
+        --secondary-foreground: 0 0% 98%;
+
+        --muted: 0 0% 15%;
+        --muted-foreground: 0 0% 65%;
+
+        --accent: 212 100% 25%; /* deep blue accent */
+        --accent-foreground: 212 100% 90%;
+
+        --destructive: 0 70% 45%;
+        --destructive-foreground: 0 0% 98%;
+
+        --border: 0 0% 12%;
+        --input: 0 0% 15%;
+        --ring: var(--primary);
+
+        --chart-1: var(--primary);
+        --chart-2: 140 80% 55%;
+        --chart-3: 48 100% 60%;
+        --chart-4: 290 80% 60%;
+        --chart-5: 0 80% 60%;
+
+        /* Highlight.js */
+        --hljs-bg: hsl(var(--card));
+        --hljs-text: hsl(var(--card-foreground));
+        --hljs-comment: hsl(var(--muted-foreground));
+        --hljs-keyword: hsl(var(--primary));
+        --hljs-string: hsl(145 55% 65%);
+        --hljs-number: hsl(300 60% 70%);
+        --hljs-built_in: hsl(var(--primary), +10%);
+        --hljs-literal: hsl(300 60% 70%);
+        --hljs-function: hsl(190 70% 75%);
+        --hljs-class: hsl(190 70% 75%);
+        --hljs-params: hsl(var(--foreground));
+        --hljs-title: hsl(190 70% 75%);
+        --hljs-attr: hsl(var(--card-foreground), -10%);
+        --hljs-tag: hsl(var(--accent-foreground));
+        --hljs-meta: hsl(var(--muted-foreground));
+        --hljs-regexp: hsl(145 55% 65%);
+        --hljs-variable: hsl(var(--primary), +10%);
+        --hljs-symbol: hsl(300 60% 70%);
+        --hljs-section: hsl(var(--primary));
+        --hljs-attribute: hsl(var(--primary), +10%);
+        --hljs-selector-tag: hsl(var(--primary));
+        --hljs-selector-id: hsl(var(--accent-foreground));
+        --hljs-selector-class: hsl(var(--accent-foreground));
+        --hljs-selector-attr: hsl(145 55% 65%);
+        --hljs-selector-pseudo: hsl(145 55% 65%);
+        --hljs-addition: hsla(140, 50%, 30%, 0.6);
+        --hljs-deletion: hsla(0, 50%, 35%, 0.6);
+        --hljs-emphasis: italic;
+        --hljs-strong: bold;
+        --hljs-link: hsl(190 70% 75%);
+    }
 }
 
 @layer base {

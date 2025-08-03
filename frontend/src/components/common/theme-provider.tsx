@@ -46,6 +46,8 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
       "theme-d-dark",
       "theme-pink",
       "theme-pink-dark",
+      "theme-vercel",
+      "theme-vercel-dark",
     );
     if (themeClass) {
       html.classList.add(themeClass);

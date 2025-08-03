@@ -150,6 +150,28 @@ const availableThemes: ThemeOption[] = [
       accent: "hsl(330 100% 25%)",
     },
   },
+  {
+    name: "Vercel Light",
+    class: "theme-vercel",
+    description: "Sleek monochrome",
+    preview: {
+      bg: "hsl(0 0% 100%)",
+      fg: "hsl(0 0% 7%)",
+      primary: "hsl(212 100% 48%)",
+      accent: "hsl(212 100% 85%)",
+    },
+  },
+  {
+    name: "Vercel Dark",
+    class: "theme-vercel-dark",
+    description: "Minimal night mode",
+    preview: {
+      bg: "hsl(0 0% 0%)",
+      fg: "hsl(0 0% 95%)",
+      primary: "hsl(212 100% 60%)",
+      accent: "hsl(212 100% 25%)",
+    },
+  },
 ];
 
 // interface SettingsModalProps {
