@@ -9,6 +9,7 @@ export const useGetConvMessages = (conversationId: string) => {
     queryKey: [conversationId],
     queryFn: () => messageApi.getConvMessages(conversationId),
     retry: 0,
+    enabled: conversationId !== "new",
   });
 };
 
