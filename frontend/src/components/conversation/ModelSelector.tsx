@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, memo } from "react";
 import { ChevronDown, Search, Sparkles } from "lucide-react";
 import { GeminiIcon, GroqIcon, OllamaIcon } from "@/icons";
 
@@ -154,7 +154,7 @@ interface ModelSelectorProps {
   isStreaming: boolean;
 }
 
-export const ModelSelector: React.FC<ModelSelectorProps> = ({
+const ModelSelectorComp: React.FC<ModelSelectorProps> = ({
   selectedModel,
   selectedProvider,
   onModelSelect,
@@ -379,3 +379,5 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
     </div>
   );
 };
+
+export const ModelSelector = memo(ModelSelectorComp);

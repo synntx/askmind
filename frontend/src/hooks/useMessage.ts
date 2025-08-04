@@ -18,5 +18,7 @@ export const useListPrompts = () => {
     queryKey: ["prompts"],
     queryFn: () => messageApi.listPrompts(),
     retry: 0,
+    staleTime: Infinity,
+    gcTime: Infinity,
   });
 };

@@ -175,7 +175,11 @@ const SpaceCard = ({ space }: SpaceCardProps) => {
           </div>
         </div>
       ) : (
-        <Link href={`/space/${space.space_id}/c/new`} className="block">
+        <Link
+          href={`/space/${space.space_id}/c/new`}
+          className="block"
+          prefetch={true}
+        >
           <div className="bg-card/60 rounded-lg p-6 border border-transparent hover:border-border transition cursor-pointer group">
             <div className="flex items-start justify-between mb-4">
               <div>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import { Message, StreamingMessage, ErrorMessage } from "./Message";
 import { Message as MessageType } from "@/types/streaming";
 import { LoadingIcon } from "@/icons";
@@ -19,7 +19,7 @@ interface MessageListProps {
   setCopiedId: (id: string | null) => void;
 }
 
-export const MessageList: React.FC<MessageListProps> = ({
+const MessageListComp: React.FC<MessageListProps> = ({
   messages,
   streamingMessage,
   error,
@@ -87,3 +87,5 @@ export const MessageList: React.FC<MessageListProps> = ({
     </div>
   );
 };
+
+export const MessageList = memo(MessageListComp);

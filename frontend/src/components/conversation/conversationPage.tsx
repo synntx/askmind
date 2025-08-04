@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useLayoutEffect } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import api from "@/lib/api";
 import { useGetConvMessages, useListPrompts } from "@/hooks/useMessage";
@@ -82,9 +82,20 @@ const Conversation: React.FC = () => {
     }
   }, [query, sendMessage, selectedModel, selectedProvider, systemPrompt]);
 
-  useLayoutEffect(() => {
-    if (containerRef.current) {
-      containerRef.current.scrollTop = containerRef.current.scrollHeight + 60;
+  // useLayoutEffect(() => {
+  //   if (containerRef.current) {
+  //     containerRef.current.scrollTop = containerRef.current.scrollHeight + 60;
+  //   }
+  // }, [messages]);
+
+  useEffect(() => {
+    if (messages && containerRef.current) {
+      requestAnimationFrame(() => {
+        if (containerRef.current) {
+          containerRef.current.scrollTop =
+            containerRef.current.scrollHeight + 60;
+        }
+      });
     }
   }, [messages]);
 

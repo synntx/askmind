@@ -42,6 +42,13 @@ const SpaceListItem = ({ space }: SpaceListItemProps) => {
     }
   };
 
+  const handleHover = () => {
+    if (!isEditing) {
+      console.log("Hovered And Prefetched");
+      router.prefetch(`/space/${space.space_id}/c/new`);
+    }
+  };
+
   const startEditing = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -84,6 +91,7 @@ const SpaceListItem = ({ space }: SpaceListItemProps) => {
         key={space.space_id}
         className={`p-4 py-6 ${isEditing ? "bg-secondary/20" : "hover:bg-secondary/20"} border-b transition cursor-pointer group flex ${isEditing ? "flex-col items-start" : "items-center justify-between"}`}
         onClick={handleItemClick}
+        onMouseEnter={handleHover}
       >
         {isEditing ? (
           <div className="flex flex-col w-full gap-4">
