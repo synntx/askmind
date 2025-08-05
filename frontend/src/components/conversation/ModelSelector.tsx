@@ -95,6 +95,20 @@ const models: Model[] = [
     size: "1 T",
     speed: "balanced",
   },
+  {
+    id: "openai/gpt-oss-120b",
+    name: "OpenAI GPT OSS 120B",
+    provider: "groq",
+    size: "120B",
+    speed: "fast",
+  },
+  {
+    id: "openai/gpt-oss-20b",
+    name: "OpenAI GPT OSS 20B",
+    provider: "groq",
+    size: "20B",
+    speed: "fast",
+  },
 
   // Ollama models
   // { id: "llama3.2", name: "Llama 3.2", provider: "ollama", speed: "balanced" },
