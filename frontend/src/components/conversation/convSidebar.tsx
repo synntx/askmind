@@ -184,12 +184,15 @@ const ConvSidebar: React.FC<ConvSidebarProps> = ({
               <Link
                 href={`/space/${space_id}/c/${chat.conversation_id}`}
                 className={`
-                  flex items-center justify-between my-1 px-3 py-2
-                  rounded-lg cursor-pointer active:bg-muted/60
+                  flex items-center justify-between my-1 px-2.5 py-1.5
+                  rounded-lg cursor-pointer active:bg-muted/60 border
                   ${
-                    selectedChat === chat.conversation_id
-                      ? "bg-muted/50"
-                      : "hover:bg-muted/40 bg-transparent"
+                    isEditing === chat.conversation_id
+                      ? "bg-muted/30 border-muted"
+                      : // ? "bg-muted/30 border-accent"
+                        selectedChat === chat.conversation_id
+                        ? "bg-muted/50 border-muted/50"
+                        : "bg-transparent border-transparent hover:bg-muted/40 hover:border-muted/40"
                   }
                 `}
                 onClick={() => setSelectedChat(chat.conversation_id)}
@@ -197,8 +200,16 @@ const ConvSidebar: React.FC<ConvSidebarProps> = ({
                   selectedChat === chat.conversation_id ? "page" : undefined
                 }
               >
-                <div className="flex-1 min-w-0 pr-2">
-                  {isEditing === chat.conversation_id ? (
+                <div className="flex-1 min-w-0 pr-2 relative h-5 flex items-center">
+                  <div
+                    className={`truncate text-sm text-foreground transition-colors ${
+                      isEditing === chat.conversation_id ? "invisible" : ""
+                    }`}
+                  >
+                    {chat.title}
+                  </div>
+
+                  {isEditing === chat.conversation_id && (
                     <input
                       type="text"
                       defaultValue={chat.title}
@@ -227,49 +238,48 @@ const ConvSidebar: React.FC<ConvSidebarProps> = ({
                           }
                         }, 100)
                       }
-                      className="w-full px-2 py-1 text-sm rounded bg-card border border-border focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all"
+                      className="absolute inset-0 w-full h-full bg-transparent text-sm outline-none border-none focus:ring-0"
                     />
-                  ) : (
-                    <div className="truncate text-sm text-foreground group-hover:text-foreground/80 transition-colors">
-                      {chat.title}
-                    </div>
                   )}
                 </div>
 
-                {isEditing !== chat.conversation_id && (
-                  <div
-                    className={`
-                      flex items-center flex-shrink-0 gap-1
-                      transition-opacity duration-100 ease-in-out
-                      ${
-                        selectedChat === chat.conversation_id
-                          ? "opacity-100 visible"
-                          : "opacity-0 invisible group-hover:opacity-100 group-hover:visible"
-                      }
-                    `}
+                <div
+                  className={`
+                    flex items-center flex-shrink-0 gap-1
+                    transition-opacity duration-150 ease-in-out
+                    ${
+                      selectedChat === chat.conversation_id ||
+                      isEditing === chat.conversation_id
+                        ? "opacity-100"
+                        : "opacity-0 group-hover:opacity-100"
+                    }
+                  `}
+                >
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setIsEditing(chat.conversation_id);
+                    }}
+                    style={{
+                      display:
+                        isEditing === chat.conversation_id ? "none" : "flex",
+                    }}
+                    className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-all duration-150"
+                    title="Edit title"
+                    aria-label="Edit chat title"
                   >
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setIsEditing(chat.conversation_id);
-                      }}
-                      className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-all duration-150"
-                      title="Edit title"
-                      aria-label="Edit chat title"
-                    >
-                      <EditLight className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={(e) => handleDeleteChat(chat.conversation_id, e)}
-                      className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-red-500 transition-all duration-150"
-                      title="Delete chat"
-                      aria-label="Delete chat"
-                    >
-                      <TrashLight className="w-4 h-4" />
-                    </button>
-                  </div>
-                )}
+                    <EditLight className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={(e) => handleDeleteChat(chat.conversation_id, e)}
+                    className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-red-500 transition-all duration-150"
+                    title="Delete chat"
+                    aria-label="Delete chat"
+                  >
+                    <TrashLight className="w-4 h-4" />
+                  </button>
+                </div>
               </Link>
             </div>
           ))
