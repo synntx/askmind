@@ -67,7 +67,9 @@
       "@types/react-dom": "19.0.3"
     },
     "ignoredBuiltDependencies": [
-      "sharp"
+      "oniguruma",
+      "sharp",
+      "unrs-resolver"
     ]
   }
 }

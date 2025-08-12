@@ -8,6 +8,7 @@ interface UseStreamingChatProps {
   spaceId: string;
   apiBaseURL: string;
   onMessageUpdate: (message: Partial<Message>) => void;
+  onNewConversation?: (newConversationId: string) => void;
 }
 
 export const useStreamingChat = ({
@@ -15,6 +16,7 @@ export const useStreamingChat = ({
   spaceId,
   apiBaseURL,
   onMessageUpdate,
+  onNewConversation,
 }: UseStreamingChatProps) => {
   const [streamingContent, setStreamingContent] = useState<string>("");
   const [isStreaming, setIsStreaming] = useState<boolean>(false);
@@ -78,10 +80,16 @@ export const useStreamingChat = ({
             currentToolCallsRef.current = toolCalls;
           },
           // onComplete: called when streaming finishes
-          (messageId: string, content: string, toolCalls: ToolCall[]) => {
+          (
+            messageId: string,
+            content: string,
+            toolCalls: ToolCall[],
+            newConversationId: string,
+          ) => {
+            const finalConversationId = newConversationId || conversationId;
             const assistantMsg: Partial<Message> = {
               message_id: messageId,
-              conversation_id: conversationId,
+              conversation_id: finalConversationId,
               role: "assistant",
               content,
               tool_calls: toolCalls.length > 0 ? toolCalls : undefined,
@@ -94,6 +102,14 @@ export const useStreamingChat = ({
             setStreamingContent("");
             setStreamedToolCalls([]);
             setIsStreaming(false);
+
+            if (
+              conversationId === "new" &&
+              newConversationId &&
+              onNewConversation
+            ) {
+              onNewConversation(newConversationId);
+            }
           },
           // onError: called when streaming errors
           (error: StreamError) => {
@@ -132,11 +148,19 @@ export const useStreamingChat = ({
         setStreamedToolCalls([]);
       }
     },
-    [conversationId, isStreaming, onMessageUpdate, streamingContent],
+    [
+      conversationId,
+      isStreaming,
+      onMessageUpdate,
+      streamingContent,
+      onNewConversation,
+      spaceId,
+    ],
   );
 
   const cancelStream = useCallback(() => {
     serviceRef.current?.cancel();
+
     setIsStreaming(false);
     setStreamingContent("");
     setStreamedToolCalls([]);

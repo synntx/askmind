@@ -12,7 +12,9 @@ import (
 	"time"
 )
 
-//go:embed general.tmpl research.tmpl think.tmpl tools.tmpl
+// think.tmpl  tools.tmpl
+
+//go:embed general.tmpl research.tmpl
 var fs embed.FS
 
 // Template cache

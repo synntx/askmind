@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
 import api from "@/lib/api";
 import { useGetConvMessages, useListPrompts } from "@/hooks/useMessage";
 import { useQueryClient } from "@tanstack/react-query";
@@ -14,6 +14,7 @@ import { Dropdown } from "../ui/dropdown";
 const Conversation: React.FC = () => {
   const { conv_id, space_id }: { conv_id: string; space_id: string } =
     useParams();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const query = searchParams.get("q");
   const queryClient = useQueryClient();
@@ -34,6 +35,17 @@ const Conversation: React.FC = () => {
     isError,
   } = useGetConvMessages(conv_id as string);
 
+  const handleNewConversation = (newConversationId: string) => {
+    const currentPath = `/space/${space_id}/c/${newConversationId}`;
+    router.replace(currentPath, { scroll: false });
+
+    const oldData = queryClient.getQueryData<Message[]>(["new"]);
+    if (oldData) {
+      queryClient.setQueryData<Message[]>([newConversationId], oldData);
+      queryClient.removeQueries({ queryKey: ["new"] });
+    }
+  };
+
   const updateMessageCache = (newMessage: Partial<Message>) => {
     queryClient.setQueryData<Message[]>([conv_id], (oldData) => {
       if (!oldData) return [newMessage as Message];
@@ -53,6 +65,7 @@ const Conversation: React.FC = () => {
     spaceId: space_id,
     apiBaseURL,
     onMessageUpdate: updateMessageCache,
+    onNewConversation: handleNewConversation,
   });
 
   useEffect(() => {
@@ -134,6 +147,7 @@ const Conversation: React.FC = () => {
             className="w-48"
             disabled={isStreaming}
             searchable
+            quickSearchKey=""
           />
         )}
       </div>

@@ -265,7 +265,9 @@ export const SettingsModal = ({
             exit={{ scale: 0.96, opacity: 0 }}
             transition={{ duration: 0.04, ease: "easeOut" }}
             className="relative z-10 w-full max-w-5xl h-[85vh] rounded-2xl bg-gradient-to-br from-card/95 to-card shadow-md border border-border/50 overflow-hidden flex backdrop-blur-xl"
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e: React.MouseEvent<HTMLDivElement>) =>
+              e.stopPropagation()
+            }
           >
             <div className="w-64 border-r border-border/30 shrink-0 bg-gradient-to-b from-muted/30 to-muted/10">
               <div className="p-6 border-b border-border/30">

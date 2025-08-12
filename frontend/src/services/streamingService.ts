@@ -23,6 +23,7 @@ interface SSEEvent {
  */
 interface StreamingMessageState {
   messageId: string | null;
+  conversationId: string;
   contentParts: string[];
   toolCalls: ToolCall[];
 }
@@ -73,6 +74,7 @@ export class StreamingService {
       messageId: string,
       content: string,
       toolCalls: ToolCall[],
+      conversationId: string,
     ) => void,
     onError: (error: StreamError) => void,
   ): Promise<void> {
@@ -81,6 +83,7 @@ export class StreamingService {
 
     const state: StreamingMessageState = {
       messageId: null,
+      conversationId: conversationId,
       contentParts: [""],
       toolCalls: [],
     };
@@ -103,7 +106,12 @@ export class StreamingService {
         };
       }
 
-      onComplete(state.messageId, state.contentParts.join(""), state.toolCalls);
+      onComplete(
+        state.messageId,
+        state.contentParts.join(""),
+        state.toolCalls,
+        state.conversationId,
+      );
     } catch (error: unknown) {
       if (error instanceof DOMException && error.name === "AbortError") {
         onError({
@@ -329,6 +337,11 @@ export class StreamingService {
         if (value?.message?.id) {
           state.messageId = value.message.id;
         }
+
+        if (value?.conversation_id) {
+          state.conversationId = value.conversation_id;
+        }
+
         if (value?.message?.metadata?.tool_call) {
           state.toolCalls.push(...value.message.metadata.tool_call);
         }

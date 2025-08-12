@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { ArrowRight } from "lucide-react";
 import { LoadingIcon } from "@/icons";
+import { useFocusOnType } from "@/hooks/useFocusOnType";
 
 interface MessageInputProps {
   onSendMessage: (message: string) => Promise<void>;
@@ -15,6 +16,8 @@ export const MessageInput: React.FC<MessageInputProps> = ({
 }) => {
   const [inputData, setInputData] = useState<string>("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useFocusOnType(textareaRef);
 
   const handleTextareaInput = (
     e: React.FormEvent<HTMLTextAreaElement>,

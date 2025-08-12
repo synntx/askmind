@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect, memo } from "react";
 import { ChevronDown, Search, Sparkles } from "lucide-react";
 import { GeminiIcon, GroqIcon, OllamaIcon } from "@/icons";
+// import { useHotkeys } from "@/hooks/useHotKeys";
 
 interface Model {
   id: string;
@@ -179,6 +180,16 @@ const ModelSelectorComp: React.FC<ModelSelectorProps> = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
 
+  // useHotkeys(
+  //   {
+  //     "/": () => setIsOpen((v) => !v),
+  //     // "mod+m"
+  //   },
+  //   {
+  //     allowInInput: true,
+  //   },
+  // );
+
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (
@@ -190,23 +201,23 @@ const ModelSelectorComp: React.FC<ModelSelectorProps> = ({
       }
     };
 
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setIsOpen(false);
-        setSearch("");
-      }
-      // Quick search with "/" key
-      if (e.key === "/" && !isOpen) {
-        e.preventDefault();
-        setIsOpen(true);
-      }
-    };
+    // const handleKeyDown = (e: KeyboardEvent) => {
+    //   if (e.key === "Escape") {
+    //     setIsOpen(false);
+    //     setSearch("");
+    //   }
+    //   // Quick search with "/" key
+    //   if (e.key === "/" && !isOpen) {
+    //     e.preventDefault();
+    //     setIsOpen(true);
+    //   }
+    // };
 
     document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("keydown", handleKeyDown);
+    // document.addEventListener("keydown", handleKeyDown);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("keydown", handleKeyDown);
+      // document.removeEventListener("keydown", handleKeyDown);
     };
   }, [isOpen]);
 
