@@ -38,7 +38,7 @@ interface ToastContextValue {
   addToast: (
     message: string,
     type?: ToastType,
-    options?: ToastOptions,
+    options?: ToastOptions
   ) => string;
   removeToast: (id: string) => void;
   clearToasts: () => void;
@@ -239,7 +239,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
         // Filter out toasts that have expired
         const visibleToasts = updatedToasts.filter(
-          (toast) => toast.remainingTime > 0,
+          (toast) => toast.remainingTime > 0
         );
 
         // If all toasts are gone, clear the interval
@@ -253,7 +253,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         // Only trigger a re-render if something changed
         return visibleToasts.length !== currentToasts.length ||
           visibleToasts.some(
-            (t, i) => t.remainingTime !== currentToasts[i].remainingTime,
+            (t, i) => t.remainingTime !== currentToasts[i].remainingTime
           )
           ? visibleToasts
           : currentToasts;
@@ -277,7 +277,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           };
         }
         return toast;
-      }),
+      })
     );
   }, []);
 
@@ -298,7 +298,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             };
           }
           return toast;
-        }),
+        })
       );
 
       // Ensure interval is running when a toast is resumed
@@ -306,7 +306,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         startInterval();
       }
     },
-    [startInterval],
+    [startInterval]
   );
 
   const addToast = useCallback(
@@ -333,7 +333,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
       return id;
     },
-    [startInterval],
+    [startInterval]
   );
 
   const removeToast = useCallback((id: string) => {
@@ -377,43 +377,43 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                     return variant === "accent"
                       ? "bg-gradient-to-r from-emerald-600 to-emerald-500 text-white"
                       : variant === "magical"
-                        ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20 shadow-emerald-500/5"
-                        : variant === "subtle"
-                          ? "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300"
-                          : "bg-white dark:bg-gray-800 text-emerald-600 dark:text-emerald-400 border-emerald-500/10";
+                      ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20 shadow-emerald-500/5 dark:bg-emerald-400/10 dark:text-emerald-400 dark:border-emerald-400/20 dark:shadow-emerald-400/5"
+                      : variant === "subtle"
+                      ? "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300"
+                      : "bg-white dark:bg-gray-800 text-emerald-600 dark:text-emerald-400 border-emerald-500/10 dark:border-emerald-500/20";
                   case "error":
                     return variant === "accent"
                       ? "bg-gradient-to-r from-red-600 to-red-500 text-white"
                       : variant === "magical"
-                        ? "bg-red-500/10 text-red-500 border-red-500/20 shadow-red-500/5"
-                        : variant === "subtle"
-                          ? "bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300"
-                          : "bg-white dark:bg-gray-800 text-red-600 dark:text-red-400 border-red-500/10";
+                      ? "bg-red-500/10 text-red-500 border-red-500/20 shadow-red-500/5 dark:bg-red-400/10 dark:text-red-400 dark:border-red-400/20 dark:shadow-red-400/5"
+                      : variant === "subtle"
+                      ? "bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300"
+                      : "bg-white dark:bg-gray-800 text-red-600 dark:text-red-400 border-red-500/10 dark:border-red-500/20";
                   case "warning":
                     return variant === "accent"
                       ? "bg-gradient-to-r from-amber-600 to-amber-500 text-white"
                       : variant === "magical"
-                        ? "bg-amber-500/10 text-amber-500 border-amber-500/20 shadow-amber-500/5"
-                        : variant === "subtle"
-                          ? "bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300"
-                          : "bg-white dark:bg-gray-800 text-amber-600 dark:text-amber-400 border-amber-500/10";
+                      ? "bg-amber-500/10 text-amber-500 border-amber-500/20 shadow-amber-500/5 dark:bg-amber-400/10 dark:text-amber-400 dark:border-amber-400/20 dark:shadow-amber-400/5"
+                      : variant === "subtle"
+                      ? "bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300"
+                      : "bg-white dark:bg-gray-800 text-amber-600 dark:text-amber-400 border-amber-500/10 dark:border-amber-500/20";
                   case "premium":
                     return variant === "accent"
                       ? "bg-gradient-to-r from-purple-600 to-purple-500 text-white"
                       : variant === "magical"
-                        ? "bg-gradient-to-br from-purple-500/10 via-indigo-500/10 to-pink-500/10 text-purple-400 border-purple-500/20 shadow-purple-500/5"
-                        : variant === "subtle"
-                          ? "bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300"
-                          : "bg-white dark:bg-gray-800 text-purple-600 dark:text-purple-400 border-purple-500/10";
+                      ? "bg-gradient-to-br from-purple-500/10 via-indigo-500/10 to-pink-500/10 text-purple-400 border-purple-500/20 shadow-purple-500/5 dark:from-purple-400/10 dark:via-indigo-400/10 dark:to-pink-400/10 dark:text-purple-300 dark:border-purple-400/20 dark:shadow-purple-400/5"
+                      : variant === "subtle"
+                      ? "bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300"
+                      : "bg-white dark:bg-gray-800 text-purple-600 dark:text-purple-400 border-purple-500/10 dark:border-purple-500/20";
                   case "info":
                   default:
                     return variant === "accent"
                       ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white"
                       : variant === "magical"
-                        ? "bg-blue-500/10 text-blue-500 border-blue-500/20 shadow-blue-500/5"
-                        : variant === "subtle"
-                          ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
-                          : "bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 border-blue-500/10";
+                      ? "bg-blue-500/10 text-blue-500 border-blue-500/20 shadow-blue-500/5 dark:bg-blue-400/10 dark:text-blue-400 dark:border-blue-400/20 dark:shadow-blue-400/5"
+                      : variant === "subtle"
+                      ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                      : "bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 border-blue-500/10 dark:border-blue-500/20";
                 }
               };
 
@@ -517,14 +517,14 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                               toast.options.variant === "accent"
                                 ? "bg-white/20 hover:bg-white/30 text-white"
                                 : toast.type === "success"
-                                  ? "bg-emerald-100 dark:bg-emerald-600/30 text-emerald-700 dark:text-emerald-200"
-                                  : toast.type === "error"
-                                    ? "bg-red-100 dark:bg-red-600/30 text-red-700 dark:text-red-300"
-                                    : toast.type === "warning"
-                                      ? "bg-amber-100 dark:bg-amber-600/30 text-amber-700 dark:text-amber-200"
-                                      : toast.type === "premium"
-                                        ? "bg-purple-100 dark:bg-purple-600/30 text-purple-700 dark:text-purple-200"
-                                        : "bg-blue-100 dark:bg-blue-600/30 text-blue-700 dark:text-blue-200"
+                                ? "bg-emerald-100 dark:bg-emerald-600/30 text-emerald-700 dark:text-emerald-200"
+                                : toast.type === "error"
+                                ? "bg-red-100 dark:bg-red-600/30 text-red-700 dark:text-red-300"
+                                : toast.type === "warning"
+                                ? "bg-amber-100 dark:bg-amber-600/30 text-amber-700 dark:text-amber-200"
+                                : toast.type === "premium"
+                                ? "bg-purple-100 dark:bg-purple-600/30 text-purple-700 dark:text-purple-200"
+                                : "bg-blue-100 dark:bg-blue-600/30 text-blue-700 dark:text-blue-200"
                             }
                             transition-colors
                           `}

@@ -92,7 +92,7 @@ const ConvSidebar: React.FC<ConvSidebarProps> = ({
 
   const handleEditChat = (_id: string, newTitle: string) => {
     toast.addToast(`Your chnages have been saved`, "success", {
-      variant: "magical",
+      variant: "subtle",
       duration: 1500,
       description: `Chat has been edited to "${newTitle.substring(0, 20)}..."`,
       // action: {
