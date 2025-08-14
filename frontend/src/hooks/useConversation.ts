@@ -41,3 +41,56 @@ export const useCreateConversation = () => {
     },
   });
 };
+
+export const useUpdateTitle = () => {
+  const queryClient = useQueryClient();
+  const { addToast } = useToast();
+
+  return useMutation({
+    mutationFn: async (data: { id: string; title: string }) => {
+      const res = await convApi.updateTitle(data.id, data.title);
+      return res;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [LIST_SPACE_CONVERSATIONS] });
+      addToast("Conversation Title Updated Successfully", "success");
+    },
+    onError: (error: AxiosError<AppError>) => {
+      addToast(
+        error.response?.data?.error.message ||
+          "Conversation title update failed",
+        "error",
+      );
+      console.error(
+        "Conversation title update failed",
+        error.response?.data || error.message,
+      );
+    },
+  });
+};
+
+export const useDeleteConversation = () => {
+  const queryClient = useQueryClient();
+  const { addToast } = useToast();
+
+  return useMutation({
+    mutationFn: async (data: { conv_id: string }) => {
+      const res = await convApi.delete(data.conv_id);
+      return res;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [LIST_SPACE_CONVERSATIONS] });
+      addToast("Conversation Deleted Successfully", "success");
+    },
+    onError: (error: AxiosError<AppError>) => {
+      addToast(
+        error.response?.data?.error.message || "Deleting conversation failed",
+        "error",
+      );
+      console.error(
+        "Deleting conversation failed",
+        error.response?.data || error.message,
+      );
+    },
+  });
+};

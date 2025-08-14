@@ -59,7 +59,7 @@ const MessageListComp: React.FC<MessageListProps> = ({
   }
 
   return (
-    <div className="max-w-full sm:max-w-[90vw] md:max-w-[75vw] lg:max-w-[55vw] mx-auto space-y-4">
+    <div className="max-w-full sm:max-w-[90vw] md:max-w-[75vw] lg:max-w-[55vw] mx-auto space-y-6">
       {messages.map((message) => (
         <Message
           key={message.message_id}

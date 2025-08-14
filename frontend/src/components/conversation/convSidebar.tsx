@@ -1,12 +1,15 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { Plus, HelpCircle, Sparkles } from "lucide-react";
+import { Plus, HelpCircle, Sparkles, X, Loader, Check } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { useGetConversations } from "@/hooks/useConversation";
+import {
+  useDeleteConversation,
+  useGetConversations,
+  useUpdateTitle,
+} from "@/hooks/useConversation";
 import Link from "next/link";
 import { EditLight, TrashLight, MenuIcon } from "@/icons";
-import { useToast } from "../ui/toast";
 
 interface ConvSidebarProps {
   collapsed: boolean;
@@ -64,15 +67,21 @@ const ConvSidebar: React.FC<ConvSidebarProps> = ({
     conversation_id,
   }: { space_id: string; conversation_id?: string } = useParams();
   const router = useRouter();
-  const toast = useToast();
   const { data, error, isError, isPending, refetch } =
     useGetConversations(space_id);
+  const { mutate: updateTitle } = useUpdateTitle();
+  const { mutate: deleteConversation, isPending: isDeletingConversation } =
+    useDeleteConversation();
 
   const [selectedChat, setSelectedChat] = useState<string | null>(
     conversation_id || null,
   );
   const [isEditing, setIsEditing] = useState<string | null>(null);
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
   const chatListRef = useRef<HTMLDivElement>(null);
+  const discardRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     setSelectedChat(conversation_id || null);
@@ -81,27 +90,56 @@ const ConvSidebar: React.FC<ConvSidebarProps> = ({
 
   const conversations = data || [];
 
-  const handleDeleteChat = (id: string, e: React.MouseEvent) => {
+  const startConfirmDelete = (id: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    alert(`Implement delete functionality for chat ID: ${id}`);
-    if (selectedChat === id) {
-      router.push(`/space/${space_id}/c/new`);
-    }
+    setIsEditing(null);
+    setConfirmingId(id);
   };
 
-  const handleEditChat = (_id: string, newTitle: string) => {
-    toast.addToast(`Your chnages have been saved`, "success", {
-      variant: "subtle",
-      duration: 1500,
-      description: `Chat has been edited to "${newTitle.substring(0, 20)}..."`,
-      // action: {
-      //   label: "View chat now >",
-      //   onClick: () => {
-      //     router.push(`/space/${space_id}/c/${id}`);
-      //   },
-      // },
-    });
+  const confirmDelete = (
+    id: string,
+    e?: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+
+    setDeletingId(id);
+    deleteConversation(
+      { conv_id: id },
+      {
+        onSuccess: () => {
+          if (selectedChat === id) {
+            router.push(`/space/${space_id}/c/new`);
+          }
+        },
+        onSettled: () => {
+          setDeletingId(null);
+          setConfirmingId(null);
+        },
+      },
+    );
+  };
+
+  const cancelDelete = (e?: React.MouseEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+    setConfirmingId(null);
+  };
+
+  const handleEditChat = (id: string, newTitle: string) => {
+    updateTitle({ id, title: newTitle });
+    // toast.addToast(`Your changes have been saved`, "success", {
+    //   variant: "subtle",
+    //   duration: 1500,
+    //   description: `Chat has been edited to "${newTitle.substring(0, 20)}..."`,
+    //   // action: {
+    //   //   label: "View chat now >",
+    //   //   onClick: () => {
+    //   //     router.push(`/space/${space_id}/c/${id}`);
+    //   //   },
+    //   // },
+    // });
     setIsEditing(null);
   };
 
@@ -228,16 +266,20 @@ const ConvSidebar: React.FC<ConvSidebarProps> = ({
                           setIsEditing(null);
                         }
                       }}
-                      onBlur={(e) =>
-                        setTimeout(() => {
-                          if (isEditing === chat.conversation_id) {
-                            handleEditChat(
-                              chat.conversation_id,
-                              e.target.value,
-                            );
-                          }
-                        }, 100)
-                      }
+                      onBlur={(e) => {
+                        const next = e.relatedTarget || null;
+                        if (
+                          discardRef.current &&
+                          next &&
+                          discardRef.current.contains(next)
+                        ) {
+                          // return early if `discardref` is about to receive focus
+                          return;
+                        }
+                        if (isEditing === chat.conversation_id) {
+                          handleEditChat(chat.conversation_id, e.target.value);
+                        }
+                      }}
                       className="absolute inset-0 w-full h-full bg-transparent text-sm outline-none border-none focus:ring-0"
                     />
                   )}
@@ -249,36 +291,89 @@ const ConvSidebar: React.FC<ConvSidebarProps> = ({
                     transition-opacity duration-150 ease-in-out
                     ${
                       selectedChat === chat.conversation_id ||
-                      isEditing === chat.conversation_id
+                      isEditing === chat.conversation_id ||
+                      confirmingId === chat.conversation_id
                         ? "opacity-100"
                         : "opacity-0 group-hover:opacity-100"
                     }
                   `}
                 >
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setIsEditing(chat.conversation_id);
-                    }}
-                    style={{
-                      display:
-                        isEditing === chat.conversation_id ? "none" : "flex",
-                    }}
-                    className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-all duration-150"
-                    title="Edit title"
-                    aria-label="Edit chat title"
-                  >
-                    <EditLight className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={(e) => handleDeleteChat(chat.conversation_id, e)}
-                    className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-red-500 transition-all duration-150"
-                    title="Delete chat"
-                    aria-label="Delete chat"
-                  >
-                    <TrashLight className="w-4 h-4" />
-                  </button>
+                  {confirmingId === chat.conversation_id ? (
+                    <div className="flex items-center gap-1">
+                      {/*<span className="text-xs text-muted-foreground mr-1 hidden sm:inline">
+                        Delete?
+                      </span>*/}
+                      <button
+                        onClick={(e) => confirmDelete(chat.conversation_id, e)}
+                        disabled={
+                          deletingId === chat.conversation_id ||
+                          isDeletingConversation
+                        }
+                        className="px-2 py-1.5 rounded hover:bg-red-500/5 text-muted-foreground hover:text-red-500 transition-all duration-150"
+                        aria-label="Confirm delete"
+                      >
+                        {isDeletingConversation ? (
+                          <Loader className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Check className="w-4 h-4" />
+                        )}
+                      </button>
+                      <button
+                        onClick={cancelDelete}
+                        className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground/90 transition-all duration-150"
+                        aria-label="Cancel delete"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setIsEditing(chat.conversation_id);
+                        }}
+                        style={{
+                          display:
+                            isEditing === chat.conversation_id
+                              ? "none"
+                              : "flex",
+                        }}
+                        className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-all duration-150"
+                        title="Edit title"
+                        aria-label="Edit chat title"
+                      >
+                        <EditLight className="w-4 h-4" />
+                      </button>
+                      {isEditing === chat.conversation_id ? (
+                        <button
+                          ref={discardRef}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setIsEditing(null);
+                          }}
+                          className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground/90 transition-all duration-150"
+                          title="Close edit"
+                          aria-label="Close edit"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      ) : (
+                        <button
+                          onClick={(e) =>
+                            startConfirmDelete(chat.conversation_id, e)
+                          }
+                          className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-red-500 transition-all duration-150"
+                          title="Delete chat"
+                          aria-label="Delete chat"
+                        >
+                          <TrashLight className="w-4 h-4" />
+                        </button>
+                      )}
+                    </>
+                  )}
                 </div>
               </Link>
             </div>

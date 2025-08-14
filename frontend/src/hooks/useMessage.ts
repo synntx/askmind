@@ -4,14 +4,28 @@ import { Message } from "@/types/streaming";
 import { useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 
-export const useGetConvMessages = (conversationId: string) => {
+export const useGetConvMessages = (conversationId: string, enabled = true) => {
   return useQuery<Message[], AxiosError<AppError>>({
     queryKey: [conversationId],
     queryFn: () => messageApi.getConvMessages(conversationId),
     retry: 0,
-    enabled: conversationId !== "new",
+    enabled: enabled && conversationId !== "new",
+    placeholderData: (prev) => prev,
   });
 };
+
+// export const useGetConvMessages = (conversationId: string, enabled = true) => {
+//   return useQuery<Message[], AxiosError<AppError>>({
+//     queryKey: [conversationId],
+//     queryFn: () => messageApi.getConvMessages(conversationId),
+//     retry: 0,
+//     enabled: enabled && conversationId !== "new",
+//     // Keep the seeded (cached) data visible and don't refetch immediately
+//     staleTime: 15_000, // adjust as you like
+//     placeholderData: (prev) => prev, // show cache while fetching
+//     // refetchOnMount: "", // default, included for clarity
+//   });
+// };
 
 export const useListPrompts = () => {
   return useQuery<string[], AxiosError<AppError>>({

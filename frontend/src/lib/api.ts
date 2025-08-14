@@ -108,7 +108,7 @@ export const convApi = {
   },
   delete: async (conv_id: string) => {
     const params = new URLSearchParams({ conv_id: conv_id });
-    return await api.delete(`/space/delete?${params}`);
+    return await api.delete(`/c/delete?${params}`);
   },
 };
 

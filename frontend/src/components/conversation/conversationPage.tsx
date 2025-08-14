@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useRef, useState, useEffect } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import api from "@/lib/api";
@@ -28,12 +30,6 @@ const Conversation: React.FC = () => {
     useState<string>("gemini-2.5-flash");
   const [selectedProvider, setSelectedProvider] = useState<string>("gemini");
   const [systemPrompt, setSystemPrompt] = useState<string>("general");
-
-  const {
-    data: messages,
-    isLoading,
-    isError,
-  } = useGetConvMessages(conv_id as string);
 
   const handleNewConversation = (newConversationId: string) => {
     const currentPath = `/space/${space_id}/c/${newConversationId}`;
@@ -67,6 +63,12 @@ const Conversation: React.FC = () => {
     onMessageUpdate: updateMessageCache,
     onNewConversation: handleNewConversation,
   });
+
+  const {
+    data: messages,
+    isLoading,
+    isError,
+  } = useGetConvMessages(conv_id as string, !isStreaming);
 
   useEffect(() => {
     if (error) {

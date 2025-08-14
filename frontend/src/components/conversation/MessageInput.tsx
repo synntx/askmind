@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useRef, useState, useEffect } from "react";
 import { ArrowRight } from "lucide-react";
 import { LoadingIcon } from "@/icons";
