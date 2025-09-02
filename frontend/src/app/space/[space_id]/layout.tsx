@@ -3,6 +3,7 @@
 import React, { useState, useEffect, startTransition } from "react";
 import ConvSidebar from "@/components/conversation/convSidebar";
 import MenuIcon from "@/icons";
+import { ConversationProvider } from "@/contexts/ConversationContext";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -63,46 +64,52 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const showToggleButton = collapsedByClick && isMobile;
 
   return (
-    <div
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-      className="flex h-screen overflow-hidden bg-background"
-    >
-      {showToggleButton && (
-        <button
-          onClick={toggleCollapsedClick}
-          className="fixed z-50 left-4 top-4 active:scale-[0.95] transition-all duration-150 ease-in-out"
-          aria-label="Expand sidebar"
-        >
-          <MenuIcon />
-        </button>
-      )}
-
+    <ConversationProvider>
       <div
-        className={`
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        className="flex h-screen overflow-hidden bg-background"
+      >
+        {showToggleButton && (
+          <button
+            onClick={toggleCollapsedClick}
+            className="fixed z-50 left-4 top-4 active:scale-[0.95] transition-all duration-150 ease-in-out"
+            aria-label="Expand sidebar"
+          >
+            <MenuIcon />
+          </button>
+        )}
+
+        <div
+          className={`
           ${isMobile ? "fixed z-40 h-full" : "relative h-full"}
           transition-all duration-300 ease-in-out overflow-hidden flex-shrink-0
           ${isSidebarOpen ? "translate-x-0 w-80" : isMobile ? "-translate-x-full w-80" : "translate-x-0 w-[60px]"}
         `}
-        onMouseEnter={
-          !isMobile && collapsedByClick ? () => setIsHovering(true) : undefined
-        }
-        onMouseLeave={
-          !isMobile && collapsedByClick ? () => setIsHovering(false) : undefined
-        }
-        role="region"
-        aria-label="Conversation sidebar"
-      >
-        <ConvSidebar
-          collapsed={!isSidebarOpen}
-          setCollapsed={toggleCollapsedClick}
-        />
-      </div>
+          onMouseEnter={
+            !isMobile && collapsedByClick
+              ? () => setIsHovering(true)
+              : undefined
+          }
+          onMouseLeave={
+            !isMobile && collapsedByClick
+              ? () => setIsHovering(false)
+              : undefined
+          }
+          role="region"
+          aria-label="Conversation sidebar"
+        >
+          <ConvSidebar
+            collapsed={!isSidebarOpen}
+            setCollapsed={toggleCollapsedClick}
+          />
+        </div>
 
-      <main className="flex-1 overflow-hidden">
-        <div className="md:px-3 lg:px-6 w-full">{children}</div>
-      </main>
-    </div>
+        <main className="flex-1 overflow-hidden">
+          <div className="md:px-3 lg:px-6 w-full">{children}</div>
+        </main>
+      </div>
+    </ConversationProvider>
   );
 };
 

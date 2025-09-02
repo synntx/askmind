@@ -3,15 +3,14 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import api from "@/lib/api";
-import { useGetConvMessages, useListPrompts } from "@/hooks/useMessage";
+import { useGetConvMessages } from "@/hooks/useMessage";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "../ui/toast";
 import { MessageList } from "./MessageList";
 import { MessageInput } from "./MessageInput";
-import { ModelSelector } from "./ModelSelector";
 import { Message } from "@/types/streaming";
 import { useStreamingChat } from "@/hooks/useStreamingChat";
-import { Dropdown } from "../ui/dropdown";
+import { useConversationContext } from "@/contexts/ConversationContext";
 
 const Conversation: React.FC = () => {
   const { conv_id, space_id }: { conv_id: string; space_id: string } =
@@ -24,12 +23,8 @@ const Conversation: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const toast = useToast();
-  const { data: prompts } = useListPrompts();
-
-  const [selectedModel, setSelectedModel] =
-    useState<string>("gemini-2.5-flash");
-  const [selectedProvider, setSelectedProvider] = useState<string>("gemini");
-  const [systemPrompt, setSystemPrompt] = useState<string>("general");
+  const { selectedModel, selectedProvider, systemPrompt } =
+    useConversationContext();
 
   const handleNewConversation = (newConversationId: string) => {
     const currentPath = `/space/${space_id}/c/${newConversationId}`;
@@ -83,25 +78,11 @@ const Conversation: React.FC = () => {
     }
   }, [error, toast, clearError]);
 
-  // useEffect(() => {
-  //   if (isPending && !streamingMessage) {
-  //     setIsPreparing(true);
-  //   } else if (streamingMessage) {
-  //     setIsPreparing(false);
-  //   }
-  // }, [isPending, streamingMessage]);
-
   useEffect(() => {
     if (query) {
       sendMessage(query, selectedModel, selectedProvider, systemPrompt);
     }
   }, [query, sendMessage, selectedModel, selectedProvider, systemPrompt]);
-
-  // useLayoutEffect(() => {
-  //   if (containerRef.current) {
-  //     containerRef.current.scrollTop = containerRef.current.scrollHeight + 60;
-  //   }
-  // }, [messages]);
 
   useEffect(() => {
     if (messages && containerRef.current) {
@@ -123,37 +104,8 @@ const Conversation: React.FC = () => {
     return "Ask anything...";
   };
 
-  const handleModelSelect = (modelId: string, providerId: string) => {
-    setSelectedModel(modelId);
-    setSelectedProvider(providerId);
-  };
-
   return (
-    <div className="h-screen flex flex-col bg-background">
-      <div className="px-6 py-2.5 pb-4 flex justify-start items-center gap-2">
-        <ModelSelector
-          selectedModel={selectedModel}
-          selectedProvider={selectedProvider}
-          onModelSelect={handleModelSelect}
-          isStreaming={isStreaming}
-        />
-        {prompts && (
-          <Dropdown
-            options={prompts.map((p) => ({
-              label: p.charAt(0).toUpperCase() + p.slice(1),
-              value: p,
-            }))}
-            value={systemPrompt}
-            onSelect={(value) => setSystemPrompt(value as string)}
-            placeholder="Select a system prompt"
-            className="w-48"
-            disabled={isStreaming}
-            searchable
-            quickSearchKey=""
-          />
-        )}
-      </div>
-
+    <>
       <div
         className="flex-1 overflow-y-auto py-6 pb-8 custom-scrollbar"
         ref={containerRef}
@@ -186,7 +138,7 @@ const Conversation: React.FC = () => {
           />
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
