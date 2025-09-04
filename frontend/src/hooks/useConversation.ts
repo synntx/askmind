@@ -8,6 +8,8 @@ import { AxiosError } from "axios";
 
 export const LIST_SPACE_CONVERSATIONS = "list_space_conversations";
 
+// useGetConversations returns a list of conversations for a space
+// NOTE: add pagination later
 export const useGetConversations = (spaceId: string) => {
   return useQuery<Conversation[], AxiosError<AppError>>({
     queryKey: [LIST_SPACE_CONVERSATIONS, spaceId],
@@ -58,7 +60,7 @@ export const useUpdateTitle = () => {
     onError: (error: AxiosError<AppError>) => {
       addToast(
         error.response?.data?.error.message ||
-          "Conversation title update failed",
+        "Conversation title update failed",
         "error",
       );
       console.error(

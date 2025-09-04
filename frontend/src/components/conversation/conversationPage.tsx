@@ -11,6 +11,7 @@ import { MessageInput } from "./MessageInput";
 import { Message } from "@/types/streaming";
 import { useStreamingChat } from "@/hooks/useStreamingChat";
 import { useConversationContext } from "@/contexts/ConversationContext";
+import { LIST_SPACE_CONVERSATIONS } from "@/hooks/useConversation";
 
 const Conversation: React.FC = () => {
   const { conv_id, space_id }: { conv_id: string; space_id: string } =
@@ -29,6 +30,9 @@ const Conversation: React.FC = () => {
   const handleNewConversation = (newConversationId: string) => {
     const currentPath = `/space/${space_id}/c/${newConversationId}`;
     router.replace(currentPath, { scroll: false });
+    queryClient.invalidateQueries({
+      queryKey: [LIST_SPACE_CONVERSATIONS, space_id]
+    })
 
     const oldData = queryClient.getQueryData<Message[]>(["new"]);
     if (oldData) {
@@ -134,7 +138,7 @@ const Conversation: React.FC = () => {
             }
             isPending={isStreaming}
             placeholder={getPlaceholderText()}
-            // onCancel={isStreaming ? cancelStream : undefined}
+          // onCancel={isStreaming ? cancelStream : undefined}
           />
         </div>
       </div>
