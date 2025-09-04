@@ -112,21 +112,6 @@ func (csh *CompletionStreamHandler) processLLMStream(ctx context.Context, stream
 					return responseBuilder.String(), err
 				}
 			}
-
-			if chunk.ToolInfo != nil && chunk.ToolInfo.Status == llm.StatusEnd {
-				toolDelta := DeltaPayload{
-					Path:      PathMessageMetadataTC,
-					Operation: PatchOpAppend,
-					Value: map[string]any{
-						"name":   chunk.ToolInfo.Name,
-						"result": chunk.ToolInfo.Result,
-						"status": chunk.ToolInfo.Status,
-					},
-				}
-				if err := streamer.Send(EventDelta, toolDelta); err != nil {
-					return responseBuilder.String(), err
-				}
-			}
 		}
 	}
 }
