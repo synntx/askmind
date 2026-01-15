@@ -24,11 +24,11 @@ interface StreamingMessageProps {
   setCopiedId: (id: string | null) => void;
 }
 
-export const Message: React.FC<MessageProps> = ({
+export const Message = React.memo(function Message({
   message,
   copiedId,
   setCopiedId,
-}) => {
+}: MessageProps) {
   if (message.role === "error") {
     return <ErrorMessage content={message.content} />;
   }
@@ -38,9 +38,7 @@ export const Message: React.FC<MessageProps> = ({
       className={`flex ${
         message.role === "user"
           ? "justify-end px-4"
-          : message.role === "assistant"
-            ? "justify-start px-4"
-            : "justify-start py-2"
+          : "text-foreground/80"
       } group`}
     >
       <div
@@ -113,7 +111,7 @@ export const Message: React.FC<MessageProps> = ({
       </div>
     </div>
   );
-};
+});
 
 export const ErrorMessage: React.FC<ErrorMessageProps> = ({
   content,

@@ -16,6 +16,18 @@ interface Model {
 const models: Model[] = [
   // Gemini models
   {
+    id: "gemini-3-pro-preview",
+    name: "Gemini 3.0 Pro Preview",
+    provider: "gemini",
+    speed: "powerful",
+  },
+  {
+    id: "gemini-3-flash-preview",
+    name: "Gemini 3.0 Flash Preview",
+    provider: "gemini",
+    speed: "fast",
+  },
+  {
     id: "gemini-2.0-flash",
     name: "Gemini 2.0 Flash",
     provider: "gemini",
